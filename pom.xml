@@ -405,43 +405,6 @@
 					<includeSystemScope>true</includeSystemScope>
 				</configuration>
 			</plugin>
-			<!-- Docker -->
-			<plugin>
-				<groupId>com.spotify</groupId>
-				<artifactId>docker-maven-plugin</artifactId>
-				<version>${docker.maven.plugin.version}</version>
-				<!--如果想在项目打包时构建镜像添加-->
-				<executions>
-					<execution>
-						<id>build-image</id>
-						<phase>package</phase>
-						<goals>
-							<goal>build</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-
-					<!--定义镜像名称-->
-					<imageName>modulithshop/${project.artifactId}:${project.version}</imageName>
-					<!-- Docker 远程管理地址-->
-					<dockerHost>${docker.host}</dockerHost>
-					<!--定义基础镜像-->
-					<baseImage>java:8</baseImage>
-					<!--定义容器启动命令-->
-					<entryPoint>["java", "-jar", "-Xms128m", "-Xmx512m", "-XX:PermSize=64M", "-XX:MaxPermSize=512M", "-Dspring.profiles.active=prod", "-Duser.timezone=Asia/Shanghai", "/${project.build.finalName}.jar"]</entryPoint>
-					<!--推送镜像仓库校验安全证书，无安全证书无法推送-->
-					<dockerCertPath>E:\docker-ca</dockerCertPath>
-					<resources>
-						<resource>
-							<targetPath>/</targetPath>
-							<directory>${project.build.directory}</directory>
-							<include>${project.build.finalName}.jar</include>
-						</resource>
-					</resources>
-				</configuration>
-			</plugin>
-			<!-- Docker end-->
 		</plugins>
 	</build>
 	<!--
