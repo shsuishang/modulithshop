@@ -1,0 +1,1 @@
+import{M as n,N as r}from"./index-21964c78.js";async function s(t){return n({url:r.URL.point.index,method:"get",params:t})}async function a(t){return n({url:r.URL.point.product,method:"get",params:t})}async function e(t){return n({url:r.URL.user.points,method:"get",params:t})}export{a,e as b,s as p};

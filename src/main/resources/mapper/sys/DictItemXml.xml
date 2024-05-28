@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.sys.dao.DictItemDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.suisung.shopsuite.sys.model.entity.DictItem">
+        <id column="dict_item_id" property="dictItemId"/>
+        <result column="dict_item_name" property="dictItemName"/>
+        <result column="dict_item_code" property="dictItemCode"/>
+        <result column="dict_id" property="dictId"/>
+        <result column="dict_item_status" property="dictItemStatus"/>
+        <result column="dict_item_note" property="dictItemNote"/>
+        <result column="dict_item_sort" property="dictItemSort"/>
+        <result column="dict_item_enable" property="dictItemEnable"/>
+    </resultMap>
+</mapper>

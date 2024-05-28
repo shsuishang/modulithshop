@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.account.dao.UserLevelDao">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="com.suisung.shopsuite.account.model.entity.UserLevel">
+                    <id column="user_level_id" property="userLevelId"/>
+                    <result column="user_level_name" property="userLevelName"/>
+                    <result column="user_level_spend" property="userLevelSpend"/>
+                    <result column="user_level_logo" property="userLevelLogo"/>
+                    <result column="user_level_rate" property="userLevelRate"/>
+                    <result column="user_level_time" property="userLevelTime"/>
+                    <result column="user_level_is_buildin" property="userLevelIsBuildin"/>
+        </resultMap>
+
+</mapper>

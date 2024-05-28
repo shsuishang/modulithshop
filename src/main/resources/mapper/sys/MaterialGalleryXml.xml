@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.sys.dao.MaterialGalleryDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.suisung.shopsuite.sys.model.entity.MaterialGallery">
+        <id column="gallery_id" property="galleryId"/>
+        <result column="version" property="version"/>
+        <result column="gallery_name" property="galleryName"/>
+        <result column="gallery_desc" property="galleryDesc"/>
+        <result column="gallery_num" property="galleryNum"/>
+        <result column="gallery_is_default" property="galleryIsDefault"/>
+        <result column="gallery_sort" property="gallerySort"/>
+        <result column="gallery_type" property="galleryType"/>
+        <result column="gallery_cover" property="galleryCover"/>
+        <result column="store_id" property="storeId"/>
+    </resultMap>
+</mapper>

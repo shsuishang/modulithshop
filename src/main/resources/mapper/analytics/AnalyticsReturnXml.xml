@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.analytics.dao.AnalyticsReturnDao">
+    <select id="getReturnNum" resultType="com.suisung.shopsuite.analytics.model.vo.CommonNumVo">
+        SELECT
+            COUNT( * ) AS num
+        FROM
+            trade_order_return
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND return_add_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            <if test="return_state_ids!=null ">
+                AND return_state_id IN <foreach item="id" collection="return_state_ids" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getReturnAmount" resultType="com.suisung.shopsuite.analytics.model.vo.CommonNumVo">
+        SELECT
+        sum(trade_order_return.return_refund_amount) AS num
+        FROM
+        trade_order_return
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND trade_order_return.return_add_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            <if test="return_state_ids!=null ">
+                AND return_state_id IN <foreach item="id" collection="return_state_ids" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getReturnAmountTimeline" resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+        FROM_UNIXTIME( trade_order_return.return_add_time / 1000, '%m-%d' ) AS time,
+        sum(trade_order_return.return_refund_amount) AS num
+        FROM
+        trade_order_return left join trade_order_base ON trade_order_return.order_id = trade_order_base.order_id
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND trade_order_return.return_add_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            <if test="return_state_ids!=null ">
+                AND return_state_id IN <foreach item="id" collection="return_state_ids" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+        </where>
+        GROUP BY time
+        ORDER BY trade_order_return.return_add_time
+    </select>
+
+    <select id="getReturnTimeLine" resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+        FROM_UNIXTIME( return_add_time / 1000, '%m-%d' ) AS time,
+        count(*) AS num
+        FROM
+        trade_order_return
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND return_add_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        GROUP BY time
+        ORDER BY return_add_time
+    </select>
+
+    <select id="getReturnCustomerNumTimeline" resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+            FROM_UNIXTIME( return_add_time / 1000, '%m-%d' ) AS time,
+            count( DISTINCT ( user_id ) ) AS num
+        FROM
+            trade_order_return
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND return_add_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        GROUP BY time
+        ORDER BY return_add_time
+    </select>
+
+    <select id="getReturnItemNumTimeLine"  resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+        FROM_UNIXTIME( b.return_add_time / 1000, '%m-%d' ) AS time,
+        count(*) AS num
+        FROM trade_order_item i
+        LEFT JOIN
+        trade_order_return b ON i.order_id = b.order_id
+        <where>
+            <if test="params.stime!=null and params.etime!=null">
+                AND b.return_add_time BETWEEN #{params.stime} AND #{params.etime}
+            </if>
+
+            <if test="params.storeId != null ">
+                i.store_id = #{params.storeId}
+            </if>
+            <if test="params.productId != null">
+                AND i.product_id = #{params.productId}
+            </if>
+            <if test="params.itemId != null">
+                AND i.item_id in
+                <foreach collection="params.itemId" item="item_id" index="index" open="(" close=")" separator=",">#{item_id}</foreach>
+            </if>
+            <if test="params.categoryId != null ">
+                AND i.category_id IN <foreach item="id" collection="params.categoryId" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+            <if test="params.productName != null and params.productName !=''">
+                AND i.product_name like concat('%', #{params.productName}, '%')
+            </if>
+            <if test="params.storeType != null">
+                AND b.store_type = #{params.storeType}
+            </if>
+            <if test="params.kindId != null">
+                AND b.kind_id = #{params.kindId}
+            </if>
+        </where>
+        GROUP BY time
+        ORDER BY b.return_add_time
+    </select>
+
+
+    <select id="getReturnItemNum"  resultType="com.suisung.shopsuite.analytics.model.vo.CommonNumVo">
+        SELECT
+        count(*) AS num
+        FROM trade_order_item i
+        LEFT JOIN
+        trade_order_return b ON i.order_id = b.order_id
+        <where>
+            <if test="params.stime!=null and params.etime!=null">
+                AND b.return_add_time BETWEEN #{params.stime} AND #{params.etime}
+            </if>
+
+            <if test="params.storeId != null ">
+                i.store_id = #{params.storeId}
+            </if>
+            <if test="params.productId != null">
+                AND i.product_id = #{params.productId}
+            </if>
+            <if test="params.itemId != null">
+                AND i.item_id in
+                <foreach collection="params.itemId" item="item_id" index="index" open="(" close=")" separator=",">#{item_id}</foreach>
+            </if>
+            <if test="params.categoryId != null ">
+                AND i.category_id IN <foreach item="id" collection="params.categoryId" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+            <if test="params.productName != null and params.productName !=''">
+                AND i.product_name like concat('%', #{params.productName}, '%')
+            </if>
+            <if test="params.storeType != null">
+                AND b.store_type = #{params.storeType}
+            </if>
+            <if test="params.kindId != null">
+                AND b.kind_id = #{params.kindId}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="listReturnItemNum"  resultType="com.suisung.shopsuite.analytics.model.output.AnalyticsOrderItemNumOutput">
+        SELECT
+        i.product_id,
+        i.item_id,
+        i.order_item_image,
+        i.product_name,
+        i.item_name,
+        sum(i.order_item_quantity) AS num,
+        sum(i.order_item_amount) AS order_item_amount_sum
+        FROM trade_order_item i
+        LEFT JOIN
+        trade_order_return b ON i.order_id = b.order_id
+        <where>
+            <if test="params.stime!=null and params.etime!=null">
+                AND b.return_add_time BETWEEN #{params.stime} AND #{params.etime}
+            </if>
+
+            <if test="params.storeId != null ">
+                i.store_id = #{params.storeId}
+            </if>
+            <if test="params.productId != null">
+                AND i.product_id = #{params.productId}
+            </if>
+            <if test="params.itemId != null">
+                AND i.item_id in
+                <foreach collection="params.itemId" item="item_id" index="index" open="(" close=")" separator=",">#{item_id}</foreach>
+            </if>
+            <if test="params.categoryId != null ">
+                AND i.category_id IN <foreach item="id" collection="params.categoryId" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+            <if test="params.productName != null and params.productName !=''">
+                AND i.product_name like concat('%', #{params.productName}, '%')
+            </if>
+            <if test="params.storeType != null">
+                AND b.store_type = #{params.storeType}
+            </if>
+            <if test="params.kindId != null">
+                AND b.kind_id = #{params.kindId}
+            </if>
+
+        </where>
+        GROUP BY i.item_id
+        ORDER BY num DESC
+        LIMIT 0, 100
+    </select>
+</mapper>

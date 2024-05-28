@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.pt.dao.ProductItemDao">
+    <update id="lockSkuStock">
+        UPDATE pt_product_item
+        SET item_quantity_frozen = item_quantity_frozen + #{cart_quantity}
+        WHERE item_id = #{item_id}
+          AND item_quantity - item_quantity_frozen >= #{cart_quantity}
+    </update>
+
+    <update id="releaseSkuStock">
+        UPDATE pt_product_item
+        SET item_quantity_frozen = item_quantity_frozen - #{cart_quantity}
+        WHERE item_id = #{item_id}
+          AND item_quantity_frozen - #{cart_quantity} >= 0
+    </update>
+
+    <update id="pickingSkuStock">
+        UPDATE pt_product_item
+        SET item_quantity_frozen = item_quantity_frozen - #{cart_quantity},
+            item_quantity = item_quantity - #{cart_quantity}
+        WHERE item_id = #{item_id}
+          AND item_quantity_frozen - #{cart_quantity} >= 0
+          AND item_quantity - #{cart_quantity} >= 0
+    </update>
+    
+    <select id="listItemKey" resultType="java.lang.Long">
+        SELECT i.item_id
+        FROM pt_product_item i
+        LEFT JOIN
+        pt_product_index b ON i.product_id = b.product_id
+        <where>
+            <if test="params.storeId != null ">
+                b.store_id = #{params.storeId}
+            </if>
+            <if test="params.productId != null">
+                AND b.product_id = #{params.productId}
+            </if>
+            <if test="params.itemId != null">
+                AND i.item_id in
+                <foreach collection="params.itemId" item="item_id" index="index" open="(" close=")" separator=",">#{item_id}</foreach>
+            </if>
+            <if test="params.categoryIds != null ">
+                AND b.category_id IN <foreach item="id" collection="params.categoryIds" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+            <if test="params.keywords != null and params.keywords !=''">
+                AND b.product_name_index like concat('%', #{params.keywords}, '%')
+            </if>
+            <if test="params.productName != null and params.productName !=''">
+                AND b.product_name like concat('%', #{params.productName}, '%')
+            </if>
+            <if test="params.storeType != null">
+                AND b.store_type = #{params.storeType}
+            </if>
+            <if test="params.kindId != null">
+                AND b.kind_id = #{params.kindId}
+            </if>
+            <if test="params.brandId !=null">
+                AND b.brand_id = #{params.brandId}
+            </if>
+            <if test="params.productStateId != null ">
+                AND b.product_state_id = #{params.productStateId}
+                AND i.item_enable = #{params.productStateId}
+            </if>
+            <if test="params.itemEnable != null ">
+                AND b.product_state_id = #{params.itemEnable}
+                AND i.item_enable = #{params.itemEnable}
+            </if>
+        </where>
+        <choose>
+            <when test="(params.sidx != null and params.sort != null) and (params.sidx != '' and params.sort != '')">
+                ORDER BY i.${params.sidx} ${params.sort}, b.product_order ASC, b.product_id DESC
+            </when>
+            <otherwise>
+                ORDER BY b.product_order ASC, b.product_id DESC
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

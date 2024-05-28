@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.analytics.dao.AnalytiscTradeDao">
+    <select id="getTradeAmount" resultType="com.suisung.shopsuite.analytics.model.vo.TradeAmountVo">
+        SELECT
+            sum( order_payment_amount ) AS amount
+        FROM
+            pay_consume_trade
+        where
+            trade_is_paid IN ( 3012, 3013 )
+            <if test="startTime != null and endTime != null">
+                AND trade_paid_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            AND trade_type_id IN ( 1201, 1214 )
+            <if test="buyerId != null">
+                AND buyer_id = #{buyerId}
+            </if>
+    </select>
+</mapper>

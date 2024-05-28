@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN" >
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-touch-fullscreen" content="yes" />
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-tap-highlight" content="no" />
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1" />
+<title>扫码核销</title>
+  <style>
+    .jsbridge {
+      height: 200px;
+      width: 200px;
+      background-color: red;
+    }
+
+    .upimg {
+      height: 200px;
+      width: 200px;
+      background-color: green;
+      margin-bottom: 50px;
+    }
+
+
+    input[node-type=jsbridge]{
+      visibility: hidden;
+      width: 1rem;
+    }
+  </style>
+
+
+<script type="text/javascript" src="https://static.shopsuite.cn/js/jquery.min.js"></script>
+<script type="text/javascript" src="https://static.shopsuite.cn/js/qrcode.lib.min.js"></script>
+<script type="text/javascript" src="https://static.shopsuite.cn/js/qrcode.js"></script>
+</head>
+<body>
+<div class="sstouch-main-layout" style="margin-bottom: 14rem!important">
+  <div class="sstouch-order-search"  style="height: auto !important">
+    <form class="sstouch-inp-con">
+      <input type="text" autocomplete="on" maxlength="50" placeholder="请输入提货码/服务码进行核销" name="pickup_code" id="pickup_code" style="display:none;" >
+      <span class="input-del"></span>
+      <div id="scan_btn" class="zc" style="width: 100%;height: 100%;line-height: 500px;font-size: 1rem;/* float: right; */opacity: 0.6;display: inline-grid;text-align: center;vertical-align: middle;">点击扫码<input class="no-follow" node-type="jsbridge" type="file" name="myPhoto" id="myPhoto" value="扫描二维码1" /></div>
+
+      <div class="form-btn"><a class="btn J_search" href="javascript:;" style="display:none;">查询订单</a></div>
+    </form>
+  </div>
+</div>
+
+<!-- 微信 JS-SDK 如果不需要兼容微信小程序，则无需引用此 JS 文件。 -->
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<!-- 支付宝的 JS-SDK 防止 404 需要动态加载，如果不需要兼容支付宝小程序，则无需引用此 JS 文件。 -->
+<script type="text/javascript">
+    if (navigator.userAgent.indexOf('AlipayClient') > -1) {
+        document.writeln('<script src="https://appx/web-view.min.js"' + '>' + '<' + '/' + 'script>');
+    }
+</script>
+<!-- 百度 JS-SDK 如果不需要兼容百度小程序，则无需引用此 JS 文件。 -->
+<script type="text/javascript" src="https://b.bdstatic.com/searchbox/icms/searchbox/js/swan-1.7.0.js"></script>
+<!-- uni 的 SDK -->
+<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.4.9.js"></script>
+
+<script type="text/javascript">
+
+
+    function scanPickupCode(pickupcode)
+    {
+		console.info(pickupcode);
+        //$('#pickup_code').val(pickupcode);
+        //$('.form-btn').addClass('ok');
+        //$(".J_search").click()
+
+		if ('error decoding QR Code' == pickupcode)
+		{
+			alert('请重新扫描！');
+		}
+		else
+		{
+			uni.getEnv(function(res) {
+				/*
+				 else if (res.miniprogram) {
+					console.log('当前环境为【微信小程序】');
+				}else if (res.plus) {
+					console.log('当前环境为【微信小程序】');
+				}
+				*/
+				if (res.h5) {
+					window.parent.window.scan_code = pickupcode
+				}
+				else
+				{
+					uni.postMessage({ data: { action: pickupcode } });
+					uni.navigateBack()
+				}
+			});
+			
+
+		}
+    }
+
+
+	document.addEventListener('UniAppJSBridgeReady', function() {
+		//初始化扫描二维码按钮
+		Qrcode.init($('#scan_btn'), scanPickupCode);
+	});
+
+	/*
+	document.addEventListener('UniAppJSBridgeReady', function() {
+		uni.postMessage({
+			data: {
+				action: 'postMessage'
+			}
+		});
+	});
+
+	document.addEventListener('UniAppJSBridgeReady', function() {
+		uni.getEnv(function(res) {
+			if (res.plus) {
+				console.log('当前环境为【5+App】');
+			} else if (res.miniprogram) {
+				console.log('当前环境为【微信小程序】');
+			}
+		});
+	});
+	*/
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.account.dao.UserInfoDao">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="com.suisung.shopsuite.account.model.entity.UserInfo">
+                    <id column="user_id" property="userId"/>
+                    <result column="user_account" property="userAccount"/>
+                    <result column="user_nickname" property="userNickname"/>
+                    <result column="user_avatar" property="userAvatar"/>
+                    <result column="user_state" property="userState"/>
+                    <result column="user_gender" property="userGender"/>
+                    <result column="user_birthday" property="userBirthday"/>
+                    <result column="user_intl" property="userIntl"/>
+                    <result column="user_mobile" property="userMobile"/>
+                    <result column="user_email" property="userEmail"/>
+                    <result column="user_level_id" property="userLevelId"/>
+        </resultMap>
+
+</mapper>

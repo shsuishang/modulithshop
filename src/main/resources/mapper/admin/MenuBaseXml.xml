@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.admin.dao.MenuBaseDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.suisung.shopsuite.admin.model.entity.MenuBase">
+        <id column="menu_id" property="menuId"/>
+        <result column="menu_parent_id" property="menuParentId"/>
+        <result column="menu_title" property="menuTitle"/>
+        <result column="menu_url" property="menuUrl"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="menu_path" property="menuPath"/>
+        <result column="menu_component" property="menuComponent"/>
+        <result column="menu_redirect" property="menuRedirect"/>
+        <result column="menu_close" property="menuClose"/>
+        <result column="menu_hidden" property="menuHidden"/>
+        <result column="menu_enable" property="menuEnable"/>
+        <result column="menu_class" property="menuClass"/>
+        <result column="menu_icon" property="menuIcon"/>
+        <result column="menu_dot" property="menuDot"/>
+        <result column="menu_bubble" property="menuBubble"/>
+        <result column="menu_sort" property="menuSort"/>
+        <result column="menu_type" property="menuType"/>
+        <result column="menu_note" property="menuNote"/>
+        <result column="menu_func" property="menuFunc"/>
+        <result column="menu_role" property="menuRole"/>
+        <result column="menu_param" property="menuParam"/>
+        <result column="menu_permission" property="menuPermission"/>
+        <result column="menu_time" property="menuTime"/>
+    </resultMap>
+</mapper>

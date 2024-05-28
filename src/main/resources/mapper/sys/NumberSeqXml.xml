@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.sys.dao.NumberSeqDao">
+    <select id="get" resultType="com.suisung.shopsuite.sys.model.entity.NumberSeq">
+        SELECT
+            *
+        FROM
+            sys_number_seq
+        WHERE prefix= #{prefix}
+    </select>
+
+    <update id="increment"> UPDATE sys_number_seq SET number = number + #{increment} WHERE prefix= #{prefix} </update>
+</mapper>

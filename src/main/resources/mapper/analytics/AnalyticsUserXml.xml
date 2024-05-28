@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.analytics.dao.AnalyticsUserDao">
+    <select id="getRegUser" resultType="com.suisung.shopsuite.analytics.model.vo.RegUserVo">
+        SELECT
+            COUNT(1) AS num
+        FROM
+            account_user_login
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND user_reg_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="getUserTimeLine" resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT from_unixtime(round(user_reg_time / 1000), '%m-%d') AS time,
+            count(*) num
+        FROM
+            account_user_login
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND user_reg_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        GROUP BY user_reg_date
+        ORDER BY user_reg_date
+    </select>
+</mapper>

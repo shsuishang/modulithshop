@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.sys.dao.MaterialBaseDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.suisung.shopsuite.sys.model.entity.MaterialBase">
+        <id column="material_id" property="materialId"/>
+        <result column="material_number" property="materialNumber"/>
+        <result column="gallery_id" property="galleryId"/>
+        <result column="store_id" property="storeId"/>
+        <result column="subsite_id" property="subsiteId"/>
+        <result column="material_url" property="materialUrl"/>
+        <result column="material_source" property="materialSource"/>
+        <result column="material_sort" property="materialSort"/>
+        <result column="material_domain" property="materialDomain"/>
+        <result column="material_path" property="materialPath"/>
+        <result column="material_type" property="materialType"/>
+        <result column="material_image_h" property="materialImageH"/>
+        <result column="material_image_w" property="materialImageW"/>
+        <result column="material_size" property="materialSize"/>
+        <result column="material_mime_type" property="materialMimeType"/>
+        <result column="material_metadata" property="materialMetadata"/>
+        <result column="material_alt" property="materialAlt"/>
+        <result column="material_name" property="materialName"/>
+        <result column="material_desc" property="materialDesc"/>
+        <result column="material_password" property="materialPassword"/>
+        <result column="material_time" property="materialTime"/>
+        <result column="material_duration" property="materialDuration"/>
+    </resultMap>
+</mapper>

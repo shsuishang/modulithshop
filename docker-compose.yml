@@ -1,0 +1,66 @@
+version: '3'
+services:
+  redis:
+    image: redis:5
+    container_name: redis
+    restart: always
+    networks:
+      modulithshopnetwork:
+        ipv4_address: 172.18.0.2
+    ports:
+      - "6379:6379"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/redis/data:/data
+    command: redis-server --appendonly yes --requirepass "pwd_123"
+
+  mysql:
+    image: mysql:5.6.51
+    container_name: mysql
+    restart: always
+    networks:
+      modulithshopnetwork:
+        ipv4_address: 172.18.0.3
+    ports:
+      - "3306:3306"
+    environment:
+      - TZ=Asia/Shanghai
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - /data/mysql/conf:/etc/mysql
+      - /data/mysql/data:/var/lib/mysql
+      - /data/mysql/log:/var/log/mysql
+      - /etc/localtime:/etc/localtime
+    command: --default-character-set=utf8
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    networks:
+      modulithshopnetwork:
+        ipv4_address: 172.18.0.4
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/nginx/html:/usr/share/nginx/html
+      - /data/nginx/www:/www
+      - /data/nginx/wwwlogs:/wwwlogs
+      - /data/nginx/logs:/var/log/nginx/nginx.conf
+      - /data/nginx/conf:/etc/nginx
+      - /data/nginx/ssl:/etc/nginx/ssl/
+      - /data/nginx/www:/upload
+
+
+networks:
+  modulithshopnetwork:
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16

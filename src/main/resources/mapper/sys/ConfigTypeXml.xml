@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.sys.dao.ConfigTypeDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.suisung.shopsuite.sys.model.entity.ConfigType">
+        <id column="config_type_id" property="configTypeId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="config_type_name" property="configTypeName"/>
+        <result column="config_type_sort" property="configTypeSort"/>
+        <result column="config_type_enable" property="configTypeEnable"/>
+    </resultMap>
+</mapper>

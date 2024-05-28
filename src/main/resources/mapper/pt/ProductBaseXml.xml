@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.pt.dao.ProductBaseDao">
+
+    <select id="listItem" resultType="java.lang.Long">
+        SELECT
+        SQL_CALC_FOUND_ROWS i.item_id
+        FROM
+        pt_product_index b
+        LEFT JOIN
+        pt_product_item i ON i.product_id = b.product_id
+        <where>
+            <if test="nodeid!=null">
+                i.product_id=#{nodeid}
+            </if>
+        </where>
+    </select>
+</mapper>

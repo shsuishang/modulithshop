@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suisung.shopsuite.analytics.dao.AnalyticsOrderDao">
+    <select id="getOrderNum" resultType="com.suisung.shopsuite.analytics.model.vo.OrderNumVo">
+        SELECT
+            COUNT( * ) AS orderNum
+        FROM
+            trade_order_info
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            <if test="order_state_id!=null ">
+                AND order_state_id IN <foreach item="id" collection="order_state_id" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+            <if test="user_id!=null ">
+                AND user_id=#{user_id}
+            </if>
+            <if test="kind_id!=null ">
+                AND kind_id=#{kind_id}
+            </if>
+            <if test="order_is_paid!=null">
+                AND order_is_paid IN <foreach item="id" collection="order_is_paid" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getOrderAmount" resultType="com.suisung.shopsuite.analytics.model.vo.CommonNumVo">
+        SELECT
+        sum(trade_order_base.order_payment_amount) AS num
+        FROM
+        trade_order_info left join trade_order_base ON trade_order_info.order_id = trade_order_base.order_id
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND trade_order_info.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            AND trade_order_info.order_is_paid IN (3012, 3013)
+        </where>
+    </select>
+
+    <select id="getPayTimeLine" resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+        FROM_UNIXTIME(trade_paid_time / 1000, '%m-%d') AS time,
+        sum( order_payment_amount ) num
+        FROM
+        pay_consume_trade
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND trade_paid_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        GROUP BY time
+        ORDER BY trade_paid_time
+    </select>
+
+    <select id="getSaleOrderAmount" resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+        FROM_UNIXTIME( trade_order_info.create_time / 1000, '%m-%d' ) AS time,
+        sum(trade_order_base.order_payment_amount) AS num
+        FROM
+        trade_order_info left join trade_order_base ON trade_order_info.order_id = trade_order_base.order_id
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND trade_order_info.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+            AND trade_order_info.order_is_paid IN (3012, 3013)
+        </where>
+        GROUP BY time
+        ORDER BY trade_order_info.create_time
+    </select>
+
+    <select id="getOrderTimeLine" resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+        FROM_UNIXTIME( create_time / 1000, '%m-%d' ) AS time,
+        count(*) AS num
+        FROM
+        trade_order_info
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        GROUP BY time
+        ORDER BY create_time
+    </select>
+
+    <select id="getOrderCustomerNumTimeline" resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+            FROM_UNIXTIME( create_time / 1000, '%m-%d' ) AS time,
+            count( DISTINCT ( user_id ) ) AS num
+        FROM
+            trade_order_info
+        <where>
+            <if test="startTime!=null and endTime!=null">
+                AND create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        GROUP BY time
+        ORDER BY create_time
+    </select>
+
+    <select id="getOrderItemNumTimeLine"  resultType="com.suisung.shopsuite.analytics.model.output.TimelineOutput">
+        SELECT
+        FROM_UNIXTIME( b.create_time / 1000, '%m-%d' ) AS time,
+        count(*) AS num
+        FROM trade_order_item i
+        LEFT JOIN
+        trade_order_info b ON i.order_id = b.order_id
+        <where>
+            <if test="params.stime!=null and params.etime!=null">
+                AND b.create_time BETWEEN #{params.stime} AND #{params.etime}
+            </if>
+
+            <if test="params.storeId != null ">
+                i.store_id = #{params.storeId}
+            </if>
+            <if test="params.productId != null">
+                AND i.product_id = #{params.productId}
+            </if>
+            <if test="params.itemId != null">
+                AND i.item_id in
+                <foreach collection="params.itemId" item="item_id" index="index" open="(" close=")" separator=",">#{item_id}</foreach>
+            </if>
+            <if test="params.categoryId != null ">
+                AND i.category_id IN <foreach item="id" collection="params.categoryId" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+            <if test="params.productName != null and params.productName !=''">
+                AND i.product_name like concat('%', #{params.productName}, '%')
+            </if>
+            <if test="params.storeType != null">
+                AND b.store_type = #{params.storeType}
+            </if>
+            <if test="params.kindId != null">
+                AND b.kind_id = #{params.kindId}
+            </if>
+        </where>
+        GROUP BY time
+        ORDER BY b.create_time
+    </select>
+
+
+    <select id="getOrderItemNum"  resultType="com.suisung.shopsuite.analytics.model.vo.CommonNumVo">
+        SELECT
+        count(*) AS num
+        FROM trade_order_item i
+        LEFT JOIN
+        trade_order_info b ON i.order_id = b.order_id
+        <where>
+            <if test="params.stime!=null and params.etime!=null">
+                AND b.create_time BETWEEN #{params.stime} AND #{params.etime}
+            </if>
+
+            <if test="params.storeId != null ">
+                i.store_id = #{params.storeId}
+            </if>
+            <if test="params.productId != null">
+                AND i.product_id = #{params.productId}
+            </if>
+            <if test="params.itemId != null">
+                AND i.item_id in
+                <foreach collection="params.itemId" item="item_id" index="index" open="(" close=")" separator=",">#{item_id}</foreach>
+            </if>
+            <if test="params.categoryId != null ">
+                AND i.category_id IN <foreach item="id" collection="params.categoryId" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+            <if test="params.productName != null and params.productName !=''">
+                AND i.product_name like concat('%', #{params.productName}, '%')
+            </if>
+            <if test="params.storeType != null">
+                AND b.store_type = #{params.storeType}
+            </if>
+            <if test="params.kindId != null">
+                AND b.kind_id = #{params.kindId}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="listOrderItemNum"  resultType="com.suisung.shopsuite.analytics.model.output.AnalyticsOrderItemNumOutput">
+        SELECT
+        i.product_id,
+        i.item_id,
+        i.order_item_image,
+        i.product_name,
+        i.item_name,
+        sum(i.order_item_quantity) AS num,
+        sum(i.order_item_amount) AS order_item_amount_sum
+        FROM trade_order_item i
+        LEFT JOIN
+        trade_order_info b ON i.order_id = b.order_id
+        <where>
+            <if test="params.stime!=null and params.etime!=null">
+                AND b.create_time BETWEEN #{params.stime} AND #{params.etime}
+            </if>
+
+            <if test="params.storeId != null ">
+                i.store_id = #{params.storeId}
+            </if>
+            <if test="params.productId != null">
+                AND i.product_id = #{params.productId}
+            </if>
+            <if test="params.itemId != null">
+                AND i.item_id in
+                <foreach collection="params.itemId" item="item_id" index="index" open="(" close=")" separator=",">#{item_id}</foreach>
+            </if>
+            <if test="params.categoryId != null ">
+                AND i.category_id IN <foreach item="id" collection="params.categoryId" separator="," open="(" close=")" index="i">#{id}</foreach>
+            </if>
+            <if test="params.productName != null and params.productName !=''">
+                AND i.product_name like concat('%', #{params.productName}, '%')
+            </if>
+            <if test="params.storeType != null">
+                AND b.store_type = #{params.storeType}
+            </if>
+            <if test="params.kindId != null">
+                AND b.kind_id = #{params.kindId}
+            </if>
+
+        </where>
+        GROUP BY i.item_id
+        ORDER BY num DESC
+        LIMIT 0, 100
+    </select>
+</mapper>
