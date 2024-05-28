@@ -100,7 +100,7 @@ public class UserMessageServiceImpl extends
     }
 
     @Override
-    public UserMessageRes getMsgCount(Integer recentlyFlag, Integer userId) {
+    public UserMessageRes getMsgCount(Boolean recentlyFlag, Integer userId) {
         UserMessageRes userMessageRes = new UserMessageRes();
         QueryWrapper<UserMessage> messageQueryWrapper = new QueryWrapper<>();
         messageQueryWrapper.eq("user_id", userId)
@@ -117,7 +117,7 @@ public class UserMessageServiceImpl extends
                     .eq("message_is_read", 0)
                     .orderByDesc("message_time");
 
-            if (CheckUtil.isNotEmpty(recentlyFlag)) {
+            if (recentlyFlag) {
                 long time = new Date().getTime();
                 queryWrapper.gt("message_time", (time - 60 * 5 * 1000));
             }

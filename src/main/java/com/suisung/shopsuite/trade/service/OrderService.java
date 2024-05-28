@@ -220,4 +220,12 @@ public interface OrderService {
      * @return
      */
     OrderAddOutput replaceAdd(CheckoutInput orderBase);
+
+    /**
+     * 判断是否有活动条件限制
+     *
+     * @param orderId
+     * @return
+     */
+    boolean ifActivity(String orderId);
 }

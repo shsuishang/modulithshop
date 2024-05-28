@@ -7,7 +7,7 @@ import com.suisung.shopsuite.common.utils.ContextUtil;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.core.web.model.res.BaseListRes;
-import com.suisung.shopsuite.marketing.model.req.ActivityBaseListReq;
+import com.suisung.shopsuite.marketing.model.req.*;
 import com.suisung.shopsuite.marketing.model.res.ActivityBaseRes;
 import com.suisung.shopsuite.marketing.service.ActivityBaseService;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
@@ -62,7 +62,7 @@ public class ActivityController extends BaseController {
 
         input.setItemId(Convert.toList(Long.class, req.getItemId()));
 
-        ItemListRes pageList = productIndexService.getList(input);
+        ItemListRes pageList = productIndexService.listItem(input);
 
         return success(pageList);
     }

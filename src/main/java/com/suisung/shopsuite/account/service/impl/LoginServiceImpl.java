@@ -26,10 +26,7 @@ import com.suisung.shopsuite.admin.repository.UserAdminRepository;
 import com.suisung.shopsuite.admin.repository.UserRoleRepository;
 import com.suisung.shopsuite.common.api.ResultCode;
 import com.suisung.shopsuite.common.api.StateCode;
-import com.suisung.shopsuite.common.consts.BindConnectCode;
-import com.suisung.shopsuite.common.consts.ConstantJwt;
-import com.suisung.shopsuite.common.consts.ConstantMsg;
-import com.suisung.shopsuite.common.consts.ConstantRole;
+import com.suisung.shopsuite.common.consts.*;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.security.JwtSubject;
 import com.suisung.shopsuite.common.security.JwtUtil;
@@ -397,11 +394,6 @@ public class LoginServiceImpl implements LoginService {
         // 分销用户来源 - 平台推广员功能，佣金平台出
         // 修改用户上级关系
         Integer userParentId = input.getUserParentId();
-
-        if (CheckUtil.isNotEmpty(userParentId)) {
-
-            // 分享券活动id
-        }
 
         //记录渠道来源
         String sourceUccCode = getSourceUccCode();

@@ -22,6 +22,8 @@ package com.suisung.shopsuite.marketing.repository;
 import com.suisung.shopsuite.core.web.repository.IBaseRepository;
 import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
 
+import java.util.Map;
+
 /**
  * <p>
  * 活动表-通过插件实现	  服务类
@@ -31,4 +33,12 @@ import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
  * @since 2021-06-29
  */
 public interface ActivityBaseRepository extends IBaseRepository<ActivityBase> {
+
+    /**
+     * 获取非排他活动商品及数量
+     *
+     * @param activityBase
+     * @return
+     */
+    Map getActivityItemNum(ActivityBase activityBase);
 }

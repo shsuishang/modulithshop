@@ -22,7 +22,7 @@ package com.suisung.shopsuite.pay.repository;
 import com.suisung.shopsuite.core.web.repository.IBaseRepository;
 import com.suisung.shopsuite.pay.model.entity.UserResource;
 import com.suisung.shopsuite.pay.model.vo.MoneyVo;
-import com.suisung.shopsuite.pay.model.vo.PointsVo;
+import com.suisung.shopsuite.pay.model.vo.UserPointsVo;
 
 /**
  * <p>
@@ -43,5 +43,5 @@ public interface UserResourceRepository extends IBaseRepository<UserResource> {
      *
      * @return
      */
-    boolean points(PointsVo vo);
+    boolean points(UserPointsVo vo);
 }

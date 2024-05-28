@@ -33,11 +33,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.suisung.shopsuite.account.model.entity.UserInfo;
 import com.suisung.shopsuite.account.repository.UserDeliveryAddressRepository;
 import com.suisung.shopsuite.account.repository.UserInfoRepository;
+import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.core.web.BaseQueryWrapper;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
+import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
+import com.suisung.shopsuite.marketing.model.entity.ActivityItem;
+import com.suisung.shopsuite.marketing.model.vo.ActivityInfoVo;
+import com.suisung.shopsuite.marketing.model.vo.ItemNumVo;
+import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
+import com.suisung.shopsuite.marketing.service.ActivityItemService;
 import com.suisung.shopsuite.pt.model.entity.*;
 import com.suisung.shopsuite.pt.model.input.ProductDetailInput;
 import com.suisung.shopsuite.pt.model.input.ProductIndexInput;
@@ -45,6 +52,7 @@ import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.output.ProductOutput;
 import com.suisung.shopsuite.pt.model.req.ProductIndexListReq;
+import com.suisung.shopsuite.pt.model.res.ActivityInfoRes;
 import com.suisung.shopsuite.pt.model.res.ItemListRes;
 import com.suisung.shopsuite.pt.model.res.ProductDetailRes;
 import com.suisung.shopsuite.pt.model.res.ProductListRes;
@@ -63,6 +71,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -108,6 +117,9 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
     private ProductTypeRepository productTypeRepository;
 
     @Autowired
+    private ActivityItemService activityItemService;
+
+    @Autowired
     private StoreTransportTypeRepository storeTransportTypeRepository;
 
     @Autowired
@@ -123,13 +135,16 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
     private UserInfoRepository userInfoRepository;
 
     @Autowired
+    private ActivityBaseRepository activityBaseRepository;
+
+    @Autowired
     private ConfigBaseService configBaseService;
 
     @Autowired
     private UserDeliveryAddressRepository deliveryAddressRepository;
 
     @Override
-    public ProductListRes getList(ProductIndexInput in) {
+    public ProductListRes listItem(ProductIndexInput in) {
         ProductListRes output = new ProductListRes();
         QueryWrapper<ProductIndex> wrapper = new BaseQueryWrapper<ProductIndex, ProductIndexInput>(in).getWrapper();
 
@@ -248,6 +263,25 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
                 vo.setItemId(defaultItemMap.get(vo.getProductId()));
                 vo.setItems(itemMap.get(vo.getProductId()));
             }
+
+            //活动价格
+            List<Long> itemIds = records.stream().map(ProductOutput::getItemId).distinct().collect(Collectors.toList());
+            QueryWrapper<ActivityItem> itemQueryWrapper = new QueryWrapper<>();
+            itemQueryWrapper.in("item_id", itemIds)
+                    .eq("activity_item_state", StateCode.ACTIVITY_STATE_NORMAL);
+            List<ActivityItem> activityItemList = activityItemService.find(itemQueryWrapper);
+
+            if (CollectionUtil.isNotEmpty(activityItemList)) {
+                Map<Long, BigDecimal> itemPriceMap = activityItemList.stream().collect(Collectors.toMap(ActivityItem::getItemId, ActivityItem::getActivityItemPrice, (k1, k2) -> k1));
+
+                if (ObjectUtil.isNotEmpty(itemPriceMap)) {
+                    for (ProductOutput productOutput : records) {
+                        if (ObjectUtil.isNotEmpty(itemPriceMap.get(productOutput.getItemId()))) {
+                            productOutput.setProductUnitPriceMin(itemPriceMap.get(productOutput.getItemId()));
+                        }
+                    }
+                }
+            }
         }
 
         //判断是否固定分类读取数据
@@ -300,6 +334,19 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
 
         //设置销售价
         productItem.setItemSalePrice(productItem.getItemUnitPrice());
+
+        //读取活动信息
+        List<ActivityInfoVo> activityInfoVoList = activityItemService.getActivityInfo(Convert.toList(Long.class, itemId));
+        if (CollUtil.isNotEmpty(activityInfoVoList)) {
+            ActivityInfoVo activityInfoVo = activityInfoVoList.get(0);
+            productItem.setActivityId(activityInfoVo.getActivityId());
+            productItem.setActivityInfo(activityInfoVo);
+
+            if (CheckUtil.isNotEmpty(activityInfoVo.getActivityItemPrice())) {
+                productItem.setItemSalePrice(activityInfoVo.getActivityItemPrice());
+            }
+        }
+
         Long productId = productItem.getProductId();
         ProductIndex productIndex = get(productId);
         ProductBase productBase = productBaseRepository.get(productId);
@@ -419,9 +466,46 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
         return detail(input);
     }
 
+    /**
+     * 商品活动信息
+     *
+     * @param itemId
+     * @return
+     */
     @Override
-    public ItemListRes getList(ProductItemInput productItemListReq) {
+    public ActivityInfoRes getActivityInfo(Long itemId) {
+        //读取活动信息
+        List<ActivityInfoVo> activityInfoVoList = activityItemService.getActivityInfo(Convert.toList(Long.class, itemId));
+        if (CollUtil.isNotEmpty(activityInfoVoList)) {
+            ActivityInfoVo activityInfoVo = activityInfoVoList.get(0);
+        }
+
+        ActivityInfoRes res = new ActivityInfoRes();
+        res.setItems(activityInfoVoList);
+
+        return res;
+    }
+
+    @Override
+    public ItemListRes listItem(ProductItemInput productItemListReq) {
         ItemListRes output = new ItemListRes();
+
+        //参加活动 产品及数量 - 活动信息使用
+        Map<Long, ItemNumVo> itemNumVoMap = new HashMap<>();
+        if (CheckUtil.isNotEmpty(productItemListReq.getActivityId())) {
+            ActivityBase activityBase = activityBaseRepository.get(productItemListReq.getActivityId());
+
+            if (activityBase != null) {
+                String activityRule = activityBase.getActivityRule();
+
+                if (StrUtil.isNotEmpty(activityRule)) {
+                    itemNumVoMap = activityBaseRepository.getActivityItemNum(activityBase);
+                }
+
+                productItemListReq.setItemId(Convert.toList(Long.class, activityBase.getActivityItemIds()));
+                output.setActivityBase(activityBase);
+            }
+        }
 
         if (productItemListReq.getItemId() != null && productItemListReq.getItemId().isEmpty()) {
             productItemListReq.setItemId(null);
@@ -494,6 +578,15 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
                         }
                     }
                 }
+                //活动产品数量
+                if (CollUtil.isNotEmpty(itemNumVoMap)) {
+                    ItemNumVo itemNumVo = itemNumVoMap.get(vo.getItemId());
+
+                    if (itemNumVo != null) {
+                        vo.setActivityItemNum(itemNumVo.getNum());
+                    }
+                }
+
             }
         }
 

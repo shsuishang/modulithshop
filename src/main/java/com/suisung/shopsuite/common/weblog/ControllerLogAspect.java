@@ -1,5 +1,6 @@
 package com.suisung.shopsuite.common.weblog;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.Header;
 import cn.hutool.http.useragent.UserAgent;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -174,7 +176,21 @@ public class ControllerLogAspect {
         StackTraceElement stackTraceElement = e.getStackTrace()[0];// 得到异常棧的首个元素
         logger.error(String.format("%s::%s:%d", stackTraceElement.getClassName(), stackTraceElement.getMethodName(), stackTraceElement.getLineNumber()));
 
-        LogUtil.error(joinPoint, e);
+        boolean flag = true;
+        if (e != null) {
+            String infoStr = e.toString();
+            List<String> exList = StrUtil.split(infoStr, ":");
+            if (CollUtil.isNotEmpty(exList)) {
+                if (exList.get(0).equals("com.suisung.shopsuite.common.exception.BusinessException")) {
+                    flag = false;
+                }
+            }
+        }
+
+        if (flag) {
+            LogUtil.error(joinPoint, e);
+        }
+
         RequestNoContext.remove();
     }
 }

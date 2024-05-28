@@ -16,7 +16,9 @@ public enum ErrorTypeEnum {
     ERR_PSUH_MSG("消息推送异常", 4001),
     ERR_ALI_SERVICE("阿里云服务异常", 5001),
     ERR_TENCENT_SERVICE("腾讯云服务异常", 5002),
-    ERR_HUAWEI_SERVICE("华为云服务异常", 5003);
+    ERR_HUAWEI_SERVICE("华为云服务异常", 5003),
+
+    ERR_ORDER_SERVICE("订单处理异常", 6001);
 
     private final String label;
 

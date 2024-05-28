@@ -22,6 +22,9 @@ package com.suisung.shopsuite.marketing.service;
 import com.suisung.shopsuite.core.web.service.IBaseService;
 import com.suisung.shopsuite.marketing.model.entity.ActivityItem;
 import com.suisung.shopsuite.marketing.model.req.ActivityItemListReq;
+import com.suisung.shopsuite.marketing.model.vo.ActivityInfoVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -32,4 +35,11 @@ import com.suisung.shopsuite.marketing.model.req.ActivityItemListReq;
  * @since 2021-07-18
  */
 public interface ActivityItemService extends IBaseService<ActivityItem, ActivityItemListReq> {
+    /**
+     * 活动信息
+     *
+     * @param itemIds
+     * @return
+     */
+    List<ActivityInfoVo> getActivityInfo(List<Long> itemIds);
 }

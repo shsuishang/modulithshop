@@ -28,8 +28,10 @@ import com.suisung.shopsuite.account.model.req.UserDeliveryAddressListReq;
 import com.suisung.shopsuite.account.service.UserDeliveryAddressService;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.ContextUtil;
+import com.suisung.shopsuite.core.consts.Constants;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
+import com.suisung.shopsuite.core.web.model.BaseOrder;
 import com.suisung.shopsuite.core.web.model.res.BaseListRes;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,6 +40,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -59,6 +64,14 @@ public class DeliveryAddressController extends BaseController {
     public CommonRes<BaseListRes<UserDeliveryAddress>> list(UserDeliveryAddressListReq userDeliveryAddressListReq) {
         Integer userId = ContextUtil.checkLoginUserId();
         userDeliveryAddressListReq.setUserId(userId);
+        //额外排序
+        BaseOrder baseOrder = new BaseOrder();
+        baseOrder.setSidx("ud_time");
+        baseOrder.setSort(Constants.ORDER_BY_DESC);
+
+        List<BaseOrder> order = new ArrayList<>();
+        order.add(baseOrder);
+        userDeliveryAddressListReq.setOrder(order);
 
         IPage<UserDeliveryAddress> pageList = userDeliveryAddressService.lists(userDeliveryAddressListReq);
 
@@ -87,7 +100,7 @@ public class DeliveryAddressController extends BaseController {
 
         UserDeliveryAddress userDeliveryAddress = BeanUtil.copyProperties(userDeliveryAddressEditReq, UserDeliveryAddress.class);
         userDeliveryAddress.setUserId(userId);
-        boolean success = userDeliveryAddressService.save(userDeliveryAddress);
+        boolean success = userDeliveryAddressService.saveDeliveryAddress(userDeliveryAddress);
 
         if (success) {
             return success(userDeliveryAddress);
@@ -109,7 +122,7 @@ public class DeliveryAddressController extends BaseController {
         UserDeliveryAddress address = userDeliveryAddressService.get(userDeliveryAddressEditReq.getUdId());
 
         if (CheckUtil.checkDataRights(userId, address, UserDeliveryAddress::getUserId)) {
-            success = userDeliveryAddressService.save(userDeliveryAddress);
+            success = userDeliveryAddressService.saveDeliveryAddress(userDeliveryAddress);
         } else {
             success = false;
         }

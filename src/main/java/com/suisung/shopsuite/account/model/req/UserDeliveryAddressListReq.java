@@ -20,6 +20,7 @@
 package com.suisung.shopsuite.account.model.req;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.suisung.shopsuite.core.consts.Constants;
 import com.suisung.shopsuite.core.web.model.req.BaseListReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -101,5 +102,8 @@ public class UserDeliveryAddressListReq extends BaseListReq {
     @ApiModelProperty("是否默认(BOOL):0-非默认;1-默认")
     private Boolean udIsDefault;
 
-
+    public UserDeliveryAddressListReq() {
+        setSidx("ud_is_default");
+        setSort(Constants.ORDER_BY_DESC);
+    }
 }

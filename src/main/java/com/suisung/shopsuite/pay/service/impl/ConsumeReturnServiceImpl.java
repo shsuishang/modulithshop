@@ -52,7 +52,7 @@ import com.suisung.shopsuite.common.utils.LogUtil;
 import com.suisung.shopsuite.pay.model.entity.ConsumeDeposit;
 import com.suisung.shopsuite.pay.model.entity.ConsumeRecord;
 import com.suisung.shopsuite.pay.model.entity.UserResource;
-import com.suisung.shopsuite.pay.model.vo.PointsVo;
+import com.suisung.shopsuite.pay.model.vo.UserPointsVo;
 import com.suisung.shopsuite.pay.model.vo.WxPayV3Vo;
 import com.suisung.shopsuite.pay.repository.*;
 import com.suisung.shopsuite.pay.service.ConsumeReturnService;
@@ -340,7 +340,9 @@ public class ConsumeReturnServiceImpl implements ConsumeReturnService {
         List<OrderReturn> orderReturnList = orderReturnRepository.gets(returnIds);
         List<String> orderIds = orderReturnList.stream().map(OrderReturn::getOrderId).distinct().collect(Collectors.toList());
 
-        return !CollUtil.isEmpty(orderIds);
+        if (CollUtil.isEmpty(orderIds)) return false;
+
+        return true;
     }
 
     /**
@@ -376,7 +378,7 @@ public class ConsumeReturnServiceImpl implements ConsumeReturnService {
                         }
                     }
                     if (buyerUserPoints.compareTo(BigDecimal.ZERO) > 0) {
-                        if (!userResourceService.updatePoints(new PointsVo(userId, buyerUserPoints, PointsType.POINTS_TYPE_CONSUME_RETRUN, null, null, returnId, storeId))) {
+                        if (!userResourceService.updatePoints(new UserPointsVo(userId, buyerUserPoints, PointsType.POINTS_TYPE_CONSUME_RETRUN, null, null, returnId, storeId))) {
                             throw new BusinessException(__("用户退积分失败"));
                         }
                     }
@@ -405,7 +407,7 @@ public class ConsumeReturnServiceImpl implements ConsumeReturnService {
             }
 
             if (buyerUserPoints.compareTo(BigDecimal.ZERO) > 0) {
-                if (!userResourceRepository.points(new PointsVo(userId, buyerUserPoints, PointsType.POINTS_TYPE_CONSUME_RETRUN, returnId, null, returnId, storeId))) {
+                if (!userResourceRepository.points(new UserPointsVo(userId, buyerUserPoints, PointsType.POINTS_TYPE_CONSUME_RETRUN, returnId, null, returnId, storeId))) {
                     throw new BusinessException(__("用户退积分失败"));
                 }
             }

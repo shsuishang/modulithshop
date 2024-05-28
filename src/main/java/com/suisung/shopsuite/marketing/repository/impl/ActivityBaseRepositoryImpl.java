@@ -19,12 +19,18 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.marketing.repository.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.suisung.shopsuite.common.utils.JSONUtil;
 import com.suisung.shopsuite.core.web.repository.impl.BaseRepositoryImpl;
 import com.suisung.shopsuite.marketing.dao.ActivityBaseDao;
 import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
+import com.suisung.shopsuite.marketing.model.vo.ActivityRuleVo;
+import com.suisung.shopsuite.marketing.model.vo.ItemNumVo;
 import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -36,4 +42,31 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class ActivityBaseRepositoryImpl extends BaseRepositoryImpl<ActivityBaseDao, ActivityBase> implements ActivityBaseRepository {
+
+    /**
+     * 获取非排他活动商品及数量
+     *
+     * @param activityBase
+     * @return
+     */
+    @Override
+    public Map getActivityItemNum(ActivityBase activityBase) {
+        //参加活动 产品及数量 - 活动信息使用
+        Map<Long, ItemNumVo> itemNumVoMap = new HashMap<>();
+
+        if (activityBase != null) {
+            String activityRule = activityBase.getActivityRule();
+
+            if (StrUtil.isNotEmpty(activityRule)) {
+                ActivityRuleVo activityRuleVo = JSONUtil.parseObject(activityRule, ActivityRuleVo.class);
+
+                if (activityRuleVo != null) {
+                    Integer activityTypeId = activityBase.getActivityTypeId();
+
+                }
+            }
+        }
+
+        return itemNumVoMap;
+    }
 }

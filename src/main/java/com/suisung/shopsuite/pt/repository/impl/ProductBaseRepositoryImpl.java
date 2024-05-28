@@ -30,6 +30,9 @@ import com.suisung.shopsuite.account.repository.UserLevelRepository;
 import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.core.web.repository.impl.BaseRepositoryImpl;
+import com.suisung.shopsuite.marketing.model.vo.ActivityInfoVo;
+import com.suisung.shopsuite.marketing.repository.ActivityItemRepository;
+import com.suisung.shopsuite.marketing.service.ActivityItemService;
 import com.suisung.shopsuite.pt.dao.ProductBaseDao;
 import com.suisung.shopsuite.pt.model.entity.ProductBase;
 import com.suisung.shopsuite.pt.model.entity.ProductImage;
@@ -66,7 +69,14 @@ public class ProductBaseRepositoryImpl extends BaseRepositoryImpl<ProductBaseDao
     private ProductIndexRepository productIndexRepository;
 
     @Autowired
+    private ActivityItemRepository activityItemRepository;
+
+    @Autowired
     private ProductImageRepository productImageRepository;
+
+
+    @Autowired
+    private ActivityItemService activityItemService;
 
     @Autowired
     private UserInfoRepository userInfoRepository;
@@ -83,6 +93,9 @@ public class ProductBaseRepositoryImpl extends BaseRepositoryImpl<ProductBaseDao
         List<ProductItemVo> output = new ArrayList<>();
 
         if (CollUtil.isNotEmpty(itemIds)) {
+            //todo 参与活动信息，格式化活动数据
+            List<ActivityInfoVo> activityInfoList = activityItemService.getActivityInfo(itemIds);
+
             List<ProductItem> itemList = productItemRepository.gets(itemIds);
 
             for (ProductItem productItem : itemList) {
@@ -102,12 +115,25 @@ public class ProductBaseRepositoryImpl extends BaseRepositoryImpl<ProductBaseDao
                     userLevelRate = userLevelRateMap.get(userInfo.getUserLevelId());
                 }
 
-                //用户等级判断
-                if (!userLevelRate.equals(100)) {
-                    itVo.setItemSalePrice(itVo.getItemUnitPrice().multiply(BigDecimal.valueOf(userLevelRate)).divide(BigDecimal.valueOf(100)));
-                    itVo.setItemSavePrice(itVo.getItemUnitPrice().subtract(itVo.getItemSalePrice()));
+                //是否有活动信息
+                ActivityInfoVo activityInfoVo = activityInfoList.stream().filter(s -> ObjectUtil.equal(s.getItemId(), itVo.getItemId())).findFirst().orElse(null);
 
-                    itVo.setItemDiscountAmount(itVo.getItemSavePrice().multiply(Convert.toBigDecimal(itVo.getCartQuantity())));
+                if (ObjectUtil.isNotEmpty(activityInfoVo) && checkSingleActivity(activityInfoVo.getActivityTypeId())) {
+                    itVo.setActivityInfo(activityInfoVo);
+
+                    //判断是否执行活动信息
+                    if (true) {
+                        itVo.setActivityId(activityInfoVo.getActivityId());
+                    }
+
+                } else {
+                    //用户等级判断
+                    if (!userLevelRate.equals(100)) {
+                        itVo.setItemSalePrice(itVo.getItemUnitPrice().multiply(BigDecimal.valueOf(userLevelRate)).divide(BigDecimal.valueOf(100)));
+                        itVo.setItemSavePrice(itVo.getItemUnitPrice().subtract(itVo.getItemSalePrice()));
+
+                        itVo.setItemDiscountAmount(itVo.getItemSavePrice().multiply(Convert.toBigDecimal(itVo.getCartQuantity())));
+                    }
                 }
 
                 output.add(itVo);
@@ -214,5 +240,16 @@ public class ProductBaseRepositoryImpl extends BaseRepositoryImpl<ProductBaseDao
         }
 
         return output;
+    }
+
+    /**
+     * 单品直接购买活动，判断是否通过活动
+     *
+     * @param activityTypeId
+     * @return
+     */
+    private boolean checkSingleActivity(Integer activityTypeId) {
+
+        return true;
     }
 }

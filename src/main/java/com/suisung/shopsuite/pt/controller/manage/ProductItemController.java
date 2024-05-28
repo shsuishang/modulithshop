@@ -83,7 +83,7 @@ public class ProductItemController extends BaseController {
             }
         }
 
-        ItemListRes pageList = productIndexService.getList(input);
+        ItemListRes pageList = productIndexService.listItem(input);
 
         return success(pageList);
     }

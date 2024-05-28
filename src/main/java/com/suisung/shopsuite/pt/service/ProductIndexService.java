@@ -25,6 +25,7 @@ import com.suisung.shopsuite.pt.model.input.ProductDetailInput;
 import com.suisung.shopsuite.pt.model.input.ProductIndexInput;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.req.ProductIndexListReq;
+import com.suisung.shopsuite.pt.model.res.ActivityInfoRes;
 import com.suisung.shopsuite.pt.model.res.ItemListRes;
 import com.suisung.shopsuite.pt.model.res.ProductDetailRes;
 import com.suisung.shopsuite.pt.model.res.ProductListRes;
@@ -44,7 +45,7 @@ public interface ProductIndexService extends IBaseService<ProductIndex, ProductI
      * @param productIndexListReq
      * @return
      */
-    ProductListRes getList(ProductIndexInput productIndexListReq);
+    ProductListRes listItem(ProductIndexInput productIndexListReq);
 
     /**
      * 商品详情
@@ -73,10 +74,18 @@ public interface ProductIndexService extends IBaseService<ProductIndex, ProductI
     ProductDetailRes detail(Long itemId, Integer districtId, Integer gbId);
 
     /**
+     * 商品活动信息
+     *
+     * @param itemId
+     * @return
+     */
+    ActivityInfoRes getActivityInfo(Long itemId);
+
+    /**
      * 读取SKU商品
      *
      * @param productItemListReq
      * @return
      */
-    ItemListRes getList(ProductItemInput productItemListReq);
+    ItemListRes listItem(ProductItemInput productItemListReq);
 }

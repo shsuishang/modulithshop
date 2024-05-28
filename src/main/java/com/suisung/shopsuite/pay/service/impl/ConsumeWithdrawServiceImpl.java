@@ -92,9 +92,22 @@ public class ConsumeWithdrawServiceImpl extends BaseServiceImpl<ConsumeWithdrawR
         if (withdrawMode == 0) {
             //余额提现
             doWithdraw(withdraw);
+        } else if (withdrawMode == 1) {
+            //佣金提现
+            doCommisionWithdraw(withdraw);
         }
 
         return true;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void doCommisionWithdraw(ConsumeWithdraw withdraw) {
+        Integer withdrawState = withdraw.getWithdrawState();
+
+        if (!edit(withdraw)) {
+            throw new BusinessException(__("修改提现申请表失败！"));
+        }
+
     }
 
     @Transactional(rollbackFor = Exception.class)

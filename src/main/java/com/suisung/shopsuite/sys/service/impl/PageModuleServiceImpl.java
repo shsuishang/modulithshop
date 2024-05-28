@@ -153,7 +153,7 @@ public class PageModuleServiceImpl extends BaseServiceImpl<PageModuleRepository,
 
                         ProductItemInput input = new ProductItemInput();
                         input.setItemId(item_ids);
-                        ItemListRes itemListRes = productIndexService.getList(input);
+                        ItemListRes itemListRes = productIndexService.listItem(input);
                         List<ItemOutput> item_rows = itemListRes.getItems();
 
                         for (Object tab : tabs) {

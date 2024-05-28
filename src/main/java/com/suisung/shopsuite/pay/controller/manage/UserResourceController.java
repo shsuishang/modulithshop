@@ -29,7 +29,7 @@ import com.suisung.shopsuite.pay.model.req.UserResourceListReq;
 import com.suisung.shopsuite.pay.model.req.UserResourceMoneyReq;
 import com.suisung.shopsuite.pay.model.req.UserResourcePointsReq;
 import com.suisung.shopsuite.pay.model.vo.MoneyVo;
-import com.suisung.shopsuite.pay.model.vo.PointsVo;
+import com.suisung.shopsuite.pay.model.vo.UserPointsVo;
 import com.suisung.shopsuite.pay.service.UserResourceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -81,8 +81,8 @@ public class UserResourceController extends BaseController {
     @ApiOperation(value = "修改积分", notes = "修改积分")
     @RequestMapping(value = "/updatePoints", method = RequestMethod.POST)
     public CommonRes<?> updatePoints(UserResourcePointsReq userResourcePointsReq) {
-        PointsVo pointsVo = BeanUtil.copyProperties(userResourcePointsReq, PointsVo.class);
-        boolean success = userResourceService.updatePoints(pointsVo);
+        UserPointsVo userPointsVo = BeanUtil.copyProperties(userResourcePointsReq, UserPointsVo.class);
+        boolean success = userResourceService.updatePoints(userPointsVo);
 
         if (success) {
             return success();

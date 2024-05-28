@@ -84,6 +84,8 @@ public class UserProductBrowseServiceImpl extends BaseServiceImpl<UserProductBro
                             browseRes.setProductImage(productItemVo.getProductImage());
                             browseRes.setItemSalePrice(productItemVo.getItemSalePrice());
                             browseRes.setProductItemName(productItemVo.getProductItemName());
+                            browseRes.setProductName(productItemVo.getProductName());
+                            browseRes.setItemName(productItemVo.getItemName());
                             ActivityInfoVo activityInfo = productItemVo.getActivityInfo();
 
                             if (activityInfo != null) {

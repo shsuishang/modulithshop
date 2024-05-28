@@ -1,14 +1,19 @@
 package com.suisung.shopsuite.admin.controller.manage;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.admin.model.entity.MenuBase;
+import com.suisung.shopsuite.admin.model.entity.UserAdmin;
 import com.suisung.shopsuite.admin.model.req.MenuBaseAddReq;
 import com.suisung.shopsuite.admin.model.req.MenuBaseEditReq;
 import com.suisung.shopsuite.admin.model.req.MenuBaseStateEditReq;
 import com.suisung.shopsuite.admin.model.req.MenuTreeReq;
 import com.suisung.shopsuite.admin.model.res.MenuTreeRes;
+import com.suisung.shopsuite.admin.repository.UserAdminRepository;
 import com.suisung.shopsuite.admin.service.MenuBaseService;
+import com.suisung.shopsuite.common.utils.ContextUtil;
+import com.suisung.shopsuite.common.web.ContextUser;
 import com.suisung.shopsuite.core.web.BaseQueryWrapper;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
@@ -39,10 +44,20 @@ public class MenuBaseController extends BaseController {
     @Autowired
     private MenuBaseService menuBaseService;
 
-    @PreAuthorize("hasAuthority('/manage/admin/menu/list')")
+    @Autowired
+    private UserAdminRepository userAdminRepository;
+
     @ApiOperation(value = "系统菜单表-分页列表查询", notes = "系统菜单表-分页列表查询")
     @RequestMapping(value = "/tree", method = RequestMethod.GET)
     public CommonRes<List<MenuTreeRes>> tree(MenuTreeReq menuTreeReq) {
+        //设置角色Id
+        ContextUser loginUser = ContextUtil.getLoginUser();
+        UserAdmin userAdmin = userAdminRepository.get(loginUser.getUserId());
+
+        if (ObjectUtil.isNotEmpty(userAdmin)) {
+            menuTreeReq.setUserRoleId(userAdmin.getUserRoleId());
+        }
+
         List<MenuTreeRes> tree = menuBaseService.getMenuTree(menuTreeReq);
 
         return success(tree);

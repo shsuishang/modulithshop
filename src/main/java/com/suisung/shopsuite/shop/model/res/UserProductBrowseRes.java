@@ -30,6 +30,12 @@ public class UserProductBrowseRes extends UserProductBrowse {
     @ApiModelProperty(value = "Spec名称")
     private String productItemName;
 
+    @ApiModelProperty(value = "SPU商品名称")
+    private String productName;
+
+    @ApiModelProperty("副标题(DOT):SKU名称")
+    private String itemName;
+
     @ApiModelProperty("活动类型编号")
     private Integer activityTypeId;
 

@@ -36,7 +36,7 @@ import com.suisung.shopsuite.pay.model.entity.ConsumeRecord;
 import com.suisung.shopsuite.pay.model.entity.UserPointsHistory;
 import com.suisung.shopsuite.pay.model.entity.UserResource;
 import com.suisung.shopsuite.pay.model.vo.MoneyVo;
-import com.suisung.shopsuite.pay.model.vo.PointsVo;
+import com.suisung.shopsuite.pay.model.vo.UserPointsVo;
 import com.suisung.shopsuite.pay.repository.ConsumeRecordRepository;
 import com.suisung.shopsuite.pay.repository.UserPointsHistoryRepository;
 import com.suisung.shopsuite.pay.repository.UserResourceRepository;
@@ -188,7 +188,7 @@ public class UserResourceRepositoryImpl extends BaseRepositoryImpl<UserResourceD
      */
     @Override
     @Transactional
-    public boolean points(PointsVo vo) {
+    public boolean points(UserPointsVo vo) {
 
         Integer points_kind_id = null;
         Date date = new Date();

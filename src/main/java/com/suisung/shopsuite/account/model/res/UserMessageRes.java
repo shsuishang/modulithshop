@@ -26,12 +26,6 @@ public class UserMessageRes extends UserMessage {
     @ApiModelProperty("消息编号")
     private Integer messageOtherId;
 
-    @ApiModelProperty("用户头像")
-    private String userAvatar;
-
-    @ApiModelProperty("其他用户头像")
-    private String userOtherAvatar;
-
     @ApiModelProperty("站内信userInfo")
     private MessageUserInfoRes userinfo;
 

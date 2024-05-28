@@ -1,12 +1,12 @@
 package com.suisung.shopsuite.sys.controller.front;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.suisung.shopsuite.common.consts.ConstantLog;
 import com.suisung.shopsuite.common.consts.ConstantUpload;
-import com.suisung.shopsuite.common.utils.CheckUtil;
-import com.suisung.shopsuite.common.utils.ContextUtil;
-import com.suisung.shopsuite.common.utils.LogUtil;
-import com.suisung.shopsuite.common.utils.UploadUtil;
+import com.suisung.shopsuite.common.exception.BusinessException;
+import com.suisung.shopsuite.common.pojo.dto.UploadDto;
+import com.suisung.shopsuite.common.utils.*;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.sys.model.entity.MaterialBase;
@@ -19,6 +19,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.InputStream;
 
+import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 import static com.suisung.shopsuite.common.utils.UploadUtil.*;
 
 /**
@@ -63,6 +65,26 @@ public class UploadController extends BaseController {
             File upload;
             String dir;
             InputStream inputStream = upfile.getInputStream();
+
+            String originalFilename = upfile.getOriginalFilename();
+            // 获取文件后缀
+            String suffix = (originalFilename == null || !originalFilename.contains(".")) ? "" : originalFilename.substring(originalFilename.lastIndexOf("."));
+            suffix = suffix.replace(".", "");
+            
+            String imageAllowExt = configBaseService.getConfig("upload_image_ext", "");
+            String[] imageAllowExtList = imageAllowExt.split(",");
+
+            String vedioAllowExt = configBaseService.getConfig("upload_video_ext", "");
+            String[] vedioAllowExtList = vedioAllowExt.split(",");
+
+            String fileAllowExt = configBaseService.getConfig("upload_file_ext", "");
+            String[] fileAllowExtList = fileAllowExt.split(",");
+
+            String[] allowExtList = ArrayUtil.addAll(imageAllowExtList, vedioAllowExtList, fileAllowExtList);
+
+            if (!ArrayUtil.contains(allowExtList, suffix)) {
+                throw new BusinessException(String.format(__("允许上传格式为：【%s】"), StringUtils.join(allowExtList, ",")));
+            }
 
             switch (materialBaseUploadReq.getMaterialType()) {
                 case "image":
@@ -118,8 +140,8 @@ public class UploadController extends BaseController {
             uploadRes.setFileUrl(result.getMaterialUrl());
 
             //oss文件上传网址
-            Integer upload_type = configBaseService.getConfig("upload_type", 0);
-            if (upload_type.equals(1)) {
+            Integer uploadType = configBaseService.getConfig("upload_type", 0);
+            if (uploadType.equals(1) || uploadType.equals(2)) {
                 //针对证书上传，特别处理。
                 if (CheckUtil.isNotEmpty(materialBaseUploadReq.getMaterialKey())) {
                     if (materialBaseUploadReq.getMaterialKey().equals("wechat_pay_apiclient_cert")
@@ -130,7 +152,15 @@ public class UploadController extends BaseController {
                         uploadRes.setFileUrl(absolutePath);
                     }
                 } else {
-                    String url = ossService.ossUploadObject(upfile, inputStream, materialBaseUploadReq.getMaterialType());
+                    UploadDto uploadDto = new UploadDto();
+                    uploadDto.setUploadType(uploadType);
+                    uploadDto.setFile(upload);
+                    uploadDto.setMultipartfile(upfile);
+                    uploadDto.setInputStream(inputStream);
+                    uploadDto.setMaterialType(materialBaseUploadReq.getMaterialType());
+
+                    String url = ThirdUtil.upload(uploadDto);
+                    //String url = ossService.ossUploadObject(upfile, inputStream, materialBaseUploadReq.getMaterialType());
                     uploadRes.setFileUrl(url);
                     result.setMaterialUrl(url);
                 }

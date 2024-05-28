@@ -19,12 +19,25 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.marketing.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.suisung.shopsuite.common.api.StateCode;
+import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
+import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
 import com.suisung.shopsuite.marketing.model.entity.ActivityItem;
 import com.suisung.shopsuite.marketing.model.req.ActivityItemListReq;
+import com.suisung.shopsuite.marketing.model.vo.ActivityInfoVo;
+import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import com.suisung.shopsuite.marketing.repository.ActivityItemRepository;
 import com.suisung.shopsuite.marketing.service.ActivityItemService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
@@ -36,4 +49,31 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ActivityItemServiceImpl extends BaseServiceImpl<ActivityItemRepository, ActivityItem, ActivityItemListReq> implements ActivityItemService {
+    @Autowired
+    private ActivityBaseRepository activityBaseRepository;
+
+    @Override
+    public List<ActivityInfoVo> getActivityInfo(List<Long> itemIds) {
+        if (CollUtil.isEmpty(itemIds)) {
+            return new ArrayList<>();
+        }
+
+        // 排他性活动信息
+        List<ActivityItem> activityItemList = repository.find(new QueryWrapper<ActivityItem>().in("item_id", itemIds).in("activity_item_state", Arrays.asList(StateCode.ACTIVITY_STATE_NORMAL)));
+        List<ActivityInfoVo> output = BeanUtil.copyToList(activityItemList, ActivityInfoVo.class);
+
+        List<Long> activityItemIds = CommonUtil.column(output, ActivityInfoVo::getItemId);
+
+        if (CollUtil.isNotEmpty(output)) {
+            List<Integer> activityIds = CommonUtil.column(output, ActivityInfoVo::getActivityId);
+            List<ActivityBase> activityBaseList = activityBaseRepository.gets(activityIds);
+
+            for (ActivityInfoVo it : output) {
+                ActivityBase itemVo = activityBaseList.stream().filter(s -> s.getActivityId().equals(it.getActivityId())).findFirst().orElse(new ActivityBase());
+                it.setActivityBase(itemVo);
+            }
+        }
+
+        return output;
+    }
 }

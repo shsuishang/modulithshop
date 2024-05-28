@@ -60,7 +60,7 @@ public class MessageController extends BaseController {
 
     @ApiOperation(value = "用户通知消息数量", notes = "用户通知消息数量")
     @RequestMapping(value = "/getMsgCount", method = RequestMethod.GET)
-    public CommonRes<UserMessageRes> getMsgCount(@RequestParam(value = "recently_flag", required = false) Integer recentlyFlag) {
+    public CommonRes<UserMessageRes> getMsgCount(@RequestParam(value = "recently_flag", required = false) Boolean recentlyFlag) {
         Integer userId = ContextUtil.checkLoginUserId();
         UserMessageRes userMessageRes = messageService.getMsgCount(recentlyFlag, userId);
 

@@ -125,4 +125,12 @@ public class UserMessage implements Serializable {
     @ApiModelProperty("图片高度")
     @TableField("message_h")
     private Integer messageH;
+
+    @ApiModelProperty("用户头像")
+    @TableField(exist = false)
+    private String userAvatar;
+
+    @ApiModelProperty("其他用户头像")
+    @TableField(exist = false)
+    private String userOtherAvatar;
 }

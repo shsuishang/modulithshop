@@ -161,7 +161,11 @@ public class ApplicationStartupRunner implements CommandLineRunner {
                             logAction.setUserName(userInfo.getUserNickname());
                             logAction.setLogUrl(queue_row.getAccessUrl());
                             logAction.setLogMethod(queue_row.getAccessMethod());
-                            logAction.setLogParam(queue_row.getAccessData());
+
+                            String accessData = queue_row.getAccessData();
+                            accessData = accessData.substring(0, Math.min(accessData.length(), 2000));
+
+                            logAction.setLogParam(accessData);
                             logAction.setLogIp(queue_row.getAccessIp());
                             logAction.setLogDate(queue_row.getAccessDate());
                             logAction.setLogTime(curDate.getTime());

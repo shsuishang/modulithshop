@@ -102,7 +102,7 @@ public class ProductController extends BaseController {
         //上架商品
         input.setProductStateId(StateCode.PRODUCT_STATE_NORMAL);
 
-        ProductListRes pageList = productIndexService.getList(input);
+        ProductListRes pageList = productIndexService.listItem(input);
 
         return success(pageList);
     }
@@ -176,6 +176,14 @@ public class ProductController extends BaseController {
         return success(detailRes);
     }
 
+    @ApiOperation(value = "商品活动信息", notes = "商品活动信息")
+    @RequestMapping(value = "/getActivityInfo", method = RequestMethod.GET)
+    public CommonRes<ActivityInfoRes> getActivityInfo(@RequestParam("item_id") Long itemId) {
+        ActivityInfoRes res = productIndexService.getActivityInfo(itemId);
+
+        return success(res);
+    }
+
     @ApiOperation(value = "商品SKU列表查询", notes = "商品SKU列表查询")
     @RequestMapping(value = "/listItem", method = RequestMethod.GET)
     public CommonRes<ItemListRes> listItem(ProductItemListReq req) {
@@ -195,7 +203,7 @@ public class ProductController extends BaseController {
             }
         }
 
-        ItemListRes pageList = productIndexService.getList(input);
+        ItemListRes pageList = productIndexService.listItem(input);
 
         return success(pageList);
     }

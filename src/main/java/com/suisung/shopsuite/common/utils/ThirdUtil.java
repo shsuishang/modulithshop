@@ -44,9 +44,11 @@ public class ThirdUtil {
      *
      * @param uploadDto
      */
-    public static void upload(UploadDto uploadDto) {
+    public static String upload(UploadDto uploadDto) {
         ThirdService thirdService = thirdMap.get(uploadDto.getUploadType());
-        thirdService.upload(uploadDto);
+        String url = thirdService.upload(uploadDto);
+
+        return url;
     }
 
     //根据用户获取目录名

@@ -19,13 +19,18 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.account.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.suisung.shopsuite.account.model.entity.UserDeliveryAddress;
 import com.suisung.shopsuite.account.model.req.UserDeliveryAddressListReq;
 import com.suisung.shopsuite.account.repository.UserDeliveryAddressRepository;
 import com.suisung.shopsuite.account.service.UserDeliveryAddressService;
+import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 /**
  * <p>
  * 用户地址表 服务实现类
@@ -36,4 +41,30 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserDeliveryAddressServiceImpl extends BaseServiceImpl<UserDeliveryAddressRepository, UserDeliveryAddress, UserDeliveryAddressListReq> implements UserDeliveryAddressService {
+
+    @Autowired
+    private UserDeliveryAddressRepository deliveryAddressRepository;
+
+    @Override
+    public boolean saveDeliveryAddress(UserDeliveryAddress userDeliveryAddress) {
+
+        if (userDeliveryAddress.getUdIsDefault()) {
+            QueryWrapper<UserDeliveryAddress> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("user_id", userDeliveryAddress.getUserId());
+            queryWrapper.eq("ud_is_default", true);
+
+            if (CheckUtil.isNotEmpty(userDeliveryAddress.getUdId())) {
+                queryWrapper.ne("ud_id", userDeliveryAddress.getUdId());
+            }
+
+            List<UserDeliveryAddress> deliveryAddresses = find(queryWrapper);
+
+            if (CollectionUtil.isNotEmpty(deliveryAddresses)) {
+                deliveryAddresses.forEach(item -> item.setUdIsDefault(false));
+                deliveryAddressRepository.saveOrUpdate(deliveryAddresses);
+            }
+        }
+
+        return save(userDeliveryAddress);
+    }
 }

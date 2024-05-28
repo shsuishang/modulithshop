@@ -182,8 +182,12 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
         //商品价格最大值及最小值
         BigDecimal productUnitPriceMin = new BigDecimal(-1);
         BigDecimal productUnitPriceMax = BigDecimal.ZERO;
+        BigDecimal productUnitPointsMin = new BigDecimal(-1);
+        BigDecimal productUnitPointsMax = BigDecimal.ZERO;
+
 
         for (ProductItem v : productItems) {
+            //价格
             if (productUnitPriceMin.equals(new BigDecimal(-1))) {
                 productUnitPriceMin = v.getItemUnitPrice();
             }
@@ -196,10 +200,27 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
             if (v.getItemUnitPrice().compareTo(productUnitPriceMax) > 0) {
                 productUnitPriceMax = v.getItemUnitPrice();
             }
+
+            //积分
+            if (productUnitPointsMin.equals(new BigDecimal(-1))) {
+                productUnitPointsMin = v.getItemUnitPoints();
+            }
+
+            if (v.getItemUnitPoints().compareTo(productUnitPointsMin) < 0) {
+                productUnitPointsMin = v.getItemUnitPoints();
+            }
+
+
+            if (v.getItemUnitPoints().compareTo(productUnitPointsMax) > 0) {
+                productUnitPointsMax = v.getItemUnitPoints();
+            }
+
         }
 
         productIndex.setProductUnitPriceMin(productUnitPriceMin);
         productIndex.setProductUnitPriceMax(productUnitPriceMax);
+        productIndex.setProductUnitPointsMin(productUnitPointsMin);
+        productIndex.setProductUnitPointsMax(productUnitPointsMax);
 
         //初始化商品状态
 
@@ -247,7 +268,7 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
 
         //商品状态 product_state_id 商品状态判断修正： 是否需要审核等
         ProductCategory productCategory = productCategoryRepository.get(productIndex.getCategoryId());
-        productIndex.setTypeId(productCategory.getTypeId());
+        productIndex.setTypeId(productCategory == null ? 0 : productCategory.getTypeId());
         productIndex.setProductAssistData(CollUtil.join(productAssistData, ","));
 
         flag = productIndexRepository.save(productIndex);
@@ -352,7 +373,8 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
         }
 
 
-        if (productIndex.getKindId().intValue() == StateCode.PRODUCT_KIND_FUWU) {
+        if (productIndex.getKindId() == StateCode.PRODUCT_KIND_FUWU
+            || productIndex.getKindId() == StateCode.PRODUCT_KIND_EDU) {
             ProductValidPeriod productValidPeriod = in.getProductValidPeriod();
             productValidPeriod.setProductId(productId);
 

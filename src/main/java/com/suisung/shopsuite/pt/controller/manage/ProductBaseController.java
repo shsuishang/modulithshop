@@ -92,7 +92,7 @@ public class ProductBaseController extends BaseController {
             }
         }
 
-        ProductListRes pageList = productIndexService.getList(input);
+        ProductListRes pageList = productIndexService.listItem(input);
 
         return success(pageList);
     }
@@ -218,7 +218,7 @@ public class ProductBaseController extends BaseController {
             }
         }
 
-        ItemListRes pageList = productIndexService.getList(input);
+        ItemListRes pageList = productIndexService.listItem(input);
 
         return success(pageList);
     }

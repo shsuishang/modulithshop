@@ -79,7 +79,7 @@ public class TencentServiceImpl implements ThirdService {
     }
 
     public COSClient initCOSClient() {
-        String tencentSecretId = configBaseService.getConfig("tengxun_app_id");
+        String tencentSecretId = configBaseService.getConfig("tengxun_secret_id");
         String tencentSecretKey = configBaseService.getConfig("tengxun_secret_key");
         String tencentRegion = configBaseService.getConfig("tengxun_region_region");
         COSCredentials cred = new BasicCOSCredentials(tencentSecretId, tencentSecretKey);
@@ -102,6 +102,7 @@ public class TencentServiceImpl implements ThirdService {
             String defaultDir = configBaseService.getConfig("tengxun_default_dir", "modulithshop");
 
             String tencentBucketName = configBaseService.getConfig("tencent_bucket_name");
+            String tengxunEndpoint = configBaseService.getConfig("tengxun_endpoint");
 
             if (user == null) {
                 defaultDir = defaultDir.concat("/").concat("guest");
@@ -123,7 +124,9 @@ public class TencentServiceImpl implements ThirdService {
             PutObjectResult putObjectResult = cosClient1.putObject(putObjectRequest);
             // 设置权限(公开读)
             cosClient1.setBucketAcl(tencentBucketName, CannedAccessControlList.PublicRead);
-            return putObjectResult.getDateStr();
+            //return putObjectResult.getDateStr();
+
+            return tengxunEndpoint + "/" + folder;
         } catch (CosClientException e) {
             LogUtil.error(ErrorTypeEnum.ERR_TENCENT_SERVICE.getValue(), e);
         }

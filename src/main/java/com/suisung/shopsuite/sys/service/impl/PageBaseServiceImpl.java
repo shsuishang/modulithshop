@@ -46,10 +46,7 @@ import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
 import com.suisung.shopsuite.marketing.model.vo.PageDataVo;
 import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import com.suisung.shopsuite.marketing.service.ActivityBaseService;
-import com.suisung.shopsuite.pt.model.entity.ProductBase;
-import com.suisung.shopsuite.pt.model.entity.ProductCategory;
-import com.suisung.shopsuite.pt.model.entity.ProductImage;
-import com.suisung.shopsuite.pt.model.entity.ProductItem;
+import com.suisung.shopsuite.pt.model.entity.*;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.res.ItemListRes;
@@ -162,7 +159,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
                 input.setPage(pageDataReq.getPage());
                 input.setSize(pageDataReq.getSize());
 
-                ItemListRes productItemRes = productIndexService.getList(input);
+                ItemListRes productItemRes = productIndexService.listItem(input);
                 baseListRes.setTotal(productItemRes.getRecords());
                 baseListRes.setSize(productItemRes.getSize());
                 baseListRes.setCurrent(productItemRes.getPage());
@@ -558,31 +555,26 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
                 List<Long> idList = new ArrayList<>();
                 idList.add(1L);
                 idList.add(2L);
-                idList.add(4L);
-                idList.add(5L);
                 idList.add(6L);
                 idList.add(7L);
                 idList.add(8L);
                 idList.add(10L);
                 idList.add(11L);
                 idList.add(12L);
-                idList.add(13L);
+//                idList.add(13L);
                 idList.add(14L);
                 idList.add(15L);
                 idList.add(17L);
-                idList.add(22L);
+//                idList.add(22L);
                 idList.add(23L);
                 //idList.add(33L);
                 //idList.add(34L);
                 idList.add(35L);
-                idList.add(36L);
                 idList.add(37L);
                 idList.add(38L);
-                idList.add(39L);
                 idList.add(30L);
                 idList.add(32L);
                 idList.add(31L);
-                idList.add(40L);
 
 
                 Iterator<PageDataItemVo> iterator = dataItemVos.iterator();
@@ -841,7 +833,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
             ProductItemInput productItemInput = new ProductItemInput();
             productItemInput.setItemId(item_id_row);
             productItemInput.setProductStateId(StateCode.PRODUCT_STATE_NORMAL);
-            List<ItemOutput> itemOutputList = productIndexService.getList(productItemInput).getItems();
+            List<ItemOutput> itemOutputList = productIndexService.listItem(productItemInput).getItems();
 
             //过滤上架的产品
             List<Long> item_idss = new ArrayList<>();

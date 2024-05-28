@@ -29,7 +29,7 @@ import com.suisung.shopsuite.pay.model.req.UserResourceListReq;
 import com.suisung.shopsuite.pay.model.res.SignInfoRes;
 import com.suisung.shopsuite.pay.model.res.UserResourceRes;
 import com.suisung.shopsuite.pay.model.vo.MoneyVo;
-import com.suisung.shopsuite.pay.model.vo.PointsVo;
+import com.suisung.shopsuite.pay.model.vo.UserPointsVo;
 
 import java.math.BigDecimal;
 
@@ -107,10 +107,10 @@ public interface UserResourceService extends IBaseService<UserResource, UserReso
     /**
      * 修改积分
      *
-     * @param pointsVo
+     * @param userPointsVo
      * @return
      */
-    boolean updatePoints(PointsVo pointsVo);
+    boolean updatePoints(UserPointsVo userPointsVo);
 
     /**
      * @param userId

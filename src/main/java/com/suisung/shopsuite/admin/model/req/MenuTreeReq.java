@@ -31,4 +31,7 @@ public class MenuTreeReq extends BaseListReq {
 
     @ApiModelProperty("查询标识")
     private Integer type = 1;
+
+    @ApiModelProperty("权限角色")
+    private Integer userRoleId;
 }

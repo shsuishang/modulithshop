@@ -55,7 +55,7 @@ public interface UserMessageService extends IBaseService<UserMessage, UserMessag
      * @param userId
      * @return
      */
-    UserMessageRes getMsgCount(Integer recentlyFlag, Integer userId);
+    UserMessageRes getMsgCount(Boolean recentlyFlag, Integer userId);
 
     /**
      * 短消息列表数据

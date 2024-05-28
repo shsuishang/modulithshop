@@ -21,6 +21,7 @@ package com.suisung.shopsuite.trade.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -28,7 +29,11 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.account.model.entity.UserDeliveryAddress;
+import com.suisung.shopsuite.account.model.entity.UserInfo;
+import com.suisung.shopsuite.account.model.entity.UserLevel;
 import com.suisung.shopsuite.account.repository.UserDeliveryAddressRepository;
+import com.suisung.shopsuite.account.repository.UserInfoRepository;
+import com.suisung.shopsuite.account.repository.UserLevelRepository;
 import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.consts.ConstantConfig;
 import com.suisung.shopsuite.common.exception.BusinessException;
@@ -36,6 +41,8 @@ import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.core.web.BaseQueryWrapper;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
+import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
+import com.suisung.shopsuite.marketing.model.vo.*;
 import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.vo.ProductItemVo;
@@ -96,6 +103,12 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
     @Autowired
     private ActivityBaseRepository activityBaseRepository;
 
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+
+    @Autowired
+    private UserLevelRepository userLevelRepository;
+
     @Override
     public CheckoutOutput getList(UserCartListReq req) {
         QueryWrapper<UserCart> wrapper = new BaseQueryWrapper<UserCart, UserCartListReq>(req).getWrapper();
@@ -154,6 +167,38 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
     public CheckoutOutput formatCartRows(CheckoutInput in) {
         CheckoutOutput out = new CheckoutOutput();
         out.setUserId(in.getUserId());
+        UserInfo userInfo = userInfoRepository.get(in.getUserId());
+
+        if (userInfo == null) {
+            throw new BusinessException(__("用户信息不存在！"));
+        }
+
+        // 处理店铺活动
+        ActivityBase activityBase = null;
+
+        if (CheckUtil.isNotEmpty(in.getActivityId())) {
+            //参加活动 产品及数量 - 活动信息使用
+            Map<Long, ItemNumVo> itemNumVoMap = new HashMap<>();
+
+            activityBase = activityBaseRepository.get(in.getActivityId());
+
+            if (activityBase != null) {
+                if (!activityBase.getActivityState().equals(StateCode.ACTIVITY_STATE_NORMAL)) {
+                    throw new BusinessException(__("活动尚未开启！"));
+                }
+                //会员等级判断
+                checkoutLevel(activityBase.getActivityUseLevel(), userInfo.getUserLevelId());
+                String activityRule = activityBase.getActivityRule();
+
+                if (StrUtil.isNotEmpty(activityRule)) {
+                    itemNumVoMap = activityBaseRepository.getActivityItemNum(activityBase);
+                }
+
+            } else {
+                throw new BusinessException(__("非法活动参数！"));
+            }
+        }
+
         BigDecimal orderProductAmount = BigDecimal.ZERO; //商品订单原价
         BigDecimal orderItemAmount = BigDecimal.ZERO; //单品优惠后价格累加
         BigDecimal orderFreightAmount = BigDecimal.ZERO;
@@ -250,6 +295,7 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
             }
 
             StoreItemVo storeItemVo = new StoreItemVo();
+            storeItemVo.setActivityBase(activityBase);
             List<ProductItemVo> items = storeItemsMap.getOrDefault(storeId, new ArrayList<>());
 
             if (CollUtil.isEmpty(items)) {
@@ -276,6 +322,17 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
                 itemSelectedSize++;
 
                 //todo 处理单品活动价格
+
+                if (ObjectUtil.isNotEmpty(item.getActivityInfo())) {
+                    //会员等级判断
+                    if (ObjectUtil.isNotEmpty(item.getActivityInfo())) {
+                        ActivityBase activity = item.getActivityInfo().getActivityBase();
+
+                        if (activity != null) {
+                            checkoutLevel(activity.getActivityUseLevel(), userInfo.getUserLevelId());
+                        }
+                    }
+                }
 
                 BigDecimal itemOriSubtotal = item.getItemUnitPrice().multiply(BigDecimal.valueOf(item.getCartQuantity()));
                 itemSubtotal = item.getItemSalePrice().multiply(BigDecimal.valueOf(item.getCartQuantity()));
@@ -423,6 +480,25 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
         return out;
     }
 
+    private void checkoutLevel(String activityUseLevel, Integer userLevelId) {
+        if (StrUtil.isNotEmpty(activityUseLevel)) {
+            List<Integer> userLevels = Convert.toList(Integer.class, activityUseLevel);
+
+            if (CollectionUtil.isNotEmpty(userLevels)) {
+                Collections.sort(userLevels);
+                List<UserLevel> userLevelList = userLevelRepository.gets(userLevels);
+
+                if (CollectionUtil.isEmpty(userLevelList)) {
+                    throw new BusinessException(__("等级信息不存在！"));
+                }
+
+                if (!userLevels.contains(userLevelId)) {
+                    throw new BusinessException(String.format(__("活动商品会员等级为 %s ，用户等级未达到"), CollUtil.join(CommonUtil.column(userLevelList, UserLevel::getUserLevelName), "、")));
+                }
+            }
+        }
+    }
+
 
     /**
      * 配送区域判断及运费, 并修正最终数据
@@ -550,6 +626,7 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean addCart(CartAddInput in) {
         //流程可配置 节点触发api调用
 
@@ -585,12 +662,29 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
 
             cart.setCartQuantity(cart.getCartQuantity() + in.getCartQuantity());
         }
+        //活动商品 达到会员等级判断
+        QueryWrapper<UserCart> userCartQueryWrapper = new QueryWrapper<>();
+        userCartQueryWrapper.eq("user_id", in.getUserId());
+        userCartQueryWrapper.eq("cart_select", true);
+        List<UserCart> userCarts = find(userCartQueryWrapper);
+
+        if (CollectionUtil.isNotEmpty(userCarts)) {
+
+            if (cart.getCartSelect()) {
+                userCarts.add(cart);
+            }
+            CheckoutInput checkoutInput = new CheckoutInput();
+            checkoutInput.setUserId(in.getUserId());
+            checkoutInput.setItems(BeanUtil.copyToList(userCarts, CheckoutItemVo.class));
+            checkout(checkoutInput);
+        }
 
         return repository.save(cart);
     }
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean sel(UserCartSelectInput input) {
         Integer userId = input.getUserId();
         Long cartId = input.getCartId();
@@ -620,8 +714,27 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
         if (!edit(cart, queryWrapper)) {
             throw new BusinessException(__("更改购物车选中状态失败"));
         }
+        //活动商品 达到会员等级判断
+        checkoutCart(userId, input.getCartSelect());
 
         return true;
+    }
+
+    private void checkoutCart(Integer userId, Boolean cartSelect) {
+        if (cartSelect) {
+            //活动商品 达到会员等级判断
+            QueryWrapper<UserCart> userCartQueryWrapper = new QueryWrapper<>();
+            userCartQueryWrapper.eq("user_id", userId);
+            userCartQueryWrapper.eq("cart_select", true);
+            List<UserCart> userCarts = find(userCartQueryWrapper);
+
+            if (CollectionUtil.isNotEmpty(userCarts)) {
+                CheckoutInput checkoutInput = new CheckoutInput();
+                checkoutInput.setUserId(userId);
+                checkoutInput.setItems(BeanUtil.copyToList(userCarts, CheckoutItemVo.class));
+                checkout(checkoutInput);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -650,6 +763,8 @@ public class UserCartServiceImpl extends BaseServiceImpl<UserCartRepository, Use
 
                 cart.setCartQuantity(userCart.getCartQuantity());
                 result = edit(cart);
+                //活动商品 达到会员等级判断
+                checkoutCart(userId, cart.getCartSelect());
             }
         }
 

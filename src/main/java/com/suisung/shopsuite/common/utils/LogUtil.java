@@ -68,16 +68,6 @@ public class LogUtil implements ApplicationContextAware {
         CompletableFuture.runAsync(() -> {
             boolean flag = true;
 
-            if (throwable != null) {
-                String infoStr = throwable.toString();
-                List<String> exList = StrUtil.split(infoStr, ":");
-                if (CollUtil.isNotEmpty(exList)) {
-                    if (exList.get(0).equals("com.suisung.shopsuite.common.exception.BusinessException")) {
-                        flag = false;
-                    }
-                }
-            }
-
             if (flag) {
 
                 Date curDate = new Date();
@@ -98,13 +88,17 @@ public class LogUtil implements ApplicationContextAware {
                 logError.setLogErrorLine(String.format("%s::%s:%d", stackTraceElement.getClassName(), stackTraceElement.getMethodName(), stackTraceElement.getLineNumber()));
 
                 logError.setLogErrorTime(curDate.getTime());
-                logError.setLogErrorInfo(errMsg);
 
-                if (throwable != null) {
-                    StringWriter errLog = new StringWriter();
-                    PrintWriter writer = new PrintWriter(errLog);
-                    throwable.printStackTrace(writer);
-                    logError.setLogErrorInfo(errLog.toString());
+
+                if (errMsg != null) {
+                    logError.setLogErrorInfo(errMsg);
+                } else {
+                    if (throwable != null) {
+                        StringWriter errLog = new StringWriter();
+                        PrintWriter writer = new PrintWriter(errLog);
+                        throwable.printStackTrace(writer);
+                        logError.setLogErrorInfo(errLog.toString());
+                    }
                 }
 
                 logError.setLogErrorDate(curDate);

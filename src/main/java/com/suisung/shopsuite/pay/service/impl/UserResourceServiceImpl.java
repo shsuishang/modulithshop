@@ -46,17 +46,14 @@ import com.suisung.shopsuite.common.utils.TimeRange;
 import com.suisung.shopsuite.common.utils.TimeUtil;
 import com.suisung.shopsuite.common.web.service.MessageService;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
-import com.suisung.shopsuite.pay.model.entity.ConsumeRecord;
-import com.suisung.shopsuite.pay.model.entity.UserExpHistory;
-import com.suisung.shopsuite.pay.model.entity.UserPointsHistory;
-import com.suisung.shopsuite.pay.model.entity.UserResource;
+import com.suisung.shopsuite.pay.model.entity.*;
 import com.suisung.shopsuite.pay.model.req.UserExpHistoryListReq;
 import com.suisung.shopsuite.pay.model.req.UserResourceListReq;
 import com.suisung.shopsuite.pay.model.res.SignInfoRes;
 import com.suisung.shopsuite.pay.model.res.UserResourceRes;
 import com.suisung.shopsuite.pay.model.vo.MoneyVo;
 import com.suisung.shopsuite.pay.model.vo.PointStepVo;
-import com.suisung.shopsuite.pay.model.vo.PointsVo;
+import com.suisung.shopsuite.pay.model.vo.UserPointsVo;
 import com.suisung.shopsuite.pay.repository.UserExpHistoryRepository;
 import com.suisung.shopsuite.pay.repository.UserResourceRepository;
 import com.suisung.shopsuite.pay.service.ConsumeRecordService;
@@ -143,13 +140,13 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
         BigDecimal points_reg = Convert.toBigDecimal(str_points_reg, BigDecimal.ZERO);
         String desc = String.format(__("注册赠送积分 %d"), points_reg.intValue());
 
-        PointsVo pointsVo = new PointsVo();
-        pointsVo.setUserId(userId);
-        pointsVo.setPoints(points_reg);
-        pointsVo.setPointsTypeId(PointsType.POINTS_TYPE_REG);
-        pointsVo.setPointsLogDesc(desc);
+        UserPointsVo userPointsVo = new UserPointsVo();
+        userPointsVo.setUserId(userId);
+        userPointsVo.setPoints(points_reg);
+        userPointsVo.setPointsTypeId(PointsType.POINTS_TYPE_REG);
+        userPointsVo.setPointsLogDesc(desc);
 
-        userResourceRepository.points(pointsVo);
+        userResourceRepository.points(userPointsVo);
 
         return true;
     }
@@ -389,8 +386,8 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
 
         String desc = String.format(__("签到获取积分 %d"), pointsLogin);
 
-        PointsVo pointsVo = new PointsVo(userId, BigDecimal.valueOf(pointsLogin), PointsType.POINTS_TYPE_LOGIN, desc, null, null, null);
-        userResourceRepository.points(pointsVo);
+        UserPointsVo userPointsVo = new UserPointsVo(userId, BigDecimal.valueOf(pointsLogin), PointsType.POINTS_TYPE_LOGIN, desc, null, null, null);
+        userResourceRepository.points(userPointsVo);
 
         ExperienceVo experienceVo = new ExperienceVo(userId, BigDecimal.valueOf(expLogin), LevelCode.EXP_TYPE_LOGIN, "");
         experience(experienceVo);
@@ -458,13 +455,13 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updatePoints(PointsVo pointsVo) {
-        BigDecimal points = pointsVo.getPoints();
+    public boolean updatePoints(UserPointsVo userPointsVo) {
+        BigDecimal points = userPointsVo.getPoints();
 
         if (points != null && ObjectUtil.compare(BigDecimal.ZERO, points) != 0) {
-            pointsVo.setPointsTypeId(PointsType.POINTS_TYPE_OTHER);
-            pointsVo.setPointsLogDesc(__("管理员后台修改"));
-            userResourceRepository.points(pointsVo);
+            userPointsVo.setPointsTypeId(PointsType.POINTS_TYPE_OTHER);
+            userPointsVo.setPointsLogDesc(__("管理员后台修改"));
+            userResourceRepository.points(userPointsVo);
         } else {
             throw new BusinessException(ResultCode.VALIDATE_FAILED);
         }

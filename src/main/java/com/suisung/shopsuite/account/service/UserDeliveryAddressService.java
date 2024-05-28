@@ -32,4 +32,11 @@ import com.suisung.shopsuite.core.web.service.IBaseService;
  * @since 2018-07-04
  */
 public interface UserDeliveryAddressService extends IBaseService<UserDeliveryAddress, UserDeliveryAddressListReq> {
+
+    /**
+     * 用户地址表-保存/编辑
+     * @param userDeliveryAddress
+     * @return
+     */
+    boolean saveDeliveryAddress(UserDeliveryAddress userDeliveryAddress);
 }

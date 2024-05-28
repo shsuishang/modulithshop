@@ -56,7 +56,7 @@ import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import com.suisung.shopsuite.pay.model.entity.ConsumeRecord;
 import com.suisung.shopsuite.pay.model.entity.ConsumeTrade;
 import com.suisung.shopsuite.pay.model.entity.UserResource;
-import com.suisung.shopsuite.pay.model.vo.PointsVo;
+import com.suisung.shopsuite.pay.model.vo.UserPointsVo;
 import com.suisung.shopsuite.pay.repository.ConsumeRecordRepository;
 import com.suisung.shopsuite.pay.repository.ConsumeTradeRepository;
 import com.suisung.shopsuite.pay.repository.UserResourceRepository;
@@ -84,15 +84,9 @@ import com.suisung.shopsuite.trade.model.output.OrderAddOutput;
 import com.suisung.shopsuite.trade.model.output.OrderNumOutput;
 import com.suisung.shopsuite.trade.model.req.OrderInfoListReq;
 import com.suisung.shopsuite.trade.model.req.OrderInvoiceAddReq;
-import com.suisung.shopsuite.trade.model.vo.OrderReturnItemInputVo;
-import com.suisung.shopsuite.trade.model.vo.OrderVo;
-import com.suisung.shopsuite.trade.model.vo.PickingItem;
-import com.suisung.shopsuite.trade.model.vo.StoreItemVo;
+import com.suisung.shopsuite.trade.model.vo.*;
 import com.suisung.shopsuite.trade.repository.*;
-import com.suisung.shopsuite.trade.service.OrderInfoService;
-import com.suisung.shopsuite.trade.service.OrderReturnService;
-import com.suisung.shopsuite.trade.service.OrderService;
-import com.suisung.shopsuite.trade.service.UserCartService;
+import com.suisung.shopsuite.trade.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -331,7 +325,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //是否取消
-        detail.setIfBuyerCancel(isCancel(orderInfo.getOrderStateId(), orderInfo.getOrderIsPaid()));
+        detail.setIfBuyerCancel(ifCancel(orderInfo.getOrderStateId(), orderInfo.getOrderIsPaid()));
 
         // 订单倒计时
         boolean showCancelTime = configBaseService.getConfig("show_cancel_time", false);
@@ -377,7 +371,7 @@ public class OrderServiceImpl implements OrderService {
         //是否可以取消
         if (CollectionUtil.isNotEmpty(out.getRecords())) {
             for (OrderVo orderVo : out.getRecords()) {
-                orderVo.setIfBuyerCancel(isCancel(orderVo.getOrderStateId(), orderVo.getOrderIsPaid()));
+                orderVo.setIfBuyerCancel(ifCancel(orderVo.getOrderStateId(), orderVo.getOrderIsPaid()));
             }
         }
 
@@ -549,13 +543,13 @@ public class OrderServiceImpl implements OrderService {
             if (ObjectUtil.compare(orderResourceExt1Use, BigDecimal.ZERO) != 0) {
                 String desc = String.format("%s 积分兑换", orderResourceExt1Use);
 
-                PointsVo pointsVo = new PointsVo();
-                pointsVo.setUserId(cartData.getUserId());
-                pointsVo.setPoints(orderResourceExt1Use.negate());
-                pointsVo.setPointsTypeId(PointsType.POINTS_TYPE_EXCHANGE_PRODUCT);
-                pointsVo.setPointsLogDesc(desc);
+                UserPointsVo userPointsVo = new UserPointsVo();
+                userPointsVo.setUserId(cartData.getUserId());
+                userPointsVo.setPoints(orderResourceExt1Use.negate());
+                userPointsVo.setPointsTypeId(PointsType.POINTS_TYPE_EXCHANGE_PRODUCT);
+                userPointsVo.setPointsLogDesc(desc);
 
-                if (!userResourceRepository.points(pointsVo)) {
+                if (!userResourceRepository.points(userPointsVo)) {
                     throw new BusinessException(__("积分操作失败！"));
                 }
                 usePoint = true;
@@ -1383,9 +1377,6 @@ public class OrderServiceImpl implements OrderService {
 
             Integer subsite_id = 0;
 
-            Integer _chainId = chain_id;
-            BigDecimal _order_money_select_items = storeItemVo.getMoneyItemAmount();
-
             consume_trade_row.setOrderId(orderId);
             consume_trade_row.setBuyerId(userId); // 买家编号
 
@@ -1399,7 +1390,7 @@ public class OrderServiceImpl implements OrderService {
             consume_trade_row.setSellerId(userAdmin.getUserId()); // 卖家id, 店铺主账号
             consume_trade_row.setStoreId(storeId); // 卖家id
             consume_trade_row.setSubsiteId(subsite_id); // 所属分站
-            consume_trade_row.setChainId(_chainId);
+            consume_trade_row.setChainId(chain_id);
             //consume_trade_row.setOrder_stateId(orderInfo.getOrder_stateId()); // 订单状态
             consume_trade_row.setTradeIsPaid(StateCode.ORDER_PAID_STATE_NO); // 未支付
             consume_trade_row.setTradeTypeId(StateCode.TRADE_TYPE_SHOPPING); // 交易类型
@@ -1460,19 +1451,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * 是否可以取消
-     *
-     * @param orderStateId 订单状态
-     * @param orderIsPaid
-     * @return boolean true-可，false-不可
-     */
-    private boolean ifCancel(Integer orderStateId, Integer orderIsPaid) {
-        List<Integer> orderStates = Arrays.asList(StateCode.ORDER_STATE_WAIT_PAY, StateCode.ORDER_STATE_WAIT_REVIEW, StateCode.ORDER_STATE_WAIT_FINANCE_REVIEW, StateCode.ORDER_STATE_PICKING, StateCode.ORDER_STATE_WAIT_SHIPPING);
-        return orderStates.contains(orderStateId) && ObjectUtil.equal(orderIsPaid, StateCode.ORDER_PAID_STATE_NO);
-    }
-
-
-    /**
      * 是否可以退货
      *
      * @param orderStateId 订单状态
@@ -1504,8 +1482,8 @@ public class OrderServiceImpl implements OrderService {
         OrderInfo orderInfo = orderInfoRepository.get(orderId);
 
         //拼团支付，不可取消
-        //if (checkPaidFlag && !isCancel(orderInfo.getOrderStateId(), orderInfo.getOrderIsPaid())) {
-        if (!isCancel(orderInfo.getOrderStateId(), orderInfo.getOrderIsPaid())) {
+        //if (checkPaidFlag && !ifCancel(orderInfo.getOrderStateId(), orderInfo.getOrderIsPaid())) {
+        if (!ifCancel(orderInfo.getOrderStateId(), orderInfo.getOrderIsPaid())) {
             throw new BusinessException(__("无符合取消条件的订单"));
         }
 
@@ -1611,14 +1589,14 @@ public class OrderServiceImpl implements OrderService {
         if (ObjectUtil.compare(order_resource_ext1, BigDecimal.ZERO) > 0 && CheckUtil.isNotEmpty(orderBase.getUserId())) {
             String desc = String.format("%s 积分退还，订单号 %s", order_resource_ext1, orderData.getOrderId());
 
-            PointsVo pointsVo = new PointsVo();
-            pointsVo.setUserId(orderBase.getUserId());
-            pointsVo.setPoints(order_resource_ext1);
-            pointsVo.setPointsTypeId(PointsType.POINTS_TYPE_CONSUME_RETRUN);
-            pointsVo.setPointsLogDesc(desc);
-            pointsVo.setOrderId(orderData.getOrderId());
+            UserPointsVo userPointsVo = new UserPointsVo();
+            userPointsVo.setUserId(orderBase.getUserId());
+            userPointsVo.setPoints(order_resource_ext1);
+            userPointsVo.setPointsTypeId(PointsType.POINTS_TYPE_CONSUME_RETRUN);
+            userPointsVo.setPointsLogDesc(desc);
+            userPointsVo.setOrderId(orderData.getOrderId());
 
-            if (!userResourceRepository.points(pointsVo)) {
+            if (!userResourceRepository.points(userPointsVo)) {
                 throw new BusinessException(__("积分操作失败！"));
             }
         }
@@ -1651,6 +1629,14 @@ public class OrderServiceImpl implements OrderService {
         boolean flag = false;
         OrderInfo orderInfo = orderInfoRepository.get(orderId);
         OrderBase orderBase = orderBaseRepository.get(orderId);
+
+        if (ObjectUtil.isEmpty(orderBase)) {
+            throw new BusinessException(String.format(__("订单基础 %s 不存在!"), orderId));
+        }
+
+        if (ObjectUtil.isEmpty(orderInfo)) {
+            throw new BusinessException(String.format(__("订单信息 %s 不存在!"), orderId));
+        }
 
         if (orderInfo.getOrderStateId() == StateCode.ORDER_STATE_WAIT_PAY && orderInfo.getOrderIsPaid() != StateCode.ORDER_PAID_STATE_YES) {
             //库存是否足够
@@ -1743,6 +1729,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean review(String orderId, String orderStateNote) {
+        //判断活动前置条件
+        ifActivity(orderId);
+
         OrderBase orderBase = orderBaseRepository.get(orderId);
 
         if (orderBase == null) {
@@ -1771,6 +1760,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean finance(String orderId, String orderStateNote) {
+        //判断活动前置条件
+        ifActivity(orderId);
+
         OrderBase orderBase = orderBaseRepository.get(orderId);
 
         if (orderBase == null) {
@@ -1796,6 +1788,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean picking(OrderPickingInput in) {
+        //判断活动前置条件
+        ifActivity(in.getOrderId());
         checkOrderReturnWaiting(in.getOrderId());
 
         if (CollectionUtil.isNotEmpty(in.getItems())) {
@@ -1866,6 +1860,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean shipping(OrderShippingInput in) {
+        //判断活动前置条件
+        ifActivity(in.getOrderId());
         checkOrderReturnWaiting(in.getOrderId());
 
         String orderId = in.getOrderId();
@@ -2038,8 +2034,10 @@ public class OrderServiceImpl implements OrderService {
         if (orderBase.getOrderStateId().intValue() == StateCode.ORDER_STATE_SHIPPED) {
             //获取订单的下一条状态
             int nextOrderStateId = getNextOrderStateId(orderBase.getOrderStateId());
+            Boolean res = editNextState(orderId, orderBase.getOrderStateId(), nextOrderStateId, orderStateNote);
 
-            return editNextState(orderId, orderBase.getOrderStateId(), nextOrderStateId, orderStateNote);
+
+            return res;
         } else {
             throw new BusinessException("未更改到符合条件的订单！");
         }
@@ -2368,23 +2366,22 @@ public class OrderServiceImpl implements OrderService {
                 if (!flag) {
                     throw new BusinessException(__("发货信息错误"));
                 }
+
+                StoreExpressLogistics expressLogistics = storeExpressLogisticsRepository.get(in.getLogisticsId());
+
+                // 发货通知
+                String messageId = "order_complete_shipping";
+                Map<String, Object> args = new HashMap<>();
+                args.put("order_id", in.getOrderId());
+                args.put("logistics_name", expressLogistics.getExpressName());
+                args.put("order_tracking_number", newLogistics.getOrderTrackingNumber());
+                messageService.sendNoticeMsg(orderInfo.getUserId(), messageId, args);
             }
         }
 
         state = StateCode.ORDER_SHIPPED_STATE_YES;
         boolean flag = orderInfoRepository.edit(new OrderInfo().setOrderId(in.getOrderId()).setOrderIsShipped(state));
 
-        StoreExpressLogistics expressLogistics = storeExpressLogisticsRepository.get(in.getLogisticsId());
-
-        if (orderLogistics == null) {
-            // 发货通知
-            String messageId = "order_complete_shipping";
-            Map<String, Object> args = new HashMap<>();
-            args.put("order_id", in.getOrderId());
-            args.put("logistics_name", expressLogistics.getExpressName());
-            args.put("order_tracking_number", orderLogistics.get(0).getOrderTrackingNumber());
-            messageService.sendNoticeMsg(orderInfo.getUserId(), messageId, args);
-        }
 
         return state;
     }
@@ -2448,7 +2445,7 @@ public class OrderServiceImpl implements OrderService {
      * @param orderIsPaid  支付后不给取消
      * @return
      */
-    private boolean isCancel(Integer orderStateId, Integer orderIsPaid) {
+    private boolean ifCancel(Integer orderStateId, Integer orderIsPaid) {
         List<Integer> orderStates = Arrays.asList(StateCode.ORDER_STATE_WAIT_PAY, StateCode.ORDER_STATE_WAIT_REVIEW, StateCode.ORDER_STATE_WAIT_FINANCE_REVIEW, StateCode.ORDER_STATE_PICKING, StateCode.ORDER_STATE_WAIT_SHIPPING);
         //return orderStates.contains(orderStateId) && ObjectUtil.equal(orderIsPaid, StateCode.ORDER_PAID_STATE_NO);
         return orderStates.contains(orderStateId);
@@ -2617,6 +2614,12 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean addOrderInvoice(OrderInvoiceAddReq orderInvoiceAddReq) {
+        UserInfo userInfo = userInfoRepository.get(orderInvoiceAddReq.getUserId());
+
+        if (userInfo == null) {
+            throw new BusinessException(__("用户信息不存在！"));
+        }
+
         OrderBase orderBase = orderBaseRepository.get(orderInvoiceAddReq.getOrderId());
 
         if (orderBase == null) {
@@ -2642,6 +2645,13 @@ public class OrderServiceImpl implements OrderService {
         orderInvoice.setOrderIsPaid(true);
         orderInvoice.setInvoiceStatus(false);
         orderInvoice.setInvoiceTime(new Date().getTime());
+        String invoiceContactEmail = userInvoice.getInvoiceContactEmail();
+
+        if (StrUtil.isNotEmpty(invoiceContactEmail)) {
+            orderInvoice.setUserEmail(invoiceContactEmail);
+        } else if (StrUtil.isNotEmpty(userInfo.getUserEmail())) {
+            orderInvoice.setUserEmail(userInfo.getUserEmail());
+        }
 
         if (!orderInvoiceRepository.save(orderInvoice)) {
             throw new BusinessException(__("保存发票数据失败!"));
@@ -2663,4 +2673,22 @@ public class OrderServiceImpl implements OrderService {
 
         return add(orderBase);
     }
+
+    /**
+     * 判断是否有活动条件限制
+     *
+     * @param orderId
+     * @return
+     */
+    @Override
+    public boolean ifActivity(String orderId) {
+        OrderInfo orderInfo = orderInfoRepository.get(orderId);
+
+        if (CheckUtil.isNotEmpty(orderInfo.getActivityTypeId())) {
+            List<Integer> activityTypeId = Convert.toList(Integer.class, orderInfo.getActivityTypeId());
+        }
+
+        return true;
+    }
+
 }
