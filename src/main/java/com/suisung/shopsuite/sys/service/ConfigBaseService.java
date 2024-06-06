@@ -195,4 +195,6 @@ public interface ConfigBaseService extends IBaseService<ConfigBase, ConfigBaseLi
      * @return
      */
     Map<String, Object> getSiteInfo(String sourceUccCode);
+
+    boolean cleanCache();
 }

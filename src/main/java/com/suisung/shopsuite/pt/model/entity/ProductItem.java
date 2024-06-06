@@ -94,7 +94,7 @@ public class ProductItem implements Serializable {
 
     @ApiModelProperty("积分价格")
     @TableField("item_unit_points")
-    private BigDecimal itemUnitPoints;
+    private BigDecimal itemUnitPoints = BigDecimal.ZERO;
 
     @ApiModelProperty("商品库存")
     @TableField("item_quantity")

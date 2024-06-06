@@ -18,7 +18,9 @@ import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.pojo.dto.ErrorTypeEnum;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.LogUtil;
+import com.suisung.shopsuite.core.consts.ConstantRedis;
 import com.suisung.shopsuite.core.web.model.SelectVo;
+import com.suisung.shopsuite.core.web.service.RedisService;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.pay.model.vo.AliPayVo;
 import com.suisung.shopsuite.pay.model.vo.WxPayV3Vo;
@@ -88,6 +90,8 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
     private static List<SelectVo> returnStateSelectList;//退款退货 卖家处理状态
     private static Map<Integer, String> paymentChannelMap;
 
+    @Autowired
+    private RedisService redisService;
 
     /**
      * 根据config_key 获取 config_value
@@ -953,7 +957,8 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
     @Cacheable(value = {"configInfo"})
     @Override
     public Map<String, Object> getSiteInfo(String sourceUccCode) {
-        String keys = "site_name,site_meta_keyword,site_meta_description,site_version,copyright,icp_number,site_company_name,site_address,site_tel,account_login_bg,site_admin_logo,site_mobile_logo,site_pc_logo,date_format,time_format,cache_enable,cache_expire,site_status,advertisement_open,wechat_connect_auto,wechat_app_id,product_spec_edit,default_image,product_salenum_flag,b2b_flag,hall_b2b_enable,product_ziti_flag,plantform_fx_enable,plantform_fx_gift_point,plantform_fx_withdraw_min_amount,plantform_poster_bg,plantform_commission_withdraw_mode,product_poster_bg,live_mode_xcx,kefu_type_id,withdraw_received_day,withdraw_monthday,default_shipping_district,points_enable,voucher_enable";
+        String keys = "site_name,site_meta_keyword,site_meta_description,site_version,copyright,icp_number,site_company_name,site_address,site_tel,account_login_bg,site_admin_logo,site_mobile_logo,site_pc_logo,date_format,time_format,cache_enable,cache_expire,site_status,advertisement_open,wechat_connect_auto,wechat_app_id,product_spec_edit,default_image,product_salenum_flag,b2b_flag,hall_b2b_enable,product_ziti_flag,plantform_fx_enable,plantform_fx_gift_point,plantform_fx_withdraw_min_amount,plantform_poster_bg,plantform_commission_withdraw_mode,product_poster_bg,live_mode_xcx,kefu_type_id,withdraw_received_day,withdraw_monthday,default_shipping_district,points_enable,voucher_enable,b2b_enable,chain_enable,edu_enable,hall_enable,multilang_enable,sns_enable,subsite_enable,supplier_enable";
+
 
         List<String> objects = (List<String>) Convert.toList(keys);
         List<ConfigBase> configBases = gets(objects);
@@ -1018,5 +1023,26 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
         res.put("site_version", version);
 
         return res;
+    }
+
+    @Override
+    public boolean cleanCache() {
+        Set<String> c_keys = redisService.keys(ConstantRedis.Cache_NameSpace + "*");
+        Set<String> b_keys = redisService.keys("menuTree:*");
+        Set<String> s_keys = redisService.keys("productCategoryTree:*");
+        Set<String> cf_keys = redisService.keys("configInfo:*");
+        Set<String> menu_keys = redisService.keys("menuTree:*");
+        Set<String> pc_keys = redisService.keys("productCategoryList:*");
+        Set<String> db_keys = redisService.keys("districtBaseTree:*");
+
+        redisService.del(c_keys);
+        redisService.del(b_keys);
+        redisService.del(s_keys);
+        redisService.del(cf_keys);
+        redisService.del(menu_keys);
+        redisService.del(pc_keys);
+        redisService.del(db_keys);
+
+        return false;
     }
 }

@@ -85,7 +85,7 @@ public class StoreShippingAddressAddReq implements Serializable {
     private Date ssTime;
 
     @ApiModelProperty("默认地址(ENUM):0-否;1-是")
-    private Integer ssIsDefault;
+    private Boolean ssIsDefault;
 
     @ApiModelProperty("所属店铺")
     private Integer storeId;

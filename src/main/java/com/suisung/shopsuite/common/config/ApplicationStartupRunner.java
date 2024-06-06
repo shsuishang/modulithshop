@@ -24,6 +24,7 @@ import com.suisung.shopsuite.sys.model.entity.LogAction;
 import com.suisung.shopsuite.sys.repository.AccessHistoryRepository;
 import com.suisung.shopsuite.sys.repository.CrontabBaseRepository;
 import com.suisung.shopsuite.sys.repository.LogActionRepository;
+import com.suisung.shopsuite.sys.service.ConfigBaseService;
 import com.suisung.shopsuite.sys.service.CrontabBaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,9 +69,15 @@ public class ApplicationStartupRunner implements CommandLineRunner {
     @Autowired
     private CrontabBaseService crontabBaseService;
 
+    @Autowired
+    private ConfigBaseService configBaseService;
+
     @Override
     @Async
     public void run(String... args) {
+        log.info(__("初始化Redis缓存开始..."));
+        configBaseService.cleanCache();
+
         log.info(__("初始化定时任务开始..."));
 
         QueryWrapper<CrontabBase> queryWrapper = new QueryWrapper<>();

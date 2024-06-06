@@ -142,16 +142,18 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeRepositor
         List<ProductBrand> brands = new ArrayList<>();
         List<ProductSpecOutput> specs = new ArrayList<>();
 
-        if (CheckUtil.isNotEmpty(productType.getAssistIds())) {
-            assists = productAssistRepository.getAssists(productType.getAssistIds());
-        }
+        if (productType != null) {
+            if (StrUtil.isNotEmpty(productType.getAssistIds())) {
+                assists = productAssistRepository.getAssists(productType.getAssistIds());
+            }
 
-        if (CheckUtil.isNotEmpty(productType.getBrandIds())) {
-            brands = productBrandRepository.find(new QueryWrapper<ProductBrand>().in("brand_id", Convert.toList(Integer.class, productType.getBrandIds())));
-        }
+            if (StrUtil.isNotEmpty(productType.getBrandIds())) {
+                brands = productBrandRepository.find(new QueryWrapper<ProductBrand>().in("brand_id", Convert.toList(Integer.class, productType.getBrandIds())));
+            }
 
-        if (CheckUtil.isNotEmpty(productType.getSpecIds())) {
-            specs = productSpecRepository.getSpecs(productType.getSpecIds());
+            if (StrUtil.isNotEmpty(productType.getSpecIds())) {
+                specs = productSpecRepository.getSpecs(productType.getSpecIds());
+            }
         }
 
         productTypeRes.setAssists(assists);
