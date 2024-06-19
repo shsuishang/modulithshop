@@ -43,8 +43,10 @@ import com.suisung.shopsuite.common.utils.JSONUtil;
 import com.suisung.shopsuite.common.web.ContextUser;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
+import com.suisung.shopsuite.marketing.model.entity.ActivityItem;
 import com.suisung.shopsuite.marketing.model.vo.PageDataVo;
 import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
+import com.suisung.shopsuite.marketing.repository.ActivityItemRepository;
 import com.suisung.shopsuite.marketing.service.ActivityBaseService;
 import com.suisung.shopsuite.pt.model.entity.*;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
@@ -71,7 +73,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -112,6 +118,9 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
 
     @Autowired
     private ActivityBaseRepository activityBaseRepository;
+
+    @Autowired
+    private ActivityItemRepository activityItemRepository;
 
     @Autowired
     private ProductIndexRepository productIndexRepository;
@@ -704,6 +713,72 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
                         pageDataItemVo.setProductTips(item.getStoryContent());
                         pageDataItemVoList.add(pageDataItemVo);
                     });
+                    baseListRes.setRecords(pageDataItemVoList);
+                }
+                break;
+            case 14:
+                //秒杀
+                QueryWrapper<ActivityItem> activityItemQueryWrapper = new QueryWrapper<>();
+                activityItemQueryWrapper.in("activity_item_state", StateCode.ACTIVITY_STATE_NORMAL, StateCode.ACTIVITY_STATE_WAITING)
+                        .eq("activity_type_id", StateCode.ACTIVITY_TYPE_LIMITED_DISCOUNT);
+
+                if (StrUtil.isNotEmpty(pageDataReq.getName())) {
+                    QueryWrapper<ProductIndex> productIndexQueryWrapper = new QueryWrapper<>();
+                    productIndexQueryWrapper.like("product_name", pageDataReq.getName());
+                    List<Serializable> productIds = productIndexRepository.findKey(productIndexQueryWrapper);
+
+                    if (CollectionUtil.isNotEmpty(productIds)) {
+                        activityItemQueryWrapper.in("product_id", productIds);
+                    }
+                }
+
+                IPage<ActivityItem> activityItemPage = activityItemRepository.lists(activityItemQueryWrapper, pageDataReq.getPage(), pageDataReq.getSize());
+                BeanUtils.copyProperties(activityItemPage, baseListRes);
+                List<ActivityItem> activityItemList = activityItemPage.getRecords();
+                if (CollectionUtil.isNotEmpty(activityItemList)) {
+                    List<Long> productIds = activityItemList.stream().map(ActivityItem::getProductId).collect(Collectors.toList());
+                    //产品名称、商品卖点
+                    Map<Long, ProductBase> productBaseMap = getProductBaseMap(productIds);
+                    //产品图片
+                    Map<Long, ProductImage> productImageMap = getProductImageMap(productIds);
+                    //商品SKU表 副标题、市场价
+                    Map<Long, ProductItem> productItemMap = getProductItemMap(productIds);
+                    for (ActivityItem activityItem : activityItemList) {
+                        PageDataItemVo pageDataItemVo = new PageDataItemVo();
+                        //图片
+                        ProductImage productImage = productImageMap.get(activityItem.getProductId());
+
+                        if (productImage != null) {
+                            pageDataItemVo.setPath(productImage.getItemImageDefault());
+                        }
+
+                        //标题 卖点 市场价
+                        ProductBase productBase = productBaseMap.get(activityItem.getProductId());
+                        ProductItem productItem = productItemMap.get(activityItem.getProductId());
+
+                        if (productBase != null) {
+                            pageDataItemVo.setProductTips(productBase.getProductTips());
+
+                            if (productItem != null) {
+                                pageDataItemVo.setName(productBase.getProductName() + productItem.getItemName());
+                                pageDataItemVo.setMarketPice(productItem.getItemMarketPrice().intValue());
+                                pageDataItemVo.setId(productItem.getItemId());
+                            }
+                        }
+
+                        pageDataItemVo.setItemSalePrice(activityItem.getActivityItemPrice().intValue());
+                        //开始时间
+                        pageDataItemVo.setStartTime(activityItem.getActivityItemStarttime().toString());
+                        Instant start = Instant.ofEpochMilli(activityItem.getActivityItemStarttime());
+                        LocalDateTime startTime = LocalDateTime.ofInstant(start, ZoneId.systemDefault());
+                        pageDataItemVo.setStartTimeStr(startTime.format(formatter));
+                        //结束时间
+                        pageDataItemVo.setEndTime(activityItem.getActivityItemEndtime().toString());
+                        Instant end = Instant.ofEpochMilli(activityItem.getActivityItemEndtime());
+                        LocalDateTime endTime = LocalDateTime.ofInstant(end, ZoneId.systemDefault());
+                        pageDataItemVo.setStartTimeStr(endTime.format(formatter));
+                        pageDataItemVoList.add(pageDataItemVo);
+                    }
                     baseListRes.setRecords(pageDataItemVoList);
                 }
                 break;

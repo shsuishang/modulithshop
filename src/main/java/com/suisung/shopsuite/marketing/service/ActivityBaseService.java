@@ -22,8 +22,12 @@ package com.suisung.shopsuite.marketing.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.core.web.service.IBaseService;
 import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
+import com.suisung.shopsuite.marketing.model.entity.ActivityItem;
+import com.suisung.shopsuite.marketing.model.req.ActivityBaseEditReq;
 import com.suisung.shopsuite.marketing.model.req.ActivityBaseListReq;
+import com.suisung.shopsuite.marketing.model.req.ActivityItemBatchPriceEditReq;
 import com.suisung.shopsuite.marketing.model.res.ActivityBaseRes;
+import com.suisung.shopsuite.marketing.model.res.ActivityItemRes;
 
 import java.util.List;
 
@@ -90,4 +94,44 @@ public interface ActivityBaseService extends IBaseService<ActivityBase, Activity
      * @return
      */
     boolean removeActivity(Integer activityId, Integer storeId);
+
+    /**
+     * 活动商品列表
+     *
+     * @param activityId
+     * @return
+     */
+    List<ActivityItemRes> getActivityBuyItems(Integer activityId);
+
+    /**
+     * 活动-添加商品
+     *
+     * @param activityBaseEditReq
+     * @return
+     */
+    boolean addActivityBuyItems(ActivityBaseEditReq activityBaseEditReq);
+
+    /**
+     * 活动-删除商品
+     *
+     * @param activityBaseEditReq
+     * @return
+     */
+    boolean removeActivityBuyItems(ActivityBaseEditReq activityBaseEditReq);
+
+    /**
+     * 活动-修改商品活动价格
+     *
+     * @param activityItem
+     * @return
+     */
+    boolean editActivityItem(ActivityItem activityItem);
+
+    /**
+     * 活动-统一折扣修改价格
+     *
+     * @param activityItemBatchPriceEditReq
+     * @return
+     */
+    boolean editBatchPrice(ActivityItemBatchPriceEditReq activityItemBatchPriceEditReq);
 }

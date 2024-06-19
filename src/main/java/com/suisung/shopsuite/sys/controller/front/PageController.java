@@ -20,17 +20,25 @@
 package com.suisung.shopsuite.sys.controller.front;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.suisung.shopsuite.account.model.entity.UserInfo;
 import com.suisung.shopsuite.account.service.UserInfoService;
+import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.ContextUtil;
 import com.suisung.shopsuite.common.web.ContextUser;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.core.web.model.res.BaseListRes;
+import com.suisung.shopsuite.marketing.model.req.ActivityBaseListReq;
+import com.suisung.shopsuite.marketing.model.res.ActivityBaseRes;
+import com.suisung.shopsuite.marketing.model.vo.ActivityRuleVo;
+import com.suisung.shopsuite.marketing.model.vo.PopupVo;
 import com.suisung.shopsuite.marketing.service.ActivityBaseService;
 import com.suisung.shopsuite.sys.model.entity.PageBase;
 import com.suisung.shopsuite.sys.model.entity.PageModule;
@@ -38,6 +46,7 @@ import com.suisung.shopsuite.sys.model.entity.PagePcNav;
 import com.suisung.shopsuite.sys.model.req.PageBaseListReq;
 import com.suisung.shopsuite.sys.model.req.PageDetailReq;
 import com.suisung.shopsuite.sys.model.res.PageBaseRes;
+import com.suisung.shopsuite.sys.model.vo.PagePopUpVo;
 import com.suisung.shopsuite.sys.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -175,6 +184,27 @@ public class PageController extends BaseController {
         }
         PageBaseRes pageBaseRes = pageBaseService.detail(req.getPageId());
 
+        if (CheckUtil.isNotEmpty(req.getPageIndex()) && req.getPageIndex().equals("page_index")) {
+            //首页弹窗 新人优惠券
+            ActivityBaseListReq activityBaseListReq = new ActivityBaseListReq();
+            activityBaseListReq.setActivityState(String.valueOf(StateCode.ACTIVITY_STATE_NORMAL));
+            activityBaseListReq.setActivityTypeId(StateCode.ACTIVITY_TYPE_POP);
+            IPage<ActivityBaseRes> activityBaseResIPage = activityBaseService.getList(activityBaseListReq);
+
+            if (activityBaseResIPage != null && CollectionUtil.isNotEmpty(activityBaseResIPage.getRecords())) {
+                List<ActivityBaseRes> activityList = activityBaseResIPage.getRecords();
+
+                //未登录
+                if (user == null) {
+                    pageBaseRes.setPopUps(dealWithPopUp(activityList, null));
+                } else {
+                    //已登录
+                    UserInfo userInfo = userInfoService.get(user.getUserId());
+                    pageBaseRes.setPopUps(dealWithPopUp(activityList, userInfo));
+                }
+            }
+        }
+
         return success(pageBaseRes);
     }
 
@@ -299,6 +329,50 @@ public class PageController extends BaseController {
          */
 
         return success(data);
+    }
+
+    private List<PagePopUpVo> dealWithPopUp(List<ActivityBaseRes> activityList, UserInfo userInfo) {
+        List<PagePopUpVo> pagePopUpVos = new ArrayList<>();
+        for (ActivityBaseRes activityBaseRes : activityList) {
+            ActivityRuleVo activityRuleJson = activityBaseRes.getActivityRuleJson();
+
+            if (activityRuleJson != null) {
+                PopupVo popUp = activityRuleJson.getPopup();
+
+                if (popUp != null) {
+                    Integer popUpType = popUp.getPopUpType();
+
+                    if (userInfo != null) {
+                        //如果用户不符合弹窗等级，过滤此弹窗
+                        String activityUseLevel = activityBaseRes.getActivityUseLevel();
+                        List<Integer> userLevelList = Convert.toList(Integer.class, activityUseLevel);
+
+                        if (CollectionUtil.isNotEmpty(userLevelList)) {
+
+                            if (!userLevelList.contains(userInfo.getUserLevelId())) {
+
+                                continue;
+                            }
+                        }
+
+                        //如果不是新人，则不展示新人礼包弹窗
+                        if (popUpType == 0 && !userInfo.getUserNew()) {
+
+                            continue;
+                        }
+                    }
+
+
+                    PagePopUpVo pagePopUpVo = new PagePopUpVo();
+                    pagePopUpVo.setPopUpEnable(true);
+                    pagePopUpVo.setPopUpImage(popUp.getPopUpImage());
+                    pagePopUpVo.setPopUpUrl(popUp.getPopUpUrl());
+                    pagePopUpVos.add(pagePopUpVo);
+                }
+            }
+        }
+
+        return pagePopUpVos;
     }
 
     /**

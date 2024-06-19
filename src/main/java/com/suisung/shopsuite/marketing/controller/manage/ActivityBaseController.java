@@ -161,4 +161,88 @@ public class ActivityBaseController extends BaseController {
 
         return fail();
     }
+
+    @PreAuthorize("hasAuthority('/manage/marketing/activityBase/list')")
+    @ApiOperation(value = "活动商品列表", notes = "活动商品列表")
+    @RequestMapping(value = "/getActivityBuyItems", method = RequestMethod.GET)
+    public CommonRes<List<ActivityItemRes>> getActivityBuyItems(@RequestParam("activity_id") Integer activityId) {
+        List<ActivityItemRes> activityItemResList = activityBaseService.getActivityBuyItems(activityId);
+
+        return success(activityItemResList);
+    }
+
+    @PreAuthorize("hasAuthority('/manage/marketing/activityBase/add')")
+    @ApiOperation(value = "活动-添加商品", notes = "活动-添加商品")
+    @RequestMapping(value = "/addActivityBuyItems", method = RequestMethod.POST)
+    public CommonRes<?> addActivityBuyItems(ActivityBaseEditReq activityBaseEditReq) {
+        ContextUser user = ContextUtil.getLoginUser();
+
+        if (user == null) {
+            throw new BusinessException(ResultCode.NEED_LOGIN);
+        }
+        activityBaseEditReq.setStoreId(user.getStoreId());
+        boolean success = activityBaseService.addActivityBuyItems(activityBaseEditReq);
+
+        if (success) {
+            return success();
+        }
+
+        return fail();
+    }
+
+    @PreAuthorize("hasAuthority('/manage/marketing/activityBase/remove')")
+    @ApiOperation(value = "活动-删除商品", notes = "活动-删除商品")
+    @RequestMapping(value = "/removeActivityBuyItems", method = RequestMethod.POST)
+    public CommonRes<?> removeActivityBuyItems(ActivityBaseEditReq activityBaseEditReq) {
+        ContextUser user = ContextUtil.getLoginUser();
+
+        if (user == null) {
+            throw new BusinessException(ResultCode.NEED_LOGIN);
+        }
+        activityBaseEditReq.setStoreId(user.getStoreId());
+        boolean success = activityBaseService.removeActivityBuyItems(activityBaseEditReq);
+
+        if (success) {
+            return success();
+        }
+
+        return fail();
+    }
+
+    @PreAuthorize("hasAuthority('/manage/marketing/activityBase/edit')")
+    @ApiOperation(value = "活动-修改商品活动价格", notes = "活动-修改商品活动价格")
+    @RequestMapping(value = "/editActivityItem", method = RequestMethod.POST)
+    public CommonRes<?> editActivityItem(ActivityItemEditReq activityItemEditReq) {
+        ContextUser user = ContextUtil.getLoginUser();
+
+        if (user == null) {
+            throw new BusinessException(ResultCode.NEED_LOGIN);
+        }
+        ActivityItem activityItem = BeanUtil.copyProperties(activityItemEditReq, ActivityItem.class);
+        boolean success = activityBaseService.editActivityItem(activityItem);
+
+        if (success) {
+            return success();
+        }
+
+        return fail();
+    }
+
+    @PreAuthorize("hasAuthority('/manage/marketing/activityBase/edit')")
+    @ApiOperation(value = "活动-统一折扣修改价格", notes = "活动-统一折扣修改价格")
+    @RequestMapping(value = "/editBatchPrice", method = RequestMethod.POST)
+    public CommonRes<?> editBatchPrice(ActivityItemBatchPriceEditReq activityItemBatchPriceEditReq) {
+        ContextUser user = ContextUtil.getLoginUser();
+
+        if (user == null) {
+            throw new BusinessException(ResultCode.NEED_LOGIN);
+        }
+        boolean success = activityBaseService.editBatchPrice(activityItemBatchPriceEditReq);
+
+        if (success) {
+            return success();
+        }
+
+        return fail();
+    }
 }

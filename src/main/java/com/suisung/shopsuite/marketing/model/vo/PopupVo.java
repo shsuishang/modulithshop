@@ -10,27 +10,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import java.util.List;
-
-
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-@ApiModel(value = "活动规则")
-public class ActivityRuleVo {
+@ApiModel(value = "弹窗")
+public class PopupVo {
 
-    @ApiModelProperty("规则")
-    private List<RuleVo> rule;
+    @ApiModelProperty("弹窗图片")
+    private String popUpImage;
 
-    @ApiModelProperty("前置条件")
-    private RequirementVo requirement;
+    @ApiModelProperty("弹窗网址")
+    private String popUpUrl;
 
-    @ApiModelProperty("优惠券对象")
-    private VoucherVo voucher;
-
-    @ApiModelProperty("弹窗")
-    private PopupVo popup;
-
+    @ApiModelProperty("弹窗活动类型(ENUM):0-新人礼包;1-其他活动")
+    private Integer popUpType;
 }

@@ -30,7 +30,9 @@ public class StateCode {
     public static final int DEMAND_STATE_EXAMINE = 1040; //审核中
 
 
+    public static final int ACTIVITY_TYPE_LIMITED_DISCOUNT = 1103; //限时折扣
     public static final int ACTIVITY_TYPE_VOUCHER = 1105; //店铺优惠券  coupon 优惠券
+    public static final int ACTIVITY_TYPE_POP = 1137; //弹窗活动
 
     public static final int ACTIVITY_TYPE_TODAYHOT = 5001; //今日爆款
     public static final int ACTIVITY_TYPE_DAILYGOOD = 5002; //每日好店
