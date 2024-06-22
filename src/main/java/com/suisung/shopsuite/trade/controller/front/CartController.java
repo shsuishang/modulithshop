@@ -24,6 +24,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.utils.ContextUtil;
+import com.suisung.shopsuite.common.utils.JSONUtil;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.trade.model.entity.UserCart;
@@ -32,6 +33,7 @@ import com.suisung.shopsuite.trade.model.input.CheckoutInput;
 import com.suisung.shopsuite.trade.model.input.UserCartSelectInput;
 import com.suisung.shopsuite.trade.model.output.CheckoutOutput;
 import com.suisung.shopsuite.trade.model.req.*;
+import com.suisung.shopsuite.trade.model.vo.CartBatVo;
 import com.suisung.shopsuite.trade.model.vo.CheckoutItemVo;
 import com.suisung.shopsuite.trade.service.UserCartService;
 import io.swagger.annotations.Api;
@@ -150,7 +152,7 @@ public class CartController extends BaseController {
     }
 
     @ApiOperation(value = "购物车-选中商品", notes = "购物车-选中商品")
-    @RequestMapping(value = "/sel", method = RequestMethod.GET)
+    @RequestMapping(value = "/sel", method = {RequestMethod.POST, RequestMethod.GET})
     public CommonRes<?> sel(UserCartSelectReq req) {
         Integer userId = ContextUtil.checkLoginUserId();
 
@@ -168,11 +170,20 @@ public class CartController extends BaseController {
 
     @ApiOperation(value = "批量添加购物车", notes = "批量添加购物车")
     @RequestMapping(value = "/addBatch", method = RequestMethod.POST)
-    public CommonRes<?> addBatch(UserCartAddReq userCartAddReq) {
+    public CommonRes<?> addBatch(UserCartAddBatReq userCartAddReq) {
         Integer userId = ContextUtil.checkLoginUserId();
 
-        UserCart userCart = BeanUtil.copyProperties(userCartAddReq, UserCart.class);
-        boolean success = userCartService.add(userCart);
+        List<CartBatVo> cartBatVos = JSONUtil.parseArray(userCartAddReq.getPar(), CartBatVo.class);
+
+        boolean success = false;
+        for (CartBatVo cartBatVo : cartBatVos) {
+            CartAddInput userCart = new CartAddInput();
+            userCart.setItemId(cartBatVo.getItemId());
+            userCart.setCartQuantity(cartBatVo.getQuantity());
+            userCart.setUserId(userId);
+
+            success = userCartService.addCart(userCart);
+        }
 
         if (success) {
             return success();

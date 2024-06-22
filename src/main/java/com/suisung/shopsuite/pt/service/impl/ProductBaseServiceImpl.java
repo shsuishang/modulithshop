@@ -357,8 +357,8 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
                 }
             }
 
-            //[]interface{}{"ItemId", "item_unit_price", "ItemEnable", "item_quantity", "color_id", "color_img"}
-            productUniqid.put(CollUtil.join(specItemIds, "-"), new ArrayList<Object>(Arrays.asList(v.getItemId(), v.getItemUnitPrice(), v.getItemQuantity(), v.getItemEnable(), v.getColorId(), colorImage)));
+            //[]interface{}{"ItemId", "item_unit_price", "item_quantity", "ItemEnable", "color_id", "color_img", "item_name"}
+            productUniqid.put(CollUtil.join(specItemIds, "-"), new ArrayList<Object>(Arrays.asList(v.getItemId(), v.getItemUnitPrice(), v.getItemQuantity(), v.getItemEnable(), v.getColorId(), colorImage, v.getItemName())));
         }
 
         //商品图片 图片和规格属性一起保存  !如果是编辑，允许增加SKU，需要删除不使用的记录
