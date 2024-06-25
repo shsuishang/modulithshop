@@ -37,7 +37,7 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
         Object o = redisService.get(key);
         String code = Convert.toStr(o);
 
-        if (StrUtil.isNotBlank(verifyCode) && ObjectUtil.equal(verifyCode, code)) {
+        if (StrUtil.isNotBlank(verifyCode) && StrUtil.isNotBlank(code) && ObjectUtil.equal(verifyCode.toLowerCase(), code.toLowerCase())) {
             // 删除 redis 验证码
             //redisService.del(key);
 
