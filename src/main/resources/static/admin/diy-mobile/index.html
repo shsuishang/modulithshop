@@ -78,7 +78,7 @@
             </div>
           </div>
           <div class="weui-grids pageList" v-if="componenttabNum==2">
-            <div class="sub-content">
+            <div class="sub-content left-sub-content">
               <div class="expand_menu_box" v-for="(item,index) in pageList">
                 <div class="sub-level-title" :editId="item.Id" v-on:click.stop="editPage">
                   {{(index+1)}}. {{item.PageTitle?item.PageTitle:'第'+(index+1)+'项'}}
@@ -103,7 +103,7 @@
                         v-if="!item.IsRelease"><i :editId="item.Id"
                                                   class="iconfont icon-unpublished"></i></span>-->
                 </div>
-                <div class="expand_menu_content hidebox">
+                <div class="expand_menu_content hidebox left-expand_menu_content"  :style="{display:(editPageId!=item.Id?'none':'block')}">
                   <div class="sub-level1 box_border">
                     <div class="inputicon inputBox" style="min-width:20px;">首页</div>
                     <div class="inputicon inputBox" style="margin-right: 5px;">
@@ -116,13 +116,13 @@
                     <div class="inputicon inputBox" style="margin-right: 5px;"><input class="weui-switch" type="checkbox" v-model="item.IsSns"
                                :SnsPageId="item.Id" v-on:change="setSnsPage"/></div>
 
-                    <div class="inputicon inputBox" style="min-width:20px;">资讯 </div>
-                    <div class="inputicon inputBox" style="margin-right: 5px;"><input class="weui-switch" type="checkbox" v-model="item.IsArticle"
+                    <div class="inputicon inputBox" style="min-width:20px;" v-if="false">资讯 </div>
+                    <div class="inputicon inputBox" style="margin-right: 5px;" v-if="false"><input class="weui-switch" type="checkbox" v-model="item.IsArticle"
                              :PointPageId="item.Id" :data-page-id="item.Id"
                              data-page-type="IsArticle" v-on:change="setDefaultPage"/></div>
 
-                    <div class="inputicon inputBox" style="min-width:20px;">积分 </div>
-                    <div class="inputicon inputBox" style="margin-right: 5px;"><input class="weui-switch" type="checkbox" v-model="item.IsPoint"
+                    <div class="inputicon inputBox" style="min-width:20px;" v-if="false">积分 </div>
+                    <div class="inputicon inputBox" style="margin-right: 5px;" v-if="false"><input class="weui-switch" type="checkbox" v-model="item.IsPoint"
                            :PointPageId="item.Id" :data-page-id="item.Id"
                            data-page-type="IsPoint" v-on:change="setDefaultPage"/></div>
 
@@ -314,32 +314,38 @@
 
 
                   <div class="sub-level1 box_border">
+                    <div class="sub-label">
+                      页面标题
+                    </div>
                     <div class="inputBox">
-                      页面标题 <input maxlength="20" type="text" v-model="item.PageTitle"
-                                  placeholder="请输入页面标题" style="width:110px;" />  编号 <input maxlength="20" type="text" v-model="item.Id"
-                                                                       style="background-color: #e7e6e6;width:88px;" placeholder="请输入页面编号" readonly/>
+                       <input maxlength="20" type="text" v-model="item.PageTitle"
+                                  placeholder="请输入页面标题" style="width:100px;" />  编号 <input maxlength="20" type="text" v-model="item.Id"
+                                                                       style="background-color: #e7e6e6;width:83px;" placeholder="请输入页面编号" readonly/>
                     </div>
                   </div>
                   <div class="sub-level1 box_border">
+                    <div class="sub-label">
+                      分享标题
+                    </div>
                     <div class="inputBox">
-                      分享标题 <input maxlength="30" type="text" v-model="item.ShareTitle"
-                             placeholder="请输入页面分享标题" style="width:240px;"/>
+                       <input maxlength="30" type="text" v-model="item.ShareTitle"
+                             placeholder="请输入页面分享标题" style="width:227px;"/>
                     </div>
                   </div>
                   <!--图片 start-->
-                  <div class="sub-level1 box_border">
+                  <div class="sub-level1 box_border share-image">
                     <div class="sub-label">
-                      页面分享图片
+                      分享图片
                     </div>
                     <div class="inputbox">
                       <div class="shear_box">
-                        <div class="shear_logo">
+                        <div class="shear_logo" v-if="false">
                           <i class="iconfont icon-xiaochengxu1"></i>
                         </div>
-                        <div class="shear_ct">
+                        <div class="shear_ct" v-if="false">
                           小程序
                         </div>
-                        <div class="shear_tip">
+                        <div class="shear_tip" v-if="false">
                           {{item.ShareTitle || '请输入分享的标题'}}
                         </div>
                         <div class="shear_img">
@@ -351,7 +357,7 @@
                           <img :src="item.ShareImg || './static/diy/img/266x212.png' "
                                :imgId="item.Id" :uptype="1"/>
                         </div>
-                        <div class="shear_bottom">
+                        <div class="shear_bottom" v-if="false">
                           <i class="iconfont icon-xiaochengxu"></i>小程序
                         </div>
                       </div>
@@ -369,7 +375,7 @@
                      style="font-size: 14px;"><label style="font-size: 12px;"
                                                      editId="PersonalCenter">编辑中...</label></i>
                 </div>
-                <div class="expand_menu_content hidebox">
+                <div class="expand_menu_content left-expand_menu_content hidebox">
                   <div class="sub-level1 box_border">
                     <div class="sub-label">
                       展示样式

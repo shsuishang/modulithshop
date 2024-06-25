@@ -88,7 +88,7 @@ a cite {
 }
 
 .layui-box, .layui-box * {
-    box-sizing: content-box
+    box-sizing: content-box !important;
 }
 
 .layui-clear {

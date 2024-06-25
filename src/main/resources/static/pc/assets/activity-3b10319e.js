@@ -1,0 +1,1 @@
+import{M as i,N as r}from"./index-78223f15.js";async function n(t){return i({url:r.URL.marketing.list,method:"get",params:t})}async function a(t){return i({url:r.URL.marketing.getActivityInfo,method:"get",params:t})}export{a as g,n as l};

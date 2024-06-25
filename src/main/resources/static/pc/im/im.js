@@ -8,8 +8,7 @@ $.extend({
       timeout: 50000,
       loading: true,
       data: {
-        typ: 'json'
-      },
+        typ: 'json'},
       success: function (data, status) {
       },
 
@@ -122,7 +121,7 @@ if (localStorage.getItem("ukey")) {
 
 window.initIm = function () {
   //$.send(sprintf("%s/account.php?ctl=%s&met=%s&typ=json", SYS.CONFIG.base_url, 'Index', 'getConfig'), {uid:vid}, function (res)
-  $.send(SYS.CONFIG.im_config, { uid: vid }, function (res) {
+  $.send(SYS.CONFIG.im_config, {uid: vid}, function (res) {
     if (res.status == 200 && res.data.im_chat) {
 
       var userInfo = res.data.user_info;
@@ -130,12 +129,7 @@ window.initIm = function () {
       var suid = res.data.suid;
       var puid = res.data.puid;
 
-      if (is_dev) {
-        resourceSiteUrl = ""
-      }
-      else {
-        resourceSiteUrl = SYS.CONFIG.base_url
-      }
+      resourceSiteUrl = window.admin_url
 
       function addCSS(url) {
         var link = document.createElement('link');
@@ -312,7 +306,7 @@ window.initIm = function () {
           //监听签名修改
           layim.on('sign', function (value) {
             console.log(value);
-            $.send(sprintf("%s/account.php?ctl=%s&met=%s&typ=json", SYS.CONFIG.base_url, 'User_Account', 'sign'), { 'user_sign': value }, function (res) {
+            $.send(sprintf("%s/account.php?ctl=%s&met=%s&typ=json", SYS.CONFIG.base_url, 'User_Account', 'sign'), {'user_sign': value}, function (res) {
             });
           });
 
@@ -563,7 +557,7 @@ window.initIm = function () {
                   $.request({
                     type: 'post',
                     url: url,
-                    data: { message_id: msg_row.message_id },
+                    data: {message_id: msg_row.message_id},
                     dataType: 'json',
                     success: function (result) {
                     }
@@ -573,7 +567,7 @@ window.initIm = function () {
 
                 layim.getMessage(msg_row);
               }
-                ;
+              ;
 
               socket_handle.onerror = function (event) {
                 console.info(event);
@@ -658,7 +652,7 @@ window.initIm = function () {
 }
 
 //登录后执行
-// initIm();
+//initIm();
 
 
 

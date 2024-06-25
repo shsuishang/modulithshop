@@ -9,9 +9,9 @@ function getUrlParam(name) {
   if (r != null) return unescape(r[2]); return null;
 }
 
-window.admin_url = window.admin_url || getUrlParam('admin_url');
+window.admin_url = typeof window.admin_url != "undefined" ? window.admin_url : getUrlParam('admin_url');
 window.base_url = window.admin_url;
-window.api_url = window.api_url || getUrlParam('api_url')
+window.api_url = typeof window.api_url != "undefined" ? window.api_url : getUrlParam('api_url')
 
 
 if ('undefined' == typeof window.SYS)
@@ -32,16 +32,16 @@ SYS.DEBUG = 0;
 
 SYS.CONFIG['index_url'] = base_url
 SYS.CONFIG['base_url'] = base_url
-SYS.CONFIG['im_config'] = api_url + '/mobile/sns/im/getImConfig'
-SYS.CONFIG['kefu_config'] = api_url + '/mobile/sns/im/getKefuConfig'
+SYS.CONFIG['im_config'] = api_url + '/front/account/userMessage/getImConfig'
+SYS.CONFIG['kefu_config'] = api_url + '/front/account/userMessage/getKefuConfig'
 SYS.CONFIG['friend_info_lists'] = api_url + '/mobile/sns/userFriend/getFriendsInfo'
 SYS.CONFIG['zonemsg_lists'] = api_url + '/mobile/sns/userZoneMessage/list'
-SYS.CONFIG['msg_chat_lists'] = api_url + '/mobile/sns/userMessage/listChatMsg'
-SYS.CONFIG['msg_chathistory_lists'] = api_url + '/mobile/sns/userMessage/listChatMsg'
+SYS.CONFIG['msg_chat_lists'] = api_url + '/front/account/userMessage/listChatMsg'
+SYS.CONFIG['msg_chathistory_lists'] = api_url + '/front/account/userMessage/listChatMsg'
 //SYS.CONFIG['msg_chathistory_lists'] = api_url + '/im/iim/chatHistory/list'
-SYS.CONFIG['msg_set_read'] = api_url + '/mobile/sns/userMessage/setRead'
+SYS.CONFIG['msg_set_read'] = api_url + '/front/account/userMessage/setRead'
 SYS.CONFIG['zonemsg_add_msg'] = api_url + '/mobile/sns/zoneMessage/add'
-SYS.CONFIG['msg_add'] = api_url + '/mobile/sns/userMessage/add'
+SYS.CONFIG['msg_add'] = api_url + '/front/account/userMessage/add'
 SYS.CONFIG['upload'] = api_url + '/front/sys/upload/index'
 
 if ('undefined' == typeof window.SYS.CONFIG.static_url)
