@@ -30,6 +30,8 @@ url:
   api:
     manage: ${url.base}/manage
     front: ${url.base}/front
+
+  websocket-url: wss://im.suteshop.com:9501
 static:
   file:
     path: /opt/apps/mall/public/static

@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.core.web.BaseQueryWrapper;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
+import com.suisung.shopsuite.core.web.model.SmsDto;
 import com.suisung.shopsuite.core.web.model.res.BaseListRes;
+import com.suisung.shopsuite.core.web.service.CloundService;
 import com.suisung.shopsuite.sys.model.entity.ConfigBase;
 import com.suisung.shopsuite.sys.model.req.*;
 import com.suisung.shopsuite.sys.model.res.ConfigListRes;
@@ -17,6 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 
 /**
  * <p>
@@ -35,6 +38,9 @@ public class ConfigBaseController extends BaseController {
 
     @Autowired
     private ConfigTypeService configTypeService;
+
+    @Autowired
+    private CloundService cloundService;
 
     @PreAuthorize("hasAuthority('/manage/sys/config/list')")
     @ApiOperation(value = "系统参数设置表-分页列表查询", notes = "系统参数设置表-分页列表查询")
@@ -154,5 +160,20 @@ public class ConfigBaseController extends BaseController {
 
         return success(configBase);
     }
+
+    @ApiOperation(value = "消息模板表-分页列表查询", notes = "消息模板表-分页列表查询")
+    @RequestMapping(value = "/smsRecord", method = RequestMethod.GET)
+    public CommonRes<?> smsRecord(@RequestParam(name = "page", defaultValue = "1") Integer page,
+                                  @RequestParam(name = "rows", defaultValue = "10") Integer rows) throws Exception {
+        String serviceUserId = configBaseService.getConfig("service_user_id", "");
+        String serviceAppKey = configBaseService.getConfig("service_app_key", "");
+        //从云服务器读取
+        SmsDto smsDto = new SmsDto();
+        smsDto.setServiceUserId(serviceUserId);
+        smsDto.setServiceAppKey(serviceAppKey);
+
+        return success(cloundService.listSmsRecords(smsDto, page, rows));
+    }
+
 }
 

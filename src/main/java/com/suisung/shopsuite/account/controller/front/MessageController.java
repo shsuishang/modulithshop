@@ -3,6 +3,7 @@ package com.suisung.shopsuite.account.controller.front;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.account.model.entity.UserMessage;
 import com.suisung.shopsuite.account.model.input.UserMessageAddInput;
+import com.suisung.shopsuite.account.model.output.ImConfigOutput;
 import com.suisung.shopsuite.account.model.req.UserMessageListReq;
 import com.suisung.shopsuite.account.model.res.MessageRes;
 import com.suisung.shopsuite.account.model.res.UserMessageRes;
@@ -40,7 +41,8 @@ public class MessageController extends BaseController {
     @ApiOperation(value = "IM配置", notes = "IM配置接口")
     @RequestMapping(value = "/getImConfig", method = RequestMethod.GET)
     public CommonRes<?> getImConfig() {
-        return success();
+        ImConfigOutput data = new ImConfigOutput();
+        return success(data);
     }
 
     @ApiOperation(value = "客服配置", notes = "客服配置接口")
