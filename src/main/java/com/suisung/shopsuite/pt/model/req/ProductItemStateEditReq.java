@@ -21,8 +21,8 @@ public class ProductItemStateEditReq implements Serializable {
     @NotNull(message = "商品编号不能为空")
     private Long itemId;
 
-    @ApiModelProperty("活动状态(ENUM):0-未开启;1-正常;2-已结束;3-管理员关闭")
-    @NotNull(message = "活动状态不能为空")
-    private Integer activityItemState;
+    @ApiModelProperty("是否启用(LIST):1001-正常;1002-下架仓库中;1000-违规禁售")
+    @NotNull(message = "启用状态不能为空")
+    private Integer itemEnable;
 
 }

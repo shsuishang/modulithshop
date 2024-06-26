@@ -19,20 +19,29 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.pt.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suisung.shopsuite.common.api.StateCode;
+import com.suisung.shopsuite.common.exception.BusinessException;
+import com.suisung.shopsuite.common.utils.JSONUtil;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.invoicing.model.entity.StockBillItem;
 import com.suisung.shopsuite.invoicing.repository.StockBillItemRepository;
 import com.suisung.shopsuite.pt.model.entity.ProductIndex;
+import com.suisung.shopsuite.pt.model.entity.ProductInfo;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
 import com.suisung.shopsuite.pt.repository.ProductIndexRepository;
+import com.suisung.shopsuite.pt.repository.ProductInfoRepository;
 import com.suisung.shopsuite.pt.repository.ProductItemRepository;
 import com.suisung.shopsuite.pt.service.ProductItemService;
 import org.springframework.beans.BeanUtils;
@@ -41,8 +50,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 
 /**
  * <p>
@@ -59,6 +72,9 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
 
     @Autowired
     private StockBillItemRepository stockBillItemRepository;
+
+    @Autowired
+    private ProductInfoRepository productInfoRepository;
 
     /**
      * 获取itemDialog数据
@@ -134,6 +150,90 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
         }
 
         return flag;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean editState(ProductItem item) {
+        Long itemId = item.getItemId();
+        Integer itemEnable = item.getItemEnable();
+        ProductItem productItem = get(itemId);
+
+        if (productItem == null) {
+            throw new BusinessException(__("商品SKU不存在！"));
+        }
+        productItem.setItemEnable(itemEnable);
+
+        if (!edit(productItem)) {
+            throw new BusinessException(__("修改商品SKU状态失败！"));
+        }
+        Long productId = productItem.getProductId();
+        //修改商品SKU(JSON)
+        ProductInfo productInfo = productInfoRepository.get(productId);
+
+        if (productInfo == null) {
+            throw new BusinessException(__("商品信息为空！"));
+        }
+        List<Integer> specItemIds = new ArrayList<>();
+
+        if (StrUtil.isNotEmpty(productItem.getItemSpec())) {
+            List<Map> specs = JSONUtil.parseArray(productItem.getItemSpec(), Map.class);
+
+            for (Map spec : specs) {
+                //ISpecVo
+                Map row = (Map) spec.get("item");
+                specItemIds.add(Convert.toInt(row.get("id")));
+            }
+        }
+
+        if (CollectionUtil.isNotEmpty(specItemIds)) {
+            Collections.sort(specItemIds);
+            String specItem = CollUtil.join(specItemIds, "-");
+            String productUniqid = productInfo.getProductUniqid();
+
+            if (StrUtil.isNotEmpty(productUniqid)) {
+                JSONObject jsonObject = JSONObject.parseObject(productUniqid);
+                List<Object> objects = Convert.toList(Object.class, jsonObject.get(specItem));
+
+                if (CollectionUtil.isNotEmpty(objects) && objects.size() > 3) {
+                    objects.set(3, itemEnable);
+                    jsonObject.put(specItem, objects);
+                    productInfo.setProductUniqid(JSONUtil.toJSONString(jsonObject));
+
+                    if (!productInfoRepository.edit(productInfo)) {
+                        throw new BusinessException(__("修改商品信息失败！"));
+                    }
+                }
+            }
+        }
+
+        //修改产品索引表状态
+        if (itemEnable.equals(StateCode.PRODUCT_STATE_OFF_THE_SHELF)) {
+            QueryWrapper<ProductItem> productItemQueryWrapper = new QueryWrapper<>();
+            productItemQueryWrapper.eq("product_id", productId);
+            List<ProductItem> productItemList = find(productItemQueryWrapper);
+
+            if (CollectionUtil.isEmpty(productItemList)) {
+                throw new BusinessException(__("商品SKU集合为空！"));
+            }
+            boolean enable = productItemList.stream()
+                    .anyMatch(row -> ObjectUtil.equal(row.getItemEnable(), StateCode.PRODUCT_STATE_NORMAL));
+
+            if (!enable) {
+                ProductIndex productIndex = productIndexRepository.get(productId);
+
+                if (productIndex == null) {
+                    throw new BusinessException(__("产品索引信息不存在！"));
+                }
+                productIndex.setProductStateId(StateCode.PRODUCT_STATE_OFF_THE_SHELF);
+
+                if (!productIndexRepository.edit(productIndex)) {
+                    throw new BusinessException(__("修改产品索引信息失败！"));
+                }
+            }
+        }
+
+        return true;
     }
 
 }

@@ -21,6 +21,7 @@ package com.suisung.shopsuite.pt.service.impl;
 
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -223,6 +224,14 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
         productIndex.setProductUnitPointsMax(productUnitPointsMax);
 
         //初始化商品状态
+        if (productIndex.getProductStateId().equals(StateCode.PRODUCT_STATE_NORMAL)) {
+            boolean itemEnable = productItems.stream()
+                    .anyMatch(item -> ObjectUtil.equal(item.getItemEnable(), StateCode.PRODUCT_STATE_NORMAL));
+
+            if (!itemEnable) {
+                productIndex.setProductStateId(StateCode.PRODUCT_STATE_OFF_THE_SHELF);
+            }
+        }
 
         //开启事务
 
@@ -570,6 +579,18 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
 
                 if (Arrays.asList(StateCode.PRODUCT_VERIFY_WAITING, StateCode.PRODUCT_VERIFY_REFUSED).contains(productVerifyId)) {
                     throw new BusinessException(String.format(__("商品编号: %s 尚未审核通过，不可以上架"), productIndex.getProductId()));
+                }
+                QueryWrapper<ProductItem> productItemQueryWrapper = new QueryWrapper<>();
+                productItemQueryWrapper.eq("product_id", productId);
+                List<ProductItem> productItemList = productItemRepository.find(productItemQueryWrapper);
+
+                if (CollectionUtil.isNotEmpty(productItemList)) {
+                    boolean itemEnable = productItemList.stream()
+                            .anyMatch(item -> ObjectUtil.equal(item.getItemEnable(), StateCode.PRODUCT_STATE_NORMAL));
+
+                    if (!itemEnable) {
+                        throw new BusinessException(String.format(__("SPU编号: %s， 由于SKU商品都处于下架仓库中，无法上架！"), productId));
+                    }
                 }
                 productSaleTime = new Date();
 

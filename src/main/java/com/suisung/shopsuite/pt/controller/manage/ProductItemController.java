@@ -25,10 +25,12 @@ import cn.hutool.core.convert.Convert;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
+import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.req.ProductEditStockReq;
 import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
+import com.suisung.shopsuite.pt.model.req.ProductItemStateEditReq;
 import com.suisung.shopsuite.pt.model.res.ItemListRes;
 import com.suisung.shopsuite.pt.service.ProductCategoryService;
 import com.suisung.shopsuite.pt.service.ProductIndexService;
@@ -94,6 +96,20 @@ public class ProductItemController extends BaseController {
     public CommonRes<?> editStock(ProductEditStockReq req) {
         ProductEditStockInput input = BeanUtil.copyProperties(req, ProductEditStockInput.class);
         boolean success = productItemService.editStock(input);
+
+        if (success) {
+            return success();
+        }
+
+        return fail();
+    }
+
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
+    @ApiOperation(value = "修改状态-是否启用", notes = "修改状态-是否启用")
+    @RequestMapping(value = "/editState", method = RequestMethod.POST)
+    public CommonRes<?> editState(ProductItemStateEditReq req) {
+        ProductItem productItem = BeanUtil.copyProperties(req, ProductItem.class);
+        boolean success = productItemService.editState(productItem);
 
         if (success) {
             return success();

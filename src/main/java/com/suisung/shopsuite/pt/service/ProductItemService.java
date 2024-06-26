@@ -46,4 +46,10 @@ public interface ProductItemService extends IBaseService<ProductItem, ProductIte
 
     boolean editStock(ProductEditStockInput input);
 
+    /**
+     * 修改状态-是否启用
+     * @param productItem
+     * @return
+     */
+    boolean editState(ProductItem productItem);
 }
