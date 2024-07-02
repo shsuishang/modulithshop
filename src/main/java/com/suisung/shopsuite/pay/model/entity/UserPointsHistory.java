@@ -102,4 +102,8 @@ public class UserPointsHistory implements Serializable {
     @ApiModelProperty("关联单号")
     @TableField("ext_id")
     private String extId;
+
+    @ApiModelProperty("用户昵称")
+    @TableField(exist = false)
+    private String userNickname;
 }

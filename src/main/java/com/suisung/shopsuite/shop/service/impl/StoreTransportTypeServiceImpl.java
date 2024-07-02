@@ -19,12 +19,24 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.shop.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
+import com.suisung.shopsuite.pt.model.entity.ProductBase;
+import com.suisung.shopsuite.pt.repository.ProductBaseRepository;
 import com.suisung.shopsuite.shop.model.entity.StoreTransportType;
 import com.suisung.shopsuite.shop.model.req.StoreTransportTypeListReq;
 import com.suisung.shopsuite.shop.repository.StoreTransportTypeRepository;
 import com.suisung.shopsuite.shop.service.StoreTransportTypeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.Serializable;
+import java.util.List;
+
+import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 
 /**
  * <p>
@@ -36,6 +48,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StoreTransportTypeServiceImpl extends BaseServiceImpl<StoreTransportTypeRepository, StoreTransportType, StoreTransportTypeListReq> implements StoreTransportTypeService {
+
+    @Autowired
+    private ProductBaseRepository productBaseRepository;
 
     /**
      * 修改物流运费内置状态
@@ -51,5 +66,19 @@ public class StoreTransportTypeServiceImpl extends BaseServiceImpl<StoreTranspor
         storeTransportType.setTransportTypeBuildin(transportTypeBuildin);
 
         return edit(storeTransportType);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeStoreTransportType(Integer transportTypeId) {
+        QueryWrapper<ProductBase> productBaseQueryWrapper = new QueryWrapper<>();
+        productBaseQueryWrapper.eq("transport_type_id", transportTypeId);
+        List<Serializable> productIds = productBaseRepository.findKey(productBaseQueryWrapper);
+
+        if (CollectionUtil.isNotEmpty(productIds)) {
+            throw new BusinessException(String.format(__("该运费模板已被使用！productIds：%s！"), productIds.toString()));
+        }
+
+        return remove(transportTypeId);
     }
 }

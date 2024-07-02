@@ -21,13 +21,15 @@ package com.suisung.shopsuite.pt.controller.manage;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.suisung.shopsuite.common.api.ResultCode;
+import com.suisung.shopsuite.common.exception.BusinessException;
+import com.suisung.shopsuite.common.utils.ContextUtil;
+import com.suisung.shopsuite.common.web.ContextUser;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.core.web.model.res.BaseListRes;
 import com.suisung.shopsuite.pt.model.entity.ProductCommentReply;
-import com.suisung.shopsuite.pt.model.req.ProductCommentReplyAddReq;
-import com.suisung.shopsuite.pt.model.req.ProductCommentReplyEditReq;
-import com.suisung.shopsuite.pt.model.req.ProductCommentReplyListReq;
+import com.suisung.shopsuite.pt.model.req.*;
 import com.suisung.shopsuite.pt.service.ProductCommentReplyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -62,12 +64,20 @@ public class ProductCommentReplyController extends BaseController {
         return success(pageList);
     }
 
-    @PreAuthorize("hasAuthority('/manage/pt/productCommentReply/add')")
+    @PreAuthorize("hasAuthority('/manage/pt/productComment/list')")
     @ApiOperation(value = "商品评价回复表-添加", notes = "商品评价回复表-添加")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public CommonRes<?> add(ProductCommentReplyAddReq productCommentReplyAddReq) {
-        ProductCommentReply productCommentReply = BeanUtil.copyProperties(productCommentReplyAddReq, ProductCommentReply.class);
-        boolean success = productCommentReplyService.add(productCommentReply);
+    public CommonRes<?> addCommentReply(ProductCommentReplyReq productCommentReplyReq) {
+        ProductCommentReply productCommentReply = BeanUtil.copyProperties(productCommentReplyReq, ProductCommentReply.class);
+        ContextUser user = ContextUtil.getLoginUser();
+
+        if (user == null) {
+            throw new BusinessException(ResultCode.NEED_LOGIN);
+        }
+
+        productCommentReply.setUserId(user.getUserId());
+        productCommentReply.setUserName(user.getUserNickname());
+        boolean success = productCommentReplyService.addCommentReply(productCommentReply);
 
         if (success) {
             return success();
@@ -76,11 +86,11 @@ public class ProductCommentReplyController extends BaseController {
         return fail();
     }
 
-    @PreAuthorize("hasAuthority('/manage/pt/productComment/edit')")
-    @ApiOperation(value = "商品评价回复表-编辑", notes = "商品评价回复表-编辑")
-    @RequestMapping(value = "/edit", method = RequestMethod.POST)
-    public CommonRes<?> edit(ProductCommentReplyEditReq productCommentReplyEditReq) {
-        ProductCommentReply productCommentReply = BeanUtil.copyProperties(productCommentReplyEditReq, ProductCommentReply.class);
+    @PreAuthorize("hasAuthority('/manage/pt/productComment/list')")
+    @ApiOperation(value = "商品评价回复表-添加", notes = "商品评价回复表-添加")
+    @RequestMapping(value = "/editState", method = RequestMethod.POST)
+    public CommonRes<?> editEnable(ProductCommentReplyStateEditReq commentReplyStateEditReq) {
+        ProductCommentReply productCommentReply = BeanUtil.copyProperties(commentReplyStateEditReq, ProductCommentReply.class);
         boolean success = productCommentReplyService.edit(productCommentReply);
 
         if (success) {
@@ -90,7 +100,7 @@ public class ProductCommentReplyController extends BaseController {
         return fail();
     }
 
-    @PreAuthorize("hasAuthority('/manage/pt/productComment/remove')")
+    @PreAuthorize("hasAuthority('/manage/pt/productComment/list')")
     @ApiOperation(value = "商品评价回复表-通过comment_reply_id删除", notes = "商品评价回复表-通过comment_reply_id删除")
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public CommonRes<?> remove(@RequestParam("comment_reply_id") Long commentReplyId) {

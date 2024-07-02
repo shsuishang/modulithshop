@@ -19,6 +19,7 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.pay.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.core.web.service.IBaseService;
 import com.suisung.shopsuite.pay.model.entity.UserPointsHistory;
 import com.suisung.shopsuite.pay.model.req.UserPointsHistoryListReq;
@@ -32,4 +33,10 @@ import com.suisung.shopsuite.pay.model.req.UserPointsHistoryListReq;
  * @since 2021-05-09
  */
 public interface UserPointsHistoryService extends IBaseService<UserPointsHistory, UserPointsHistoryListReq> {
+    /**
+     * 会员积分日志表-分页列表查询
+     * @param userPointsHistoryListReq
+     * @return
+     */
+    IPage<UserPointsHistory> getList(UserPointsHistoryListReq userPointsHistoryListReq);
 }

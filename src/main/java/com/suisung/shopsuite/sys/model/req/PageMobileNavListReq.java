@@ -64,8 +64,8 @@ public class PageMobileNavListReq extends BaseListReq {
     @ApiModelProperty("分站id")
     private String subsiteId;
 
-    @TableField(exist = false)
-    private String sidx = "category_id";
-
-
+    public PageMobileNavListReq() {
+        this.setSidx("category_id");
+        this.setSort("ASC");
+    }
 }

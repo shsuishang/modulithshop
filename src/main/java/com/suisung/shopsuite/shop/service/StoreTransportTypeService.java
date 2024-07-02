@@ -41,4 +41,11 @@ public interface StoreTransportTypeService extends IBaseService<StoreTransportTy
      * @return
      */
     boolean editState(Integer transportTypeId, Boolean transportTypeBuildin);
+
+    /**
+     * 自定义物流运费及售卖区域类型表-通过transport_type_id删除
+     * @param transportTypeId
+     * @return
+     */
+    boolean removeStoreTransportType(Integer transportTypeId);
 }

@@ -67,6 +67,7 @@ import static com.suisung.shopsuite.common.utils.I18nUtil.__;
  */
 @Service
 public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepository, ProductItem, ProductItemListReq> implements ProductItemService {
+
     @Autowired
     private ProductIndexRepository productIndexRepository;
 

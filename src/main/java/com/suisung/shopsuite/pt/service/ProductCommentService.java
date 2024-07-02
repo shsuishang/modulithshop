@@ -70,4 +70,11 @@ public interface ProductCommentService extends IBaseService<ProductComment, Prod
      * @return
      */
     IPage<ProductComment> getList(ProductCommentListReq productCommentListReq);
+
+    /**
+     * 商品评价表-通过comment_id删除
+     * @param commentId
+     * @return
+     */
+    boolean removeComment(Long commentId);
 }

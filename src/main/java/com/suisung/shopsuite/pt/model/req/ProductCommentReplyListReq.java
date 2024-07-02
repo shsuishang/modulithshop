@@ -21,6 +21,9 @@ package com.suisung.shopsuite.pt.model.req;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.suisung.shopsuite.core.annotation.QueryField;
+import com.suisung.shopsuite.core.annotation.QueryType;
+import com.suisung.shopsuite.core.consts.Constants;
 import com.suisung.shopsuite.core.web.model.req.BaseListReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -55,15 +58,18 @@ public class ProductCommentReplyListReq extends BaseListReq {
     private Integer userId;
 
     @ApiModelProperty("买家评论者姓名")
+    @QueryField(type = QueryType.LIKE)
     private String userName;
 
     @ApiModelProperty("回复用户")
     private Integer userIdTo;
 
     @ApiModelProperty("回复用户名称")
+    @QueryField(type = QueryType.LIKE)
     private String userNameTo;
 
     @ApiModelProperty("评论回复内容")
+    @QueryField(type = QueryType.LIKE)
     private String commentReplyContent;
 
     @ApiModelProperty("评论回复时间")
@@ -78,5 +84,7 @@ public class ProductCommentReplyListReq extends BaseListReq {
     @TableField(exist = false)
     private String sidx = "comment_reply_id";
 
+    @TableField(exist = false)
+    private String sort = Constants.ORDER_BY_DESC;
 
 }

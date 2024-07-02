@@ -17,44 +17,38 @@
 // | 附带或衍生的损失等)，本团队不承担任何法律责任，本软件框架只能用于公司和个人内部的
 // | 法律所允许的合法合规的软件产品研发，详细见https://www.modulithshop.cn/policy
 // +----------------------------------------------------------------------
-package com.suisung.shopsuite.pt.service;
+package com.suisung.shopsuite.pt.model.req;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.suisung.shopsuite.core.web.service.IBaseService;
-import com.suisung.shopsuite.pt.model.entity.ProductItem;
-import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
-import com.suisung.shopsuite.pt.model.output.ItemOutput;
-import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * <p>
- * 商品SKU表 服务类
+ * 商品基础表-SPU表
  * </p>
  *
  * @author Xinze
- * @since 2021-03-13
+ * @since 2021-03-20
  */
-public interface ProductItemService extends IBaseService<ProductItem, ProductItemListReq> {
+@Data
+@EqualsAndHashCode(callSuper = false)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@ApiModel(description = "品牌")
+public class ProductCommentReplyStateEditReq implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * 获取itemDialog数据
-     *
-     * @param productItemListReq
-     * @return
-     */
-    IPage<ItemOutput> listItem(ProductItemListReq productItemListReq);
+    @ApiModelProperty("评论回复编号")
+    @NotNull(message = "评论回复不能为空")
+    private Long commentReplyId;
 
-    /**
-     * 更改库存
-     * @param input
-     * @return
-     */
-    boolean editStock(ProductEditStockInput input);
+    @ApiModelProperty("允许显示")
+    @NotNull(message = "允许显示不能为空")
+    private Boolean commentReplyEnable;
 
-    /**
-     * 修改状态-是否启用
-     * @param productItem
-     * @return
-     */
-    boolean editState(ProductItem productItem);
 }

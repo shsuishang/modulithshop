@@ -19,12 +19,19 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.pt.service.impl;
 
+import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
+import com.suisung.shopsuite.pt.model.entity.ProductComment;
 import com.suisung.shopsuite.pt.model.entity.ProductCommentReply;
 import com.suisung.shopsuite.pt.model.req.ProductCommentReplyListReq;
 import com.suisung.shopsuite.pt.repository.ProductCommentReplyRepository;
+import com.suisung.shopsuite.pt.repository.ProductCommentRepository;
 import com.suisung.shopsuite.pt.service.ProductCommentReplyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 
 /**
  * <p>
@@ -36,4 +43,23 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProductCommentReplyServiceImpl extends BaseServiceImpl<ProductCommentReplyRepository, ProductCommentReply, ProductCommentReplyListReq> implements ProductCommentReplyService {
+
+    @Autowired
+    private ProductCommentRepository productCommentRepository;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean addCommentReply(ProductCommentReply productCommentReply) {
+        ProductComment productComment = productCommentRepository.get(productCommentReply.getCommentId());
+
+        if (productComment == null) {
+            throw new BusinessException(__("数据不存在"));
+        }
+        productCommentReply.setUserIdTo(productComment.getUserId());
+        productCommentReply.setUserNameTo(productComment.getUserName());
+        productCommentReply.setCommentReplyEnable(true);
+        productCommentReply.setCommentReplyIsadmin(true);
+
+        return save(productCommentReply);
+    }
 }

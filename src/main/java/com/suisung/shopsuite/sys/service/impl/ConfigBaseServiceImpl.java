@@ -957,7 +957,7 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
     @Cacheable(value = {"configInfo"})
     @Override
     public Map<String, Object> getSiteInfo(String sourceUccCode) {
-        String keys = "site_name,site_meta_keyword,site_meta_description,site_version,copyright,icp_number,site_company_name,site_address,site_tel,account_login_bg,site_admin_logo,site_mobile_logo,site_pc_logo,date_format,time_format,cache_enable,cache_expire,site_status,advertisement_open,wechat_connect_auto,wechat_app_id,product_spec_edit,default_image,product_salenum_flag,b2b_flag,hall_b2b_enable,product_ziti_flag,plantform_fx_enable,plantform_fx_gift_point,plantform_fx_withdraw_min_amount,plantform_poster_bg,plantform_commission_withdraw_mode,product_poster_bg,live_mode_xcx,kefu_type_id,withdraw_received_day,withdraw_monthday,default_shipping_district,points_enable,voucher_enable,b2b_enable,chain_enable,edu_enable,hall_enable,multilang_enable,sns_enable,subsite_enable,supplier_enable,im_enable,chat_global,wechat_mp_qrcode";
+        String keys = "site_name,site_meta_keyword,site_meta_description,site_version,copyright,icp_number,site_company_name,site_address,site_tel,account_login_bg,site_admin_logo,site_mobile_logo,site_pc_logo,date_format,time_format,cache_enable,cache_expire,site_status,advertisement_open,wechat_connect_auto,wechat_app_id,product_spec_edit,default_image,product_salenum_flag,b2b_flag,hall_b2b_enable,product_ziti_flag,plantform_fx_enable,plantform_fx_gift_point,plantform_fx_withdraw_min_amount,plantform_poster_bg,plantform_commission_withdraw_mode,product_poster_bg,live_mode_xcx,kefu_type_id,withdraw_received_day,withdraw_monthday,default_shipping_district,points_enable,voucher_enable,b2b_enable,chain_enable,edu_enable,hall_enable,multilang_enable,sns_enable,subsite_enable,supplier_enable,im_enable,chat_global,service_qrcode,wechat_mp_qrcode,chain_enable";
 
 
         List<String> objects = (List<String>) Convert.toList(keys);
@@ -1044,5 +1044,50 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
         redisService.del(db_keys);
 
         return false;
+    }
+
+    /**
+     * 是否启用 IM
+     *
+     * @return
+     */
+    @Override
+    public boolean ifIm() {
+        return getConfig("im_enable", false);
+    }
+
+    @Override
+    public boolean ifB2B() {
+        return getConfig("b2b_enable", false);
+    }
+
+    @Override
+    public boolean ifChain() {
+        return getConfig("chain_enable", false);
+    }
+
+    @Override
+    public boolean ifEdu() {
+        return getConfig("edu_enable", false);
+    }
+
+    @Override
+    public boolean ifB2bHall() {
+        return getConfig("hall_enable", false);
+    }
+
+    @Override
+    public boolean ifMultilang() {
+        return getConfig("multilang_enable", false);
+    }
+
+    @Override
+    public boolean ifSns() {
+        return getConfig("sns_enable", false);
+    }
+
+    @Override
+    public boolean ifSubsite() {
+        return getConfig("subsite_enable", false);
     }
 }

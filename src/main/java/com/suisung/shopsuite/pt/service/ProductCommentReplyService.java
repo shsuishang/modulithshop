@@ -32,4 +32,10 @@ import com.suisung.shopsuite.pt.model.req.ProductCommentReplyListReq;
  * @since 2021-10-18
  */
 public interface ProductCommentReplyService extends IBaseService<ProductCommentReply, ProductCommentReplyListReq> {
+    /**
+     * 商品评价回复表-添加
+     * @param productCommentReply
+     * @return
+     */
+    boolean addCommentReply(ProductCommentReply productCommentReply);
 }

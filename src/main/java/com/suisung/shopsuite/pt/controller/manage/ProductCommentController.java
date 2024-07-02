@@ -95,20 +95,7 @@ public class ProductCommentController extends BaseController {
     @ApiOperation(value = "商品评价表-通过comment_id删除", notes = "商品评价表-通过comment_id删除")
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public CommonRes<?> remove(@RequestParam("comment_id") Long commentId) {
-        boolean success = productCommentService.remove(commentId);
-
-        if (success) {
-            return success();
-        }
-
-        return fail();
-    }
-
-    @PreAuthorize("hasAuthority('/manage/pt/productComment/remove')")
-    @ApiOperation(value = "商品评价表-批量删除", notes = "商品评价表-批量删除")
-    @RequestMapping(value = "/removeBatch", method = RequestMethod.POST)
-    public CommonRes<?> removeBatch(@RequestParam("comment_id") String commentIds) {
-        boolean success = productCommentService.remove(Convert.toList(Long.class, commentIds));
+        boolean success = productCommentService.removeComment(commentId);
 
         if (success) {
             return success();

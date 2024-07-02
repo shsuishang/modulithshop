@@ -94,7 +94,7 @@ public class StoreTransportTypeController extends BaseController {
     @ApiOperation(value = "自定义物流运费及售卖区域类型表-通过transport_type_id删除", notes = "自定义物流运费及售卖区域类型表-通过transport_type_id删除")
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public CommonRes<?> remove(@RequestParam("transport_type_id") Integer transportTypeId) {
-        boolean success = storeTransportTypeService.remove(transportTypeId);
+        boolean success = storeTransportTypeService.removeStoreTransportType(transportTypeId);
 
         if (success) {
             return success();

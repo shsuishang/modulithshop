@@ -2,6 +2,7 @@ package com.suisung.shopsuite.trade.model.vo;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.suisung.shopsuite.pt.model.entity.ProductCommentReply;
 import com.suisung.shopsuite.trade.model.entity.OrderItem;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -78,4 +79,7 @@ public class OrderItemVo extends OrderItem implements Serializable {
 
     @ApiModelProperty("所属分站:0-总站")
     private Integer subsiteId;
+
+    @ApiModelProperty("商品评价回复")
+    private List<ProductCommentReply> productCommentReplyList;
 }

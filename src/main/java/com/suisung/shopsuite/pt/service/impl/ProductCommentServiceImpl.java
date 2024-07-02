@@ -69,6 +69,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,11 +134,36 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
     private UserInfoRepository userInfoRepository;
 
     @Override
+    @Transactional
     public boolean editState(Long commentId, Boolean commentEnable) {
-        ProductComment productComment = new ProductComment();
-        productComment.setCommentId(commentId);
+        ProductComment productComment = get(commentId);
+
+        if (productComment == null) {
+            throw new BusinessException(__("该商品评价信息不存在！"));
+        }
         productComment.setCommentEnable(commentEnable);
-        return edit(productComment);
+
+        if (!edit(productComment)) {
+            throw new BusinessException(__("修改评价信息的状态失败！"));
+        }
+        ProductIndex productIndex = productIndexRepository.get(productComment.getProductId());
+
+        if (productIndex == null) {
+            throw new BusinessException(__("该产品索引信息不存在！"));
+        }
+        Integer productEvaluationNum = productIndex.getProductEvaluationNum();
+
+        if (commentEnable) {
+            productIndex.setProductEvaluationNum(productEvaluationNum + 1);
+        } else {
+            productIndex.setProductEvaluationNum(productEvaluationNum > 0 ? productEvaluationNum - 1 : 0);
+        }
+
+        if (!productIndexRepository.edit(productIndex)) {
+            throw new BusinessException(__("修改产品索引信息失败！"));
+        }
+
+        return true;
     }
 
     /**
@@ -170,6 +196,18 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
                         String commentImage = productComment.getCommentImage();
                         if (StrUtil.isNotEmpty(commentImage)) {
                             orderItemVo.setCommentImage(Convert.toList(String.class, commentImage));
+                        }
+
+                        //评论回复
+                        QueryWrapper<ProductCommentReply> replyQueryWrapper = new QueryWrapper<>();
+                        replyQueryWrapper.eq("comment_id", productComment.getCommentId());
+                        replyQueryWrapper.eq("user_id_to", userId);
+                        replyQueryWrapper.eq("comment_reply_enable", true);
+                        replyQueryWrapper.orderByDesc("comment_reply_id");
+                        List<ProductCommentReply> productCommentReplies = productCommentReplyRepository.find(replyQueryWrapper);
+
+                        if (CollectionUtil.isNotEmpty(productCommentReplies)) {
+                            orderItemVo.setProductCommentReplyList(productCommentReplies);
                         }
                     }
                 }
@@ -408,7 +446,7 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
                     //有评论
                 }
             }
-
+            queryWrapper.eq("comment_enable", true);
             queryWrapper.orderByDesc("comment_time");
             Page<ProductComment> commentPage = lists(queryWrapper, req.getPage(), req.getSize());
             commentRes.setTotal(Convert.toInt(commentPage.getPages()));
@@ -444,14 +482,16 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
             for (ProductComment comment : commentList) {
                 Iterator<ProductCommentReply> replyIterator = replyList.iterator();
                 Long itemCommentId = comment.getCommentId();
+                ArrayList<ProductCommentReply> commentReplies = new ArrayList<>();
 
                 while (replyIterator.hasNext()) {
                     ProductCommentReply commentReply = replyIterator.next();
                     Long reply_comment_id = commentReply.getCommentId();
                     if (ObjectUtil.equal(itemCommentId, reply_comment_id)) {
-                        comment.setCommentReply(commentReply);
+                        commentReplies.add(commentReply);
                     }
                 }
+                comment.setCommentReplyList(commentReplies);
 
                 Optional<ProductCommentHelpful> helpfulOpl = helpfulList.stream().filter(s -> ObjectUtil.equal(itemCommentId, s.getCommentId())).findFirst();
                 comment.setHelpful(helpfulOpl.isPresent() ? 1 : 0);
@@ -481,6 +521,25 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
         if (productCommentPage != null && CollectionUtil.isNotEmpty(productCommentPage.getRecords())) {
             List<ProductComment> commentList = productCommentPage.getRecords();
             List<Long> productIds = CommonUtil.column(commentList, ProductComment::getProductId);
+
+            List<Long> commentIds = CommonUtil.column(commentList, ProductComment::getCommentId);
+            QueryWrapper<ProductCommentReply> replyQueryWrapper = new QueryWrapper<>();
+            replyQueryWrapper.in("comment_id", commentIds);
+            List<ProductCommentReply> productCommentReplies = productCommentReplyRepository.find(replyQueryWrapper);
+            Map<Long, Integer> commentIdCountMap = new HashMap<>();
+
+            if (CollectionUtil.isNotEmpty(productCommentReplies)) {
+
+                for (ProductCommentReply reply : productCommentReplies) {
+                    Long commentId = reply.getCommentId();
+                    if (commentIdCountMap.containsKey(commentId)) {
+                        commentIdCountMap.put(commentId, commentIdCountMap.get(commentId) + 1);
+                    } else {
+                        commentIdCountMap.put(commentId, 1);
+                    }
+                }
+            }
+
             List<ProductBase> productBases = productBaseRepository.gets(productIds);
             Map<Long, String> productNameMap = new HashMap<>();
 
@@ -497,11 +556,33 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
                 if (CollUtil.isNotEmpty(productNameMap)) {
                     productComment.setProductName(productNameMap.get(productComment.getProductId()));
                 }
+                //评价回复数量
+                if (!commentIdCountMap.isEmpty()) {
+                    productComment.setCommentReplyNum(Convert.toInt(commentIdCountMap.get(productComment.getCommentId()), 0));
+                }
             }
         }
 
         return productCommentPage;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeComment(Long commentId) {
+        if (!remove(commentId)) {
+            throw new BusinessException(__("该商品评价删除失败"));
+        }
+        QueryWrapper<ProductCommentReply> replyQueryWrapper = new QueryWrapper<>();
+        replyQueryWrapper.eq("comment_id", commentId);
+        List<Serializable> replyIds = productCommentReplyRepository.findKey(replyQueryWrapper);
+
+        if (CollectionUtil.isNotEmpty(replyIds)) {
+            if (!productCommentReplyRepository.remove(replyIds)) {
+                throw new BusinessException(__("该商品评价回复删除失败"));
+            }
+        }
+
+        return true;
+    }
 
 }

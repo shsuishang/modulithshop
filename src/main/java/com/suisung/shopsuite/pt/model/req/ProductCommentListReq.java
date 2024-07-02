@@ -67,6 +67,9 @@ public class ProductCommentListReq extends BaseListReq {
     @ApiModelProperty("评论类型")
     private Integer commentType;
 
+    @ApiModelProperty("评价星级")
+    private Integer commentScores;
+
     public ProductCommentListReq() {
         setSidx("comment_id");
         setSort(Constants.ORDER_BY_DESC);

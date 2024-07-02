@@ -578,7 +578,7 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
                 Integer productVerifyId = productIndex.getProductVerifyId();
 
                 if (Arrays.asList(StateCode.PRODUCT_VERIFY_WAITING, StateCode.PRODUCT_VERIFY_REFUSED).contains(productVerifyId)) {
-                    throw new BusinessException(String.format(__("商品编号: %s 尚未审核通过，不可以上架"), productIndex.getProductId()));
+                    throw new BusinessException(String.format(__("商品编号: %s 尚未审核通过，无法上架！"), productIndex.getProductId()));
                 }
                 QueryWrapper<ProductItem> productItemQueryWrapper = new QueryWrapper<>();
                 productItemQueryWrapper.eq("product_id", productId);
@@ -593,7 +593,6 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
                     }
                 }
                 productSaleTime = new Date();
-
             } else if (productStateId.equals(StateCode.PRODUCT_STATE_OFF_THE_SHELF)) {
                 productSaleTime = DateUtil.offsetMonth(new Date(), 12 * 10);// 待上架时间
             } else if (productStateId.equals((StateCode.PRODUCT_STATE_ILLEGAL))) {

@@ -197,4 +197,13 @@ public interface ConfigBaseService extends IBaseService<ConfigBase, ConfigBaseLi
     Map<String, Object> getSiteInfo(String sourceUccCode);
 
     boolean cleanCache();
+
+    boolean ifIm();
+    boolean ifB2B();
+    boolean ifChain();
+    boolean ifEdu();
+    boolean ifB2bHall();
+    boolean ifMultilang();
+    boolean ifSns();
+    boolean ifSubsite();
 }

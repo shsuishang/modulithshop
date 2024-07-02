@@ -19,12 +19,22 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.pay.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.suisung.shopsuite.account.model.entity.UserInfo;
+import com.suisung.shopsuite.account.repository.UserInfoRepository;
+import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.pay.model.entity.UserPointsHistory;
 import com.suisung.shopsuite.pay.model.req.UserPointsHistoryListReq;
 import com.suisung.shopsuite.pay.repository.UserPointsHistoryRepository;
 import com.suisung.shopsuite.pay.service.UserPointsHistoryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -36,4 +46,29 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserPointsHistoryServiceImpl extends BaseServiceImpl<UserPointsHistoryRepository, UserPointsHistory, UserPointsHistoryListReq> implements UserPointsHistoryService {
+
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+
+    @Override
+    public IPage<UserPointsHistory> getList(UserPointsHistoryListReq userPointsHistoryListReq) {
+        IPage<UserPointsHistory> lists = lists(userPointsHistoryListReq);
+
+        if (lists != null && CollectionUtil.isNotEmpty(lists.getRecords())) {
+            List<UserPointsHistory> historyList = lists.getRecords();
+            Map<Integer, UserInfo> userInfoMap = userInfoRepository.getUserInfoMap(CommonUtil.column(historyList, UserPointsHistory::getUserId));
+            for (UserPointsHistory userPointsHistory : historyList) {
+
+                if (CollectionUtil.isNotEmpty(userInfoMap)) {
+                    UserInfo userInfo = userInfoMap.get(userPointsHistory.getUserId());
+
+                    if (userInfo != null) {
+                        userPointsHistory.setUserNickname(userInfo.getUserNickname());
+                    }
+                }
+            }
+        }
+
+        return lists;
+    }
 }

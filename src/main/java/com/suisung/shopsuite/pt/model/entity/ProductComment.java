@@ -141,9 +141,9 @@ public class ProductComment implements Serializable {
     @TableField(exist = false)
     private String userAvatar;
 
-    @ApiModelProperty("")
+    @ApiModelProperty("商品评价回复集合")
     @TableField(exist = false)
-    private ProductCommentReply commentReply;
+    private List<ProductCommentReply> commentReplyList;
 
     @ApiModelProperty("")
     @TableField(exist = false)
@@ -152,5 +152,9 @@ public class ProductComment implements Serializable {
     @ApiModelProperty("产品名称")
     @TableField(exist = false)
     private String productName;
+
+    @ApiModelProperty("评价回复数量")
+    @TableField(exist = false)
+    private Integer commentReplyNum = 0;
 
 }

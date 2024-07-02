@@ -54,7 +54,7 @@ public class UserPointsHistoryController extends BaseController {
     @ApiOperation(value = "会员积分日志表-分页列表查询", notes = "会员积分日志表-分页列表查询")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public CommonRes<BaseListRes<UserPointsHistory>> list(UserPointsHistoryListReq userPointsHistoryListReq) {
-        IPage<UserPointsHistory> pageList = userPointsHistoryService.lists(userPointsHistoryListReq);
+        IPage<UserPointsHistory> pageList = userPointsHistoryService.getList(userPointsHistoryListReq);
 
         return success(pageList);
     }
