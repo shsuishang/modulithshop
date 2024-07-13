@@ -34,6 +34,8 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -148,6 +150,10 @@ public class ProductItem implements Serializable {
     @TableField("category_id")
     private Integer categoryId;
 
+    @ApiModelProperty("课程分类")
+    @TableField("course_category_id")
+    private Integer courseCategoryId;
+
     @ApiModelProperty("所属店铺")
     @TableField("store_id")
     private Integer storeId;
@@ -164,6 +170,10 @@ public class ProductItem implements Serializable {
     @TableField(exist = false)
     private Integer activityId;
 
+    @ApiModelProperty(value = "商品描述")
+    @TableField(exist = false)
+    private String productDetail;
+
 
     @ApiModelProperty("活动信息")
     @TableField(exist = false)
@@ -176,6 +186,15 @@ public class ProductItem implements Serializable {
     @ApiModelProperty("节省单价")
     @TableField(exist = false)
     private BigDecimal itemSavePrice;
+
+    @ApiModelProperty("标签名称(DOT)")
+    @TableField(exist = false)
+    private List<String> productTagNames = new ArrayList<>();
+
+    @ApiModelProperty("商品卖点:商品广告词")
+    @TableField(exist = false)
+    private String productTips;
+
 
     public Integer getAvailableQuantity() {
         return itemQuantity - itemQuantityFrozen;

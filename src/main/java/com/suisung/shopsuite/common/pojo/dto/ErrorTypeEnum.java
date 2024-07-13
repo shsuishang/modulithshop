@@ -3,7 +3,10 @@ package com.suisung.shopsuite.common.pojo.dto;
 import cn.hutool.core.collection.CollUtil;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 public enum ErrorTypeEnum {

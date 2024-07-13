@@ -45,11 +45,16 @@ public class UserAdminAddReq implements Serializable {
     @ApiModelProperty("权限角色")
     private Integer userRoleId;
 
+    @ApiModelProperty("角色编号(ENUM):0-用户;2-商家;3-门店;9-平台;")
+    private Integer roleId;
+
+    @ApiModelProperty("门店编号")
+    private Integer chainId ;
+
     @ApiModelProperty("创建时间")
     private Date userAdminCtime;
 
     @ApiModelProperty("是否超管(BOOL):0-否;1-是")
     private Boolean userIsSuperadmin;
-
 
 }

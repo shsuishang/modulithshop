@@ -57,4 +57,5 @@ public class BaseBankAddReq implements Serializable {
     private Integer settlementAccountTypeId;
 
 
+
 }

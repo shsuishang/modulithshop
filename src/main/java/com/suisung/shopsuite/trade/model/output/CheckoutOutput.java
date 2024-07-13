@@ -57,4 +57,10 @@ public class CheckoutOutput implements Serializable {
 
     @ApiModelProperty("输入参数")
     private CheckoutInput in;
+
+    @ApiModelProperty("商户订单编号")
+    private String orderId;
+
+    @ApiModelProperty("实付金额:在线支付金额,此为订单默认需要支付额度。")
+    private BigDecimal tradePaymentAmount;
 }

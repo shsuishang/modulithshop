@@ -81,4 +81,5 @@ public class ExpressBase implements Serializable {
     @ApiModelProperty("启用状态(BOOL):0-禁用;1-启用")
     @TableField("express_enable")
     private Boolean expressEnable;
+
 }

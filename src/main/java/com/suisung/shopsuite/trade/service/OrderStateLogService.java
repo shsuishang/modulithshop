@@ -19,6 +19,7 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.trade.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.core.web.service.IBaseService;
 import com.suisung.shopsuite.trade.model.entity.OrderStateLog;
 import com.suisung.shopsuite.trade.model.req.OrderStateLogListReq;
@@ -32,4 +33,11 @@ import com.suisung.shopsuite.trade.model.req.OrderStateLogListReq;
  * @since 2018-07-04
  */
 public interface OrderStateLogService extends IBaseService<OrderStateLog, OrderStateLogListReq> {
+
+    /**
+     * 订单日志
+     * @param req
+     * @return
+     */
+    IPage<OrderStateLog> listStateLog(OrderStateLogListReq req);
 }

@@ -415,16 +415,16 @@ public class UserMessageServiceImpl extends
                         case "text":
                         case "blessing":
                         case "order":
-                            messageContentRes.setMessageContent(item.getMessageContent());
+                            messageContentRes.setText(item.getMessageContent());
                             break;
                         case "img":
-                            messageContentRes.setMessageContent(item.getMessageContent());
+                            messageContentRes.setText(item.getMessageContent());
                             messageContentRes.setMessageW(item.getMessageW());
                             messageContentRes.setMessageH(item.getMessageH());
                             break;
                         case "voice":
                         case "video":
-                            messageContentRes.setMessageContent(item.getMessageContent());
+                            messageContentRes.setText(item.getMessageContent());
                             messageContentRes.setMessageLength(item.getMessageLength());
                             break;
                         case "item":
@@ -443,12 +443,12 @@ public class UserMessageServiceImpl extends
                                     productImageQueryWrapper.eq("product_id", productItem.getProductId());
                                     ProductImage productImage = productImageRepository.findOne(productImageQueryWrapper);
                                     messageContentRes.setProductImage(productImage != null ? productImage.getItemImageDefault() : "");
-                                    messageContentRes.setMessageContent(item.getMessageContent());
+                                    messageContentRes.setText(item.getMessageContent());
                                 }
                             }
                             break;
                         default:
-                            messageContentRes.setMessageContent(item.getMessageContent());
+                            messageContentRes.setText(item.getMessageContent());
                             break;
                     }
 

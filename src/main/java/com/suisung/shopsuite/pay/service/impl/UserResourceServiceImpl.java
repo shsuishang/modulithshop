@@ -46,7 +46,10 @@ import com.suisung.shopsuite.common.utils.TimeRange;
 import com.suisung.shopsuite.common.utils.TimeUtil;
 import com.suisung.shopsuite.common.web.service.MessageService;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
-import com.suisung.shopsuite.pay.model.entity.*;
+import com.suisung.shopsuite.pay.model.entity.ConsumeRecord;
+import com.suisung.shopsuite.pay.model.entity.UserExpHistory;
+import com.suisung.shopsuite.pay.model.entity.UserPointsHistory;
+import com.suisung.shopsuite.pay.model.entity.UserResource;
 import com.suisung.shopsuite.pay.model.req.UserExpHistoryListReq;
 import com.suisung.shopsuite.pay.model.req.UserResourceListReq;
 import com.suisung.shopsuite.pay.model.res.SignInfoRes;
@@ -306,12 +309,14 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
         // 获取本月开始与结束时间
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        DateTime monthStartTime = DateUtil.beginOfMonth(now);
-        DateTime monthEndTime = DateUtil.endOfMonth(now);
+
+        TimeRange timeRange = TimeUtil.lastNMonths(1);
+
+
         QueryWrapper<UserPointsHistory> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("points_type_id", PointsType.POINTS_TYPE_LOGIN);
-        queryWrapper.between("points_log_time", monthStartTime.getTime(), monthEndTime.getTime());
+        queryWrapper.between("points_log_time", timeRange.getStart(), timeRange.getEnd());
         queryWrapper.orderByDesc("points_log_date");
 
         List<UserPointsHistory> pointsHistoryList = userPointsHistoryService.find(queryWrapper);

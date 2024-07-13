@@ -33,6 +33,7 @@ import com.suisung.shopsuite.core.web.model.res.BaseListRes;
 import com.suisung.shopsuite.trade.model.entity.OrderReturn;
 import com.suisung.shopsuite.trade.model.req.OrderReturnEditReq;
 import com.suisung.shopsuite.trade.model.req.OrderReturnListReq;
+import com.suisung.shopsuite.trade.model.res.OrderReturnRes;
 import com.suisung.shopsuite.trade.model.vo.OrderReturnVo;
 import com.suisung.shopsuite.trade.service.OrderReturnService;
 import io.swagger.annotations.Api;
@@ -64,8 +65,8 @@ public class OrderReturnController extends BaseController {
     @PreAuthorize("hasAuthority('/manage/trade/orderReturn/list')")
     @ApiOperation(value = "退款退货表-发货退货,卖家也可以决定不退货退款，买家申请退款不支持。卖家可以主动退款。-分页列表查询", notes = "退款退货表-发货退货,卖家也可以决定不退货退款，买家申请退款不支持。卖家可以主动退款。-分页列表查询")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public CommonRes<BaseListRes<OrderReturn>> list(OrderReturnListReq orderReturnListReq) {
-        IPage<OrderReturn> pageList = orderReturnService.lists(orderReturnListReq);
+    public CommonRes<BaseListRes<OrderReturnRes>> list(OrderReturnListReq orderReturnListReq) {
+        IPage<OrderReturnRes> pageList = orderReturnService.pageList(orderReturnListReq);
 
         return success(pageList);
     }

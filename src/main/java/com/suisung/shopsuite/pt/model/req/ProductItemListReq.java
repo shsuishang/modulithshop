@@ -69,6 +69,9 @@ public class ProductItemListReq extends BaseListReq {
     @ApiModelProperty("商品分类")
     private Integer categoryId;
 
+    @ApiModelProperty("课程分类")
+    private Integer courseCategoryId;
+
     @ApiModelProperty("类型编号:冗余检索")
     private Integer typeId;
 

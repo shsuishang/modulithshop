@@ -22,6 +22,7 @@ package com.suisung.shopsuite.trade.controller.front;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.utils.ContextUtil;
 import com.suisung.shopsuite.common.utils.JSONUtil;
@@ -87,7 +88,9 @@ public class CartController extends BaseController {
         boolean success = userCartService.addCart(userCart);
 
         if (success) {
-            return success(userCart);
+            //获取下cart_id
+            UserCart cartItem = userCartService.findOne(new QueryWrapper<UserCart>().eq("item_id", userCartAddReq.getItemId()));
+            return success(cartItem);
         }
 
         return fail();

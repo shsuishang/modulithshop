@@ -25,12 +25,17 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.suisung.shopsuite.common.api.ResultCode;
 import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.consts.ConstantLog;
+import com.suisung.shopsuite.common.excel.EasyExcelUtil;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.CommonUtil;
@@ -40,6 +45,8 @@ import com.suisung.shopsuite.common.web.service.MessageService;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.invoicing.model.entity.StockBillItem;
 import com.suisung.shopsuite.invoicing.repository.StockBillItemRepository;
+import com.suisung.shopsuite.pt.excel.ProductTemp;
+import com.suisung.shopsuite.pt.excel.ProductTempListener;
 import com.suisung.shopsuite.pt.model.entity.*;
 import com.suisung.shopsuite.pt.model.input.ProductSaveInput;
 import com.suisung.shopsuite.pt.model.output.ProductDataOutput;
@@ -51,8 +58,14 @@ import com.suisung.shopsuite.sys.service.NumberSeqService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.*;
 
 import static com.suisung.shopsuite.common.utils.I18nUtil.__;
@@ -616,5 +629,44 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
         }
 
         return true;
+    }
+
+    @Override
+    public void exportTemp(HttpServletResponse response) {
+        //编码问题
+        try {
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setCharacterEncoding("utf-8");
+            String fileName = URLEncoder.encode(__("" +
+                    "" +
+                    "") + "-" + System.currentTimeMillis(), "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+
+            ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream()).build();
+            WriteSheet writeSheet = EasyExcelUtil.writeSelectedSheet(ProductTemp.class, 0, "导入单规格商品模版");
+            excelWriter.write(new ArrayList<ProductTemp>(), writeSheet);
+            excelWriter.finish();
+        } catch (UnsupportedEncodingException e) {
+            throw new BusinessException(__("导出Excel编码异常"));
+        } catch (IOException e) {
+            throw new BusinessException(__("导出Excel文件异常"));
+        }
+    }
+
+    @Override
+    public void importTemp(MultipartFile file) throws Exception {
+        AnalysisEventListener productTempListener = new ProductTempListener();
+        Class<?> tempClass = ProductTemp.class;
+
+        InputStream inputStream = file.getInputStream();
+        EasyExcel.read(inputStream)
+                // 注册监听器，可以在这里校验字段
+                .registerReadListener(productTempListener)
+                .head(tempClass)
+                // 设置sheet,默认读取第一个
+                .sheet()
+                // 设置标题所在行数
+                .headRowNumber(1)
+                .doReadSync();
     }
 }

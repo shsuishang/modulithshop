@@ -3,6 +3,7 @@ package com.suisung.shopsuite.account.repository;
 import com.suisung.shopsuite.account.model.entity.UserLevel;
 import com.suisung.shopsuite.core.web.repository.IBaseRepository;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,4 +16,5 @@ import java.util.Map;
  */
 public interface UserLevelRepository extends IBaseRepository<UserLevel> {
     Map<Integer, Integer> getUserLevelRateMap();
+    Map<Integer, UserLevel> getUserLevelMap(List<Integer> userlevelIds);
 }

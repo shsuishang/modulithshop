@@ -1,7 +1,5 @@
 package com.suisung.shopsuite.common.utils;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import com.suisung.shopsuite.common.consts.ConstantLog;
 import com.suisung.shopsuite.sys.model.entity.LogError;
 import com.suisung.shopsuite.sys.repository.LogErrorRepository;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -83,9 +80,10 @@ public class LogUtil implements ApplicationContextAware {
                     logError.setLogErrorLine(methodName);
                 }
 
-                StackTraceElement stackTraceElement = throwable.getStackTrace()[0];// 得到异常棧的首个元素
-
-                logError.setLogErrorLine(String.format("%s::%s:%d", stackTraceElement.getClassName(), stackTraceElement.getMethodName(), stackTraceElement.getLineNumber()));
+                if (throwable != null) {
+                    StackTraceElement stackTraceElement = throwable.getStackTrace()[0];// 得到异常棧的首个元素
+                    logError.setLogErrorLine(String.format("%s::%s:%d", stackTraceElement.getClassName(), stackTraceElement.getMethodName(), stackTraceElement.getLineNumber()));
+                }
 
                 logError.setLogErrorTime(curDate.getTime());
 

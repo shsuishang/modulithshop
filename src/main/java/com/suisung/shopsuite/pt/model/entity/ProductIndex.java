@@ -87,6 +87,10 @@ public class ProductIndex implements Serializable {
     @TableField("category_id")
     private Integer categoryId;
 
+    @ApiModelProperty("课程分类")
+    @TableField("course_category_id")
+    private Integer courseCategoryId;
+
     @ApiModelProperty("类型编号:冗余检索")
     @TableField("type_id")
     private Integer typeId;

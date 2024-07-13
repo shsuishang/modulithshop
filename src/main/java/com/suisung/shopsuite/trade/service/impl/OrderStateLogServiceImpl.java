@@ -19,12 +19,22 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.trade.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.suisung.shopsuite.account.model.entity.UserInfo;
+import com.suisung.shopsuite.account.repository.UserInfoRepository;
+import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.trade.model.entity.OrderStateLog;
 import com.suisung.shopsuite.trade.model.req.OrderStateLogListReq;
 import com.suisung.shopsuite.trade.repository.OrderStateLogRepository;
 import com.suisung.shopsuite.trade.service.OrderStateLogService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -36,4 +46,30 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class OrderStateLogServiceImpl extends BaseServiceImpl<OrderStateLogRepository, OrderStateLog, OrderStateLogListReq> implements OrderStateLogService {
+
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+
+    @Override
+    public IPage<OrderStateLog> listStateLog(OrderStateLogListReq req) {
+        IPage<OrderStateLog> lists = lists(req);
+
+        if (lists != null && CollectionUtil.isNotEmpty(lists.getRecords())) {
+            List<OrderStateLog> stateLogs = lists.getRecords();
+            List<Integer> userIds = CommonUtil.column(stateLogs, OrderStateLog::getUserId);
+            Map<Integer, UserInfo> userInfoMap = userInfoRepository.getUserInfoMap(userIds);
+            for (OrderStateLog stateLog : stateLogs) {
+
+                if (CollUtil.isNotEmpty(userInfoMap)) {
+                    UserInfo userInfo = userInfoMap.get(stateLog.getUserId());
+
+                    if (userInfo != null) {
+                        stateLog.setUserNickname(userInfo.getUserNickname());
+                    }
+                }
+            }
+        }
+
+        return lists;
+    }
 }

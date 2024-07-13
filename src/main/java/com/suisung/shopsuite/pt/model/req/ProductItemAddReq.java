@@ -111,6 +111,9 @@ public class ProductItemAddReq implements Serializable {
     @ApiModelProperty("商品分类")
     private Integer categoryId;
 
+    @ApiModelProperty("课程分类")
+    private Integer courseCategoryId;
+
     @ApiModelProperty("所属店铺")
     private Integer storeId;
 

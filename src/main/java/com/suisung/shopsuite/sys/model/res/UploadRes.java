@@ -44,4 +44,7 @@ public class UploadRes {
 
     @ApiModelProperty(value = "用户编号")
     private Integer UserId;
+
+    @ApiModelProperty(value = "素材时长:（音频/视频）")
+    private String materialDuration;
 }

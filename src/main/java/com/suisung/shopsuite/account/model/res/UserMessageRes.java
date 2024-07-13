@@ -38,4 +38,7 @@ public class UserMessageRes extends UserMessage {
     @ApiModelProperty("未读信息数")
     private Integer unreadNumber = 0;
 
+    @ApiModelProperty("type")
+    private String type;
+
 }

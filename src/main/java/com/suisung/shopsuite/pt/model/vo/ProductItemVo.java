@@ -87,6 +87,21 @@ public class ProductItemVo extends ProductItem {
     @ApiModelProperty("底价")
     private BigDecimal itemRatePrice;
 
+    @ApiModelProperty("服务类型(ENUM):1001-到店服务;1002-上门服务")
+    private Integer productValidType;
+
+    @ApiModelProperty("填写预约日期(BOOL):0-否;1-是")
+    private Boolean productServiceDateFlag;
+
+    @ApiModelProperty("填写联系人(BOOL):0-否;1-是")
+    private Boolean productServiceContactorFlag;
+
+    @ApiModelProperty("课程类型(ENUM) : 0-视频;1-图文;2-音频;3-图文音频）")
+    private Integer courseFileType;
+
+    @ApiModelProperty("章节数量")
+    private Integer courseChapterNum;
+
     @ApiModelProperty("礼品-废弃")
     private List<Object> pulseGiftCart = new ArrayList<>();
     private List<Object> pulseReduction = new ArrayList<>();

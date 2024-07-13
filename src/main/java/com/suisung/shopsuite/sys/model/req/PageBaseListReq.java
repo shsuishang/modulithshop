@@ -19,7 +19,6 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.sys.model.req;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.suisung.shopsuite.core.annotation.QueryField;
 import com.suisung.shopsuite.core.annotation.QueryType;

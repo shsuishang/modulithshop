@@ -42,7 +42,7 @@ import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.core.web.BaseQueryWrapper;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
-import com.suisung.shopsuite.marketing.model.vo.*;
+import com.suisung.shopsuite.marketing.model.vo.ItemNumVo;
 import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.vo.ProductItemVo;

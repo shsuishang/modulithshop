@@ -90,4 +90,8 @@ public class OrderStateLog implements Serializable {
     @ApiModelProperty("是否同步(BOOL):0-否;1-是")
     @TableField("order_state_is_sync")
     private Boolean orderStateIsSync;
+
+    @ApiModelProperty("用户昵称")
+    @TableField(exist = false)
+    private String userNickname;
 }

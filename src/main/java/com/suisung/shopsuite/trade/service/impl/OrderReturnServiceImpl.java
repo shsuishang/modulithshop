@@ -19,6 +19,7 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.trade.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -1057,6 +1058,40 @@ public class OrderReturnServiceImpl extends BaseServiceImpl<OrderReturnRepositor
             orderReturn.setReturnTrackingName(expressBase.getExpressName());
         }
         return edit(orderReturn);
+    }
+
+    @Override
+    public IPage<OrderReturnRes> pageList(OrderReturnListReq orderReturnListReq) {
+        IPage<OrderReturnRes> orderReturnResPage = new Page<>();
+        IPage<OrderReturn> lists = lists(orderReturnListReq);
+
+        if (lists != null && CollectionUtil.isNotEmpty(lists.getRecords())) {
+            BeanUtils.copyProperties(lists, orderReturnResPage);
+            List<OrderReturnRes> orderReturnResList = new ArrayList<>();
+            List<OrderReturn> records = lists.getRecords();
+            List<Integer> reasonIds = CommonUtil.column(records, OrderReturn::getReturnReasonId);
+            List<OrderReturnReason> returnReasonList = orderReturnReasonRepository.gets(reasonIds);
+            Map<Integer, String> reasonNameMap = new HashMap<>();
+
+            if (CollectionUtil.isNotEmpty(returnReasonList)) {
+                reasonNameMap = returnReasonList.stream().collect(Collectors.toMap(OrderReturnReason::getReturnReasonId, OrderReturnReason::getReturnReasonName, (k1, k2) -> k1));
+            }
+
+            for (OrderReturn orderReturn : records) {
+                OrderReturnRes orderReturnRes = new OrderReturnRes();
+                BeanUtil.copyProperties(orderReturn, orderReturnRes);
+
+                if (!reasonNameMap.isEmpty()) {
+                    orderReturnRes.setReturnReasonName(reasonNameMap.get(orderReturn.getReturnReasonId()));
+                }
+
+                orderReturnResList.add(orderReturnRes);
+            }
+
+            orderReturnResPage.setRecords(orderReturnResList);
+        }
+
+        return orderReturnResPage;
     }
 
 }

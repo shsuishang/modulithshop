@@ -99,6 +99,9 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
     private ProductImageRepository productImageRepository;
 
     @Autowired
+    private ProductTagRepository productTagRepository;
+
+    @Autowired
     private ProductIndexRepository productIndexRepository;
 
     @Autowired
@@ -157,6 +160,7 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
                 wrapper.in("product_id", productIds);
             }
         }
+        wrapper.ne("kind_id", StateCode.PRODUCT_KIND_EDU);
         wrapper.orderByAsc("product_order");
         wrapper.orderByDesc("product_id");
 
@@ -325,6 +329,7 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
     public ProductDetailRes detail(ProductDetailInput input) {
         Long itemId = input.getItemId();
         Integer districtId = input.getDistrictId();
+        Integer gbId = input.getGbId();
 
         ProductDetailRes out = new ProductDetailRes();
         out.setItemId(itemId);
@@ -348,6 +353,7 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
         }
 
         Long productId = productItem.getProductId();
+
         ProductIndex productIndex = get(productId);
         ProductBase productBase = productBaseRepository.get(productId);
         ProductInfo productInfo = productInfoRepository.get(productId);
@@ -462,6 +468,7 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
         ProductDetailInput input = new ProductDetailInput();
         input.setItemId(itemId);
         input.setDistrictId(districtId);
+        input.setGbId(gbId);
 
         return detail(input);
     }

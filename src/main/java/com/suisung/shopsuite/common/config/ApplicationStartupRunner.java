@@ -1,6 +1,7 @@
 package com.suisung.shopsuite.common.config;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.crypto.SecureUtil;
@@ -198,13 +199,15 @@ public class ApplicationStartupRunner implements CommandLineRunner {
 
                 if (ObjectUtil.isNotEmpty(product_map)) {
                     List<Long> productIds = new ArrayList<>(product_map.keySet());
-                    List<ProductIndex> productIndices = productIndexRepository.gets(productIds);
-                    for (Long productId : product_map.keySet()) {
-                        for (ProductIndex productIndex : productIndices) {
-                            productIndex.setProductClick(productIndex.getProductClick() + product_map.get(productId));
+                    if (CollUtil.isNotEmpty(productIds)) {
+                        List<ProductIndex> productIndices = productIndexRepository.gets(productIds);
+                        for (Long productId : product_map.keySet()) {
+                            for (ProductIndex productIndex : productIndices) {
+                                productIndex.setProductClick(productIndex.getProductClick() + product_map.get(productId));
+                            }
                         }
+                        productIndexRepository.saveBatch(productIndices);
                     }
-                    productIndexRepository.saveBatch(productIndices);
                 }
 
                 log.info("后台执行 日志队列  - 完成");

@@ -48,7 +48,7 @@ public class PageDataReq extends BaseListReq {
     @QueryField(type = QueryType.LIKE)
     private String name;
 
-    @ApiModelProperty("类型(ENUM):1-商品;2-店铺分类;3-APP;4-快捷入口;5-资讯分类;6-资讯;8-自定义页面;10-社区版块;11-帖子;17-代金券;")
+    @ApiModelProperty("类型(ENUM):1-商品;2-店铺分类;3-APP;4-快捷入口;5-资讯分类;6-资讯;8-自定义页面;10-社区版块;11-帖子;12-拼团;14-秒杀;17-代金券;")
     private Integer type = 1;
 
     @ApiModelProperty("店铺编号")

@@ -139,7 +139,7 @@ public class PageModuleServiceImpl extends BaseServiceImpl<PageModuleRepository,
                 if (pm_json == null) continue;
                 module.put("pm_json", pm_json);
 
-                if (Arrays.asList("1001", "1004", "1005", "1006").contains(module_id)) {
+                if (Arrays.asList("1001", "1004", "1005", "1006", "3002").contains(module_id)) {
                     // 读取商品
                     JSONArray tabs = (JSONArray) pm_json.get("tabs");
                     if (CollUtil.isNotEmpty(tabs)) {

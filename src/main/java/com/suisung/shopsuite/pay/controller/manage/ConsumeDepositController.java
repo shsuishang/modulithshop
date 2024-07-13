@@ -20,6 +20,8 @@
 package com.suisung.shopsuite.pay.controller.manage;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.core.web.CommonRes;
@@ -37,6 +39,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 
 /**
  * <p>
@@ -82,8 +88,14 @@ public class ConsumeDepositController extends BaseController {
     public CommonRes<?> offlinePay(ConsumeDepositOfflinePayReq req) {
         ConsumeDeposit consumeDeposit = BeanUtil.copyProperties(req, ConsumeDeposit.class);
 
-        //交易号 == 订单号
+        //交易号 == 流水号
         consumeDeposit.setDepositNo(req.getDepositTradeNo());
+
+        List<ConsumeDeposit> deposits = consumeDepositService.find(new QueryWrapper<ConsumeDeposit>().eq("deposit_trade_no", consumeDeposit.getDepositTradeNo()));
+        if (CollUtil.isNotEmpty(deposits)) {
+            return fail(__("支付凭证号已经存在！"));
+        }
+
 
         Long deposit_id = consumeDepositService.offlinePay(consumeDeposit);
 

@@ -201,7 +201,8 @@ public class CheckUtil {
             strSql.append("FIND_IN_SET ( ('" + CheckUtil.addslashes(params.get(i).toString()) + "'), " + fieldName + ") or ");
         }
 
-        column_row.apply("(" + strSql + ")", params);
+        //column_row.apply("(" + strSql + ")", params);
+        column_row.apply("(" + strSql + ")");
     }
 
     public static int bkdrHash(String str) {

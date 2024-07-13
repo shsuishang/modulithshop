@@ -35,3 +35,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface ExpressBaseDao extends BaseMapper<ExpressBase> {
 
 }
+
+

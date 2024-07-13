@@ -51,4 +51,5 @@ public class UserAdminServiceImpl extends BaseServiceImpl<UserAdminRepository, U
 
         return super.remove(userId);
     }
+
 }

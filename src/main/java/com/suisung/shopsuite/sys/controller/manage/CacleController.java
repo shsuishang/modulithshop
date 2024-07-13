@@ -2,7 +2,6 @@ package com.suisung.shopsuite.sys.controller.manage;
 
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
-import com.suisung.shopsuite.core.web.service.RedisService;
 import com.suisung.shopsuite.sys.service.ConfigBaseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -11,8 +10,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Set;
 
 import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 

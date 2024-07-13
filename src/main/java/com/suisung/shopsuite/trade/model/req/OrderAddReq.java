@@ -4,6 +4,8 @@ import com.suisung.shopsuite.common.api.StateCode;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class OrderAddReq {
     @ApiModelProperty(value = "收货地址编号")
@@ -46,4 +48,10 @@ public class OrderAddReq {
 
     @ApiModelProperty("SKU信息")
     private String productItems;
+
+    @ApiModelProperty("自提日期")
+    private Date virtualServiceDate;
+
+    @ApiModelProperty("自提日期")
+    private Date virtualServiceTime;
 }

@@ -20,17 +20,9 @@
 package com.suisung.shopsuite.trade.model.req;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.suisung.shopsuite.pt.model.vo.ProductItemVo;
-import com.suisung.shopsuite.trade.model.vo.CartBatVo;
-import com.suisung.shopsuite.trade.model.vo.OrderItemVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>

@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 
 /**
@@ -83,8 +84,8 @@ public class StoreTransportTypeRepositoryImpl extends BaseRepositoryImpl<StoreTr
                     storeTransportItemVo.setItem(storeTransportItem);
                 } else {
                     QueryWrapper<StoreTransportItem> itemQueryWrapper = new QueryWrapper<>();
-                    itemQueryWrapper.eq("transport_type_id", transport_type_id)
-                            .apply(district_id != null, "FIND_IN_SET ('" + district_id + "', transport_item_city_ids)");
+                    itemQueryWrapper.eq("transport_type_id", transport_type_id);
+                    CheckUtil.handleFindInSet(Arrays.asList(district_id), "transport_item_city_ids", itemQueryWrapper);
 
                     StoreTransportItem storeTransportItem = storeTransportItemRepository.findOne(itemQueryWrapper);
 

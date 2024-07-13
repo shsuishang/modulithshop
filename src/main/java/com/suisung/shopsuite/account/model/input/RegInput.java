@@ -21,7 +21,7 @@ import java.io.Serializable;
 public class RegInput extends LoginReq implements Serializable {
 
     @ApiModelProperty("用户昵称")
-    private String userNickName;
+    private String userNickname;
 
     @ApiModelProperty("用户头像")
     private String userAvatar;
@@ -50,4 +50,10 @@ public class RegInput extends LoginReq implements Serializable {
 
     @ApiModelProperty("角色编号:0-用户;2-商家;3-门店;9-平台;")
     private Integer roleId = 0;
+
+    @ApiModelProperty("店铺编号")
+    private Integer storeId = 0;
+
+    @ApiModelProperty("门店编号")
+    private Integer chainId = 0;
 }

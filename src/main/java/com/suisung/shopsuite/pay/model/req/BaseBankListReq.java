@@ -21,6 +21,8 @@ package com.suisung.shopsuite.pay.model.req;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.suisung.shopsuite.core.annotation.QueryField;
+import com.suisung.shopsuite.core.annotation.QueryType;
 import com.suisung.shopsuite.core.web.model.req.BaseListReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -47,6 +49,9 @@ public class BaseBankListReq extends BaseListReq {
     private Integer bankId;
 
     @ApiModelProperty("银行名称")
+    @QueryField(
+            type = QueryType.LIKE
+    )
     private String bankName;
 
     @ApiModelProperty("备注")
@@ -62,7 +67,6 @@ public class BaseBankListReq extends BaseListReq {
     private Integer settlementAccountTypeId;
 
     @TableField(exist = false)
-    private String sidx = "bank_id";
-
+    private String sidx = "bank_order";
 
 }

@@ -24,7 +24,9 @@ import com.suisung.shopsuite.pt.model.entity.ProductBase;
 import com.suisung.shopsuite.pt.model.input.ProductSaveInput;
 import com.suisung.shopsuite.pt.model.output.ProductDataOutput;
 import com.suisung.shopsuite.pt.model.req.ProductBaseListReq;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -59,4 +61,16 @@ public interface ProductBaseService extends IBaseService<ProductBase, ProductBas
      * @return
      */
     boolean batchEditState(List<Long> productIds, Integer productStateId);
+
+    /**
+     * 导出模板
+     * @param response
+     */
+    void exportTemp(HttpServletResponse response);
+
+    /**
+     * 导入单规格商品
+     * @param file
+     */
+    void importTemp(MultipartFile file) throws Exception;
 }

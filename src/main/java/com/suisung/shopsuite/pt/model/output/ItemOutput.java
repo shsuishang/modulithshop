@@ -12,6 +12,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
@@ -64,4 +66,21 @@ public class ItemOutput extends ProductItem {
     @ApiModelProperty("活动产品数量")
     @TableField(exist = false)
     private Integer activityItemNum;
+
+
+    @ApiModelProperty("门店商品编号")
+    @TableField(exist = false)
+    private Long chainItemId;
+
+    @ApiModelProperty("商品商品库存")
+    @TableField(exist = false)
+    private Integer chainItemQuantity;
+
+    @ApiModelProperty("门店单价")
+    @TableField(exist = false)
+    private BigDecimal chainItemUnitPrice;
+
+    @ApiModelProperty("是否启用(BOOL):0-禁用;1-启用")
+    @TableField(exist = false)
+    private Boolean chainItemEnable;
 }

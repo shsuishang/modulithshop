@@ -48,8 +48,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -251,5 +253,20 @@ public class ProductBaseController extends BaseController {
         return fail();
     }
 
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
+    @ApiOperation(value = "导出模版", notes = "导出模版")
+    @RequestMapping(value = "/exportTemp", method = RequestMethod.POST)
+    public void exportTemp(HttpServletResponse response) {
+        productBaseService.exportTemp(response);
+    }
+
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
+    @ApiOperation(value = "导入单规格商品", notes = "导入单规格商品")
+    @RequestMapping(value = "/importTemp", method = RequestMethod.POST)
+    public CommonRes<?> importTemp(@RequestParam MultipartFile file) throws Exception {
+        productBaseService.importTemp(file);
+
+        return success();
+    }
 }
 

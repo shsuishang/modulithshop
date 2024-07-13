@@ -29,6 +29,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -94,4 +95,10 @@ public class CheckoutInput implements Serializable {
 
     @ApiModelProperty("供应商转单源订单")
     private String srcOrderId;
+
+    @ApiModelProperty("自提日期")
+    private Date virtualServiceDate;
+
+    @ApiModelProperty("自提日期")
+    private Date virtualServiceTime;
 }

@@ -270,4 +270,8 @@ public class UserInfoOutput implements Serializable {
     @ApiModelProperty("上级用户编号")
     @TableField(exist = false)
     private Integer userParentId;
+
+    @ApiModelProperty("IM Config")
+    @TableField(exist = false)
+    private ImConfigOutput im;
 }

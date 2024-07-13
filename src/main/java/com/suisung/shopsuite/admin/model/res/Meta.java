@@ -31,4 +31,7 @@ public class Meta {
 
     @ApiModelProperty(value = "是否隐藏")
     private Boolean hidden;
+
+    @ApiModelProperty(value = "badge")
+    private String badge;
 }

@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class MessageContentRes {
 
     @ApiModelProperty("消息内容")
-    private String messageContent;
+    private String text;
 
     @ApiModelProperty("消息长度")
     private Integer messageLength;

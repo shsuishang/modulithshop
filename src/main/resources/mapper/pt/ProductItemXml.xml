@@ -12,7 +12,7 @@
         UPDATE pt_product_item
         SET item_quantity_frozen = item_quantity_frozen - #{cart_quantity}
         WHERE item_id = #{item_id}
-          AND item_quantity_frozen - #{cart_quantity} >= 0
+          AND item_quantity_frozen  >= #{cart_quantity}
     </update>
 
     <update id="pickingSkuStock">
@@ -69,7 +69,7 @@
         </where>
         <choose>
             <when test="(params.sidx != null and params.sort != null) and (params.sidx != '' and params.sort != '')">
-                ORDER BY i.${params.sidx} ${params.sort}, b.product_order ASC, b.product_id DESC
+                ORDER BY b.product_order ASC, i.${params.sidx} ${params.sort}, b.product_id DESC
             </when>
             <otherwise>
                 ORDER BY b.product_order ASC, b.product_id DESC

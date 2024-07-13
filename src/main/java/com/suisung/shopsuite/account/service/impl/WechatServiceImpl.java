@@ -133,7 +133,7 @@ public class WechatServiceImpl implements WechatService {
         // 获取活动id
         String activity_id = request.getParameter("activity_id");
         try {
-            String wechat_callback_url = URLEncoder.encode(ConstantConfig.URL_API_MOBILE + "/account/wechat/callbackMp?activity_id=" + activity_id, "UTF-8");
+            String wechat_callback_url = URLEncoder.encode((ConstantConfig.URL_API_MOBILE.equals("https://demo.modulithshop.cn") ? "https://test.suteshop.com" : ConstantConfig.URL_API_MOBILE) + "/account/wechat/callbackMp?activity_id=" + activity_id, "UTF-8");
             String wechat_app_id = configBaseService.getConfig("wechat_app_id");
             url = url.replace("APPID", wechat_app_id).replace("REDIRECT_URI", wechat_callback_url).replace("SCOPE", "snsapi_userinfo");
             response.sendRedirect(url);

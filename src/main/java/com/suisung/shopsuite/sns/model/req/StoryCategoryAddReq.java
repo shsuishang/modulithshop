@@ -81,4 +81,5 @@ public class StoryCategoryAddReq implements Serializable {
     private Boolean storyOpenMode;
 
 
+
 }

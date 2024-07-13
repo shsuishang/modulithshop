@@ -59,6 +59,7 @@ import com.suisung.shopsuite.common.consts.ConstantLog;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.pojo.dto.ErrorTypeEnum;
 import com.suisung.shopsuite.common.pojo.dto.PayType;
+import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.ContextUtil;
 import com.suisung.shopsuite.common.utils.HttpServletUtils;
 import com.suisung.shopsuite.common.utils.LogUtil;
@@ -82,6 +83,9 @@ import com.suisung.shopsuite.pay.repository.UserPayRepository;
 import com.suisung.shopsuite.pay.repository.UserResourceRepository;
 import com.suisung.shopsuite.pay.service.ConsumeTradeService;
 import com.suisung.shopsuite.sys.service.ConfigBaseService;
+import com.suisung.shopsuite.trade.model.entity.OrderInfo;
+import com.suisung.shopsuite.trade.service.OrderInfoService;
+import com.suisung.shopsuite.trade.service.OrderService;
 import io.swagger.annotations.Api;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -138,6 +142,12 @@ public class PaymentIndexController extends BaseController {
     @Autowired
     private UserPayRepository userPayRepository;
 
+    @Autowired
+    private OrderInfoService orderInfoService;
+
+    @Autowired
+    private OrderService orderService;
+
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentIndexController.class);
 
@@ -173,6 +183,50 @@ public class PaymentIndexController extends BaseController {
                 res.setStatusCode(250);
             }
 
+            return success(res);
+        } else {
+            res.setPaid(false);
+            res.setStatusCode(250);
+
+            return fail(res);
+        }
+    }
+
+
+    @RequestMapping(value = "/offlinePay", method = RequestMethod.POST)
+    public CommonRes<?> offlinePay(@Auth ContextUser user, PaymentReq req) {
+        Integer userId = ContextUtil.checkLoginUserId();
+
+        req.setPaymentChannelId(StateCode.PAYMENT_MET_OFFLINE);
+        req.setDepositPaymentType(StateCode.PAYMENT_TYPE_OFFLINE);
+
+        MoneyPayRes res = new MoneyPayRes();
+        res.setOrderId(req.getOrderId());
+
+
+        if (CheckUtil.isNotEmpty(req.getOrderId())) {
+            // 线下支付，修改线下支付状态
+
+            List<String> orderIds = Convert.toList(String.class, req.getOrderId());
+
+            QueryWrapper<OrderInfo> infoQueryWrapper = new QueryWrapper<>();
+            infoQueryWrapper.in("order_id", orderIds);
+            
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setPaymentTypeId(StateCode.PAYMENT_TYPE_OFFLINE);
+
+            if (!orderInfoService.edit(orderInfo, infoQueryWrapper)) {
+                throw new BusinessException(__("修改线下支付状态失败！"));
+            }
+
+            //修改订单为待发货状态
+            for (String orderId : orderIds) {
+                if (!orderService.editNextState(orderId, StateCode.ORDER_STATE_WAIT_PAY, StateCode.ORDER_STATE_PICKING, __("线下支付"))) {
+                    throw new BusinessException(__("修改订单为待发货状态失败！"));
+                }
+            }
+
+            res.setPaid(true);
             return success(res);
         } else {
             res.setPaid(false);
@@ -756,7 +810,7 @@ public class PaymentIndexController extends BaseController {
                 throw new BusinessException(ResultCode.VALIDATE_FAILED);
             }
 
-            aliPayRequest.setReturnUrl(returnUrl);
+            aliPayRequest.setReturnUrl(returnUrl + "?out_trade_no=" + output.getTradeNo());
             aliPayRequest.setNotifyUrl(notifyUrl);
             aliPayRequest.setBizModel(parameter);
             String mwebUrl = AliPayApi.pageExecute(aliPayRequest, "GET").getBody();

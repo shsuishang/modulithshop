@@ -126,4 +126,12 @@ public class UserInfo implements Serializable {
     @ApiModelProperty("上级用户编号")
     @TableField(exist = false)
     private Integer userParentId;
+
+    @ApiModelProperty("平台标识")
+    @TableField(exist = false)
+    private Integer puid;
+
+    @ApiModelProperty("用户标识")
+    @TableField(exist = false)
+    private Integer suid;
 }

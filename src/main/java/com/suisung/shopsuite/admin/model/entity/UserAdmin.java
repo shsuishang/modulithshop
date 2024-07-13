@@ -71,4 +71,18 @@ public class UserAdmin implements Serializable {
     @ApiModelProperty("是否超管(BOOL):0-否;1-是")
     @TableField("user_is_superadmin")
     private Boolean userIsSuperadmin;
+
+    @ApiModelProperty("角色编号(ENUM):0-用户;2-商家;3-门店;9-平台;")
+    @TableField("role_id")
+    private Integer roleId;
+
+    @ApiModelProperty("店铺编号")
+    @TableField("store_id")
+    private Integer storeId = 0;
+
+    @ApiModelProperty("门店编号")
+    @TableField("chain_id")
+    private Integer chainId = 0;
+
+
 }

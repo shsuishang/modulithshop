@@ -29,7 +29,7 @@ public class ConstantConfig {
 
     public static String STATIC_FILE_PATH;
 
-    public static String MALL_SOCKET_URL;
+    public static String WEBSOCKET_URL;
 
     @Value("${url.base}")
     public void setUrlBase(String urlBase) {
@@ -66,8 +66,9 @@ public class ConstantConfig {
         STATIC_FILE_PATH = staticFilePath;
     }
 
-    @Value("${mall.socket.url}")
-    public void setMallSocketUrl(String mallSocketUrl) {
-        MALL_SOCKET_URL = mallSocketUrl;
+
+    @Value("${url.websocket-url}")
+    public void setWebsocketUrl(String url) {
+        WEBSOCKET_URL = url;
     }
 }

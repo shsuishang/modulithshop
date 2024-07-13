@@ -157,4 +157,10 @@ public interface OrderReturnService extends IBaseService<OrderReturn, OrderRetur
      */
     boolean editReturn(OrderReturn orderReturn);
 
+    /**
+     * 退款退货表
+     * @param orderReturnListReq
+     * @return
+     */
+    IPage<OrderReturnRes> pageList(OrderReturnListReq orderReturnListReq);
 }

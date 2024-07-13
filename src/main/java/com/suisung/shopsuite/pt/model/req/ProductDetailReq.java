@@ -15,4 +15,13 @@ public class ProductDetailReq {
 
     @ApiModelProperty("配送地区")
     private Integer districtId;
+
+    @ApiModelProperty("拼团活动编号")
+    private Integer gbId;
+
+    @ApiModelProperty("A+B组合套餐活动编号")
+    private Integer gifgbagId;
+
+    @ApiModelProperty("砍价活动编号")
+    private Integer cutpriceId;
 }

@@ -24,9 +24,12 @@ import com.suisung.shopsuite.admin.model.entity.UserRole;
 import com.suisung.shopsuite.admin.repository.MenuBaseRepository;
 import com.suisung.shopsuite.admin.repository.UserAdminRepository;
 import com.suisung.shopsuite.admin.repository.UserRoleRepository;
+import com.suisung.shopsuite.admin.service.UserAdminService;
 import com.suisung.shopsuite.common.api.ResultCode;
 import com.suisung.shopsuite.common.api.StateCode;
-import com.suisung.shopsuite.common.consts.*;
+import com.suisung.shopsuite.common.consts.BindConnectCode;
+import com.suisung.shopsuite.common.consts.ConstantJwt;
+import com.suisung.shopsuite.common.consts.ConstantMsg;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.security.JwtSubject;
 import com.suisung.shopsuite.common.security.JwtUtil;
@@ -126,6 +129,9 @@ public class LoginServiceImpl implements LoginService {
 
     @Autowired
     private UserLoginHistoryRepository userLoginHistoryRepository;
+
+    @Autowired
+    private UserAdminService userAdminService;
 
     private final Logger logger = LoggerFactory.getLogger(LoginService.class);
 
@@ -325,14 +331,14 @@ public class LoginServiceImpl implements LoginService {
         }
 
         //
-        if (CheckUtil.isEmpty(input.getUserNickName())) {
-            input.setUserNickName(input.getUserAccount());
+        if (CheckUtil.isEmpty(input.getUserNickname())) {
+            input.setUserNickname(input.getUserAccount());
         }
 
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(userId);
         userInfo.setUserAccount(input.getUserAccount());
-        userInfo.setUserNickname(input.getUserNickName());
+        userInfo.setUserNickname(input.getUserNickname());
 
         userInfo.setUserMobile(Convert.toStr(input.getUserMobile()));
         userInfo.setUserIntl(input.getUserIntl());
@@ -384,8 +390,26 @@ public class LoginServiceImpl implements LoginService {
             throw new BusinessException(ResultCode.FAILED);
         }
 
-        // 判断传递的活动id
+        //是否为管理员
+        if (input.getRoleId().intValue() != 0) {
+            UserAdmin userAdmin = new UserAdmin();
+            userAdmin.setUserId(userId);
+            userAdmin.setRoleId(input.getRoleId());
 
+            if (input.getRoleId().intValue() == 9) {
+                userAdmin.setUserRoleId(1001);
+            } else if (input.getRoleId().intValue() == 3) {
+                userAdmin.setUserRoleId(1003);
+                userAdmin.setChainId(input.getChainId());
+            } else if (input.getRoleId().intValue() == 2) {
+                userAdmin.setUserRoleId(1003);
+                userAdmin.setStoreId(input.getStoreId());
+            }
+
+            boolean success = userAdminService.add(userAdmin);
+        }
+
+        // 判断传递的活动id
         Integer sourceUserId = getSourceUserId();
         if (CheckUtil.isNotEmpty(sourceUserId)) {
             input.setUserParentId(sourceUserId);
@@ -404,7 +428,7 @@ public class LoginServiceImpl implements LoginService {
         //初次注册消息
         String messageId = "registration-of-welcome-information";
         HashMap<String, Object> args = new HashMap<>();
-        args.put("user_account", input.getUserNickName());
+        args.put("user_account", input.getUserNickname());
         args.put("register_time", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
         messageService.sendNoticeMsg(userId, messageId, args);
 
@@ -511,7 +535,7 @@ public class LoginServiceImpl implements LoginService {
 
         if (ObjectUtil.isNotEmpty(userAdmin)) {
             //角色编号:0-用户;2-商家;3-门店;9-平台;
-            user.setRoleId(ConstantRole.ROLE_ADMIN);
+            user.setRoleId(userAdmin.getRoleId());
 
             UserRole userRole = userRoleRepository.get(userAdmin.getUserRoleId());
 
@@ -847,7 +871,7 @@ public class LoginServiceImpl implements LoginService {
                 regInput.setUserAccount(bind_id);
                 regInput.setPassword("1231Ss@123" + UUID.randomUUID());
                 regInput.setEncrypt(false);
-                regInput.setUserNickName(user_info_row.getBindNickname());
+                regInput.setUserNickname(user_info_row.getBindNickname());
                 if (CheckUtil.isNotEmpty(activity_id)) regInput.setActivityId(activity_id);
 
                 regInput.setBindType(BindConnectCode.ACCOUNT);

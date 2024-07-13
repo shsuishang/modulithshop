@@ -52,10 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.suisung.shopsuite.common.utils.I18nUtil.__;
@@ -314,7 +311,7 @@ public class ArticleBaseServiceImpl extends BaseServiceImpl<ArticleBaseRepositor
 
         if (CheckUtil.isNotEmpty(articleBaseListReq.getTagId())) {
             Integer tagId = articleBaseListReq.getTagId();
-            queryWrapper.apply(tagId != null, "FIND_IN_SET ('" + tagId + "', article_tags )");
+            CheckUtil.handleFindInSet(Arrays.asList(tagId), "article_tags", queryWrapper);
         }
         IPage<ArticleBase> articleBaseIPage = lists(queryWrapper, articleBaseListReq.getPage(), articleBaseListReq.getSize());
 

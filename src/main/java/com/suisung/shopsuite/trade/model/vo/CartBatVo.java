@@ -9,8 +9,6 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Accessors(chain = true)

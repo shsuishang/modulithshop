@@ -24,6 +24,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suisung.shopsuite.common.consts.ConstantLog;
 import com.suisung.shopsuite.common.excel.ExcelUtil;
@@ -329,7 +330,7 @@ public class OrderBaseController extends BaseController {
     @ApiOperation(value = "订单日志", notes = "订单日志")
     @RequestMapping(value = "/listStateLog", method = RequestMethod.GET)
     public CommonRes<BaseListRes<OrderStateLog>> listStateLog(OrderStateLogListReq req) {
-        Page<OrderStateLog> pageList = orderStateLogService.lists(req);
+        IPage<OrderStateLog> pageList = orderStateLogService.listStateLog(req);
 
         return success(pageList);
     }

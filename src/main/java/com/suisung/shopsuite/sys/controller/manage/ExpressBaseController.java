@@ -62,6 +62,7 @@ public class ExpressBaseController extends BaseController {
         IPage<ExpressBase> pageList = expressBaseService.lists(expressBaseListReq);
 
         return success(pageList);
+
     }
 
     @ApiOperation(value = "快递表-查询快递公司列表", notes = "快递表-查询快递公司列表")
@@ -71,6 +72,7 @@ public class ExpressBaseController extends BaseController {
         IPage<ExpressBase> pageList = expressBaseService.lists(expressBaseListReq);
 
         return success(pageList);
+
     }
 
     @PreAuthorize("hasAuthority('/manage/sys/expressBase/add')")

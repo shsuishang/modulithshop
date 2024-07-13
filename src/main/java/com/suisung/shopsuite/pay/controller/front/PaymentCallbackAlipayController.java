@@ -95,12 +95,17 @@ public class PaymentCallbackAlipayController extends BaseController {
     public void returnUrl(HttpServletRequest request, HttpServletResponse response) {
         // 获取支付宝GET过来反馈信息
         Map<String, String> map = AliPayApi.toMap(request);
-        String orderId = map.get("out_trade_no");
+        String outTradeNo = map.get("out_trade_no");
+
+        ConsumeCombine consumeCombine = combineRepository.get(outTradeNo);
+        //订单编号
+        String orderId = consumeCombine != null ? consumeCombine.getOrderIds() : outTradeNo;
+
         String redirectUrl;
         if (UserAgentUtil.parse(request.getHeader("user-agent")).isMobile()) {
-            redirectUrl = ConstantConfig.URL_H5 + "/member/order/detail?on=" + orderId;
+            redirectUrl = ConstantConfig.URL_H5 + "/member/order/detail?init_pay_flag=1&on=" + orderId;
         } else {
-            redirectUrl = ConstantConfig.URL_PC + "/#/user/order/detail?order_id=" + orderId;
+            redirectUrl = ConstantConfig.URL_PC + "/user/order/detail?init_pay_flag=1&order_id=" + orderId;
         }
         try {
             response.sendRedirect(redirectUrl);

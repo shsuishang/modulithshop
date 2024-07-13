@@ -21,6 +21,7 @@ import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.common.utils.ContextUtil;
 import com.suisung.shopsuite.common.web.ContextUser;
+import com.suisung.shopsuite.sys.service.ConfigBaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -49,6 +50,9 @@ public class MenuBaseServiceImpl implements MenuBaseService {
 
     @Autowired
     private UserRoleRepository userRoleRepository;
+
+    @Autowired
+    private ConfigBaseService configBaseService;
 
     @CacheEvict(value = {"menuTree"}, allEntries = true)
     public boolean add(MenuBase menuBase) {
@@ -110,6 +114,21 @@ public class MenuBaseServiceImpl implements MenuBaseService {
 
         List<MenuBase> menuBases = menuBaseRepository.find(baseQueryWrapper);
 
+        //start 将未开启功能菜单隐藏
+        Iterator<MenuBase> it = menuBases.iterator();
+
+        while (it.hasNext()) {
+            MenuBase tmp = it.next();
+
+            // 判断功能是否开启
+            if (!tmp.getMenuFunc().equals("") && !configBaseService.getConfig(tmp.getMenuFunc(), false)) {
+                it.remove();
+            } else {
+                //无权限可移除
+            }
+        }
+        //end
+
         // begin 为了菜单显示隐藏判断
         String[] menuIds = new String[0];
 
@@ -122,6 +141,23 @@ public class MenuBaseServiceImpl implements MenuBaseService {
         }
 
         List<MenuBase> menuAll = menuBaseRepository.find(new QueryWrapper<>());
+
+        /*
+        //start 将未开启功能菜单隐藏
+        Iterator<MenuBase> it = menuAll.iterator();
+
+        while (it.hasNext()) {
+            MenuBase tmp = it.next();
+
+            // 判断功能是否开启
+            if (!tmp.getMenuFunc().equals("") && !configBaseService.getConfig(tmp.getMenuFunc(), false)) {
+                it.remove();
+            } else {
+                //无权限可移除
+            }
+        }
+        //end
+         */
 
         for (MenuBase c : menuBases) {
             //判断权限隐藏
@@ -260,6 +296,7 @@ public class MenuBaseServiceImpl implements MenuBaseService {
         router.getMeta().setTitle(menu.getMenuTitle());
         router.getMeta().setIcon(menu.getMenuIcon());
         router.getMeta().setNoClosable(!menu.getMenuClose());
+        router.getMeta().setBadge(menu.getMenuBubble());
         router.getMeta().setMenuId(menu.getMenuId());
         return router;
     }
