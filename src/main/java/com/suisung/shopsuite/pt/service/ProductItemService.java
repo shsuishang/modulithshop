@@ -22,6 +22,8 @@ package com.suisung.shopsuite.pt.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.core.web.service.IBaseService;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
+import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
+import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
@@ -57,4 +59,18 @@ public interface ProductItemService extends IBaseService<ProductItem, ProductIte
      * @return
      */
     boolean editState(ProductItem productItem);
+
+    /**
+     * 批量更改库存
+     * @param input
+     * @return
+     */
+    boolean batchEditStock(ProductBatchEditStockInput input);
+
+    /**
+     * 批量更改商品价格
+     * @param input
+     * @return
+     */
+    boolean batchEditUnitPrice(ProductBatchEditUnitPriceInput input);
 }

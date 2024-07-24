@@ -139,4 +139,12 @@ public interface UserResourceService extends IBaseService<UserResource, UserReso
      * @return
      */
     UserResourceRes resource(Integer userId);
+
+    /**
+     * 用户资源表-资金账户表-分页列表查询
+     *
+     * @param userResourceListReq
+     * @return
+     */
+    IPage<UserResourceRes> getList(UserResourceListReq userResourceListReq);
 }

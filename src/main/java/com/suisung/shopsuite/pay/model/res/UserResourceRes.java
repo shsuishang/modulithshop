@@ -22,4 +22,7 @@ public class UserResourceRes extends UserResource {
     @ApiModelProperty("可用佣金")
     private BigDecimal userCommission;
 
+    @ApiModelProperty("用户昵称")
+    private String userNickname;
+
 }

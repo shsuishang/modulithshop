@@ -19,6 +19,7 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.pay.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -30,6 +31,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suisung.shopsuite.account.model.entity.UserInfo;
 import com.suisung.shopsuite.account.model.entity.UserLevel;
 import com.suisung.shopsuite.account.model.vo.ExperienceVo;
@@ -41,15 +43,13 @@ import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.consts.ConstantLog;
 import com.suisung.shopsuite.common.consts.PointsType;
 import com.suisung.shopsuite.common.exception.BusinessException;
+import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.common.utils.LogUtil;
 import com.suisung.shopsuite.common.utils.TimeRange;
 import com.suisung.shopsuite.common.utils.TimeUtil;
 import com.suisung.shopsuite.common.web.service.MessageService;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
-import com.suisung.shopsuite.pay.model.entity.ConsumeRecord;
-import com.suisung.shopsuite.pay.model.entity.UserExpHistory;
-import com.suisung.shopsuite.pay.model.entity.UserPointsHistory;
-import com.suisung.shopsuite.pay.model.entity.UserResource;
+import com.suisung.shopsuite.pay.model.entity.*;
 import com.suisung.shopsuite.pay.model.req.UserExpHistoryListReq;
 import com.suisung.shopsuite.pay.model.req.UserResourceListReq;
 import com.suisung.shopsuite.pay.model.res.SignInfoRes;
@@ -595,8 +595,40 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
         }
         BeanUtils.copyProperties(userResource, userResourceRes);
 
+
         return userResourceRes;
     }
 
+    @Override
+    public IPage<UserResourceRes> getList(UserResourceListReq userResourceListReq) {
+        IPage<UserResourceRes> iPage = new Page<>();
+
+        IPage<UserResource> page = lists(userResourceListReq);
+
+        if (CollectionUtil.isNotEmpty(page.getRecords())) {
+            BeanUtils.copyProperties(page, iPage);
+
+            List<UserResourceRes> userResourceResList = new ArrayList<>();
+            List<UserResource> resourceList = page.getRecords();
+            List<Integer> userIds = CommonUtil.column(resourceList, UserResource::getUserId);
+            Map<Integer, UserInfo> userInfoMap = userInfoRepository.getUserInfoMap(userIds);
+
+            for (UserResource userResource : resourceList) {
+                UserResourceRes userResourceRes = BeanUtil.copyProperties(userResource, UserResourceRes.class);
+
+                if (CollUtil.isNotEmpty(userInfoMap)) {
+                    UserInfo userInfo = userInfoMap.get(userResource.getUserId());
+
+                    if (userInfo != null) {
+                        userResourceRes.setUserNickname(userInfo.getUserNickname());
+                    }
+                }
+                userResourceResList.add(userResourceRes);
+            }
+            iPage.setRecords(userResourceResList);
+        }
+
+        return iPage;
+    }
 
 }

@@ -17,81 +17,21 @@
 // | 附带或衍生的损失等)，本团队不承担任何法律责任，本软件框架只能用于公司和个人内部的
 // | 法律所允许的合法合规的软件产品研发，详细见https://www.modulithshop.cn/policy
 // +----------------------------------------------------------------------
-package com.suisung.shopsuite.pt.service;
+package com.suisung.shopsuite.pay.dao;
 
-import com.suisung.shopsuite.core.web.service.IBaseService;
-import com.suisung.shopsuite.pt.model.entity.ProductIndex;
-import com.suisung.shopsuite.pt.model.input.ProductDetailInput;
-import com.suisung.shopsuite.pt.model.input.ProductIndexInput;
-import com.suisung.shopsuite.pt.model.input.ProductItemInput;
-import com.suisung.shopsuite.pt.model.req.ProductIndexListReq;
-import com.suisung.shopsuite.pt.model.res.ActivityInfoRes;
-import com.suisung.shopsuite.pt.model.res.ItemListRes;
-import com.suisung.shopsuite.pt.model.res.ProductDetailRes;
-import com.suisung.shopsuite.pt.model.res.ProductListRes;
+import com.suisung.shopsuite.pay.model.entity.RechargeLevel;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
- * 产品索引表-不读取数据只读主键 服务类
+ * 定额充值表 Mapper 接口
  * </p>
  *
  * @author Xinze
- * @since 2021-03-13
+ * @since 2024-07-16
  */
-public interface ProductIndexService extends IBaseService<ProductIndex, ProductIndexListReq> {
-    /**
-     * 读取SPU
-     *
-     * @param productIndexListReq
-     * @return
-     */
-    ProductListRes listItem(ProductIndexInput productIndexListReq);
+@Mapper
+public interface RechargeLevelDao extends BaseMapper<RechargeLevel> {
 
-    /**
-     * 商品详情
-     *
-     * @param itemId
-     * @return
-     */
-    ProductDetailRes detail(Long itemId);
-
-    /**
-     * 商品详情
-     *
-     * @param input
-     * @return
-     */
-    ProductDetailRes detail(ProductDetailInput input);
-
-    /**
-     * 商品详情
-     *
-     * @param itemId
-     * @param districtId
-     * @param gbId
-     * @return
-     */
-    ProductDetailRes detail(Long itemId, Integer districtId, Integer gbId);
-
-    /**
-     * 商品活动信息
-     *
-     * @param itemId
-     * @return
-     */
-    ActivityInfoRes getActivityInfo(Long itemId);
-
-    /**
-     * 读取SKU商品
-     *
-     * @param productItemListReq
-     * @return
-     */
-    ItemListRes listItem(ProductItemInput productItemListReq);
-
-
-    /**
-     * 自动上架
-     */
-    void autoSaleProduct();
 }

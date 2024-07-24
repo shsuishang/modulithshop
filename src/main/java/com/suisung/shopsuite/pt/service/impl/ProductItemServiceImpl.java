@@ -19,6 +19,7 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.pt.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -30,29 +31,34 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.exception.BusinessException;
+import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.JSONUtil;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.invoicing.model.entity.StockBillItem;
 import com.suisung.shopsuite.invoicing.repository.StockBillItemRepository;
+import com.suisung.shopsuite.pt.model.entity.ProductImage;
 import com.suisung.shopsuite.pt.model.entity.ProductIndex;
 import com.suisung.shopsuite.pt.model.entity.ProductInfo;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
+import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
+import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
+import com.suisung.shopsuite.pt.repository.ProductImageRepository;
 import com.suisung.shopsuite.pt.repository.ProductIndexRepository;
 import com.suisung.shopsuite.pt.repository.ProductInfoRepository;
 import com.suisung.shopsuite.pt.repository.ProductItemRepository;
 import com.suisung.shopsuite.pt.service.ProductItemService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.suisung.shopsuite.common.utils.I18nUtil.__;
@@ -76,6 +82,12 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
 
     @Autowired
     private ProductInfoRepository productInfoRepository;
+
+    @Autowired
+    private ProductItemRepository productItemRepository;
+
+    @Autowired
+    private ProductImageRepository productImageRepository;
 
     /**
      * 获取itemDialog数据
@@ -114,16 +126,20 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
     @Override
     @Transactional
     public boolean editStock(ProductEditStockInput input) {
-        boolean flag = false;
-        ProductItem v = get(input.getItemId());
+        List<ProductItem> productItems = gets(input.getItemIds());
 
-        if (ObjectUtil.isNotEmpty(v)) {
+        if (CollectionUtil.isEmpty(productItems)) {
+            throw new BusinessException(__("商品SKU信息不存在！"));
+        }
+
+        List<StockBillItem> stockBillItems = new ArrayList<>();
+
+        for (ProductItem v : productItems) {
             StockBillItem stockBillItem = new StockBillItem();
             stockBillItem.setProductId(v.getProductId());
             //stockBillItem.setProductName(productBase.getProductName());
             stockBillItem.setItemId(v.getItemId());
             stockBillItem.setItemName(v.getItemName());
-
             stockBillItem.setBillItemQuantity(input.getItemQuantity());
             stockBillItem.setWarehouseItemQuantity(v.getItemQuantity());
 
@@ -139,18 +155,21 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
                 v.setItemQuantity(v.getItemQuantity() - input.getItemQuantity());
             }
 
-
             stockBillItem.setBillItemUnitPrice(v.getItemUnitPrice());
             stockBillItem.setBillItemSubtotal(v.getItemUnitPrice().multiply(Convert.toBigDecimal(stockBillItem.getBillItemQuantity())));
 
-            flag = stockBillItemRepository.add(stockBillItem);
-
-            if (flag) {
-                flag = edit(v);
-            }
+            stockBillItems.add(stockBillItem);
         }
 
-        return flag;
+        if (!stockBillItemRepository.saveOrUpdate(stockBillItems)) {
+            throw new BusinessException(__("保存出入库单据失败！"));
+        }
+
+        if (!productItemRepository.saveOrUpdate(productItems)) {
+            throw new BusinessException(__("修改商品SKU信息失败！"));
+        }
+
+        return true;
     }
 
     @Override
@@ -237,4 +256,123 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
         return true;
     }
 
+    @Override
+    @Transactional
+    public boolean batchEditStock(ProductBatchEditStockInput input) {
+        List<Long> productIds = Convert.toList(Long.class, input.getProductIds());
+
+        QueryWrapper<ProductItem> itemQueryWrapper = new QueryWrapper<>();
+        itemQueryWrapper.in("product_id", productIds);
+
+        List<Serializable> itemIds = findKey(itemQueryWrapper);
+
+        if (CollectionUtil.isEmpty(itemIds)) {
+            throw new BusinessException(__("商品SKU集合为空！"));
+        }
+
+        List<Long> itemIdList = itemIds.stream().map(Convert::toLong).collect(Collectors.toList());
+        ProductEditStockInput stockInput = BeanUtil.copyProperties(input, ProductEditStockInput.class);
+        stockInput.setItemIds(itemIdList);
+
+        return editStock(stockInput);
+    }
+
+    @Override
+    @Transactional
+    public boolean batchEditUnitPrice(ProductBatchEditUnitPriceInput input) {
+        List<Long> productIds = Convert.toList(Long.class, input.getProductIds());
+
+        if (CollectionUtil.isEmpty(productIds)) {
+            throw new BusinessException(__("商品编号集合为空！"));
+        }
+        BigDecimal itemUnitPrice = input.getItemUnitPrice();
+
+        if (CheckUtil.isEmpty(itemUnitPrice) || itemUnitPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException(__("商品价格不能为负值或0！"));
+        }
+        QueryWrapper<ProductItem> productItemQueryWrapper = new QueryWrapper<>();
+        productItemQueryWrapper.in("product_id", productIds);
+        List<ProductItem> productItems = find(productItemQueryWrapper);
+
+        if (CollectionUtil.isEmpty(productItems)) {
+            throw new BusinessException(__("商品SKU集合为空！"));
+        }
+
+        List<ProductIndex> productIndices = productIndexRepository.gets(productIds);
+
+        if (CollectionUtil.isEmpty(productIndices)) {
+            throw new BusinessException(__("产品索引集合为空！"));
+        }
+
+        List<ProductInfo> productInfos = productInfoRepository.gets(productIds);
+
+        if (CollectionUtil.isEmpty(productInfos)) {
+            throw new BusinessException(__("商品信息集合为空！"));
+        }
+
+        QueryWrapper<ProductImage> productImageQueryWrapper = new QueryWrapper<>();
+        productImageQueryWrapper.in("product_id", productIds);
+        List<ProductImage> productImages = productImageRepository.find(productImageQueryWrapper);
+
+        if (CollectionUtil.isEmpty(productImages)) {
+            throw new BusinessException(__("商品信息集合为空！"));
+        }
+
+        productItems.forEach(productItem -> productItem.setItemUnitPrice(itemUnitPrice));
+
+        if (!productItemRepository.saveOrUpdate(productItems)) {
+            throw new BusinessException(__("修改商品SKU商品价格失败！"));
+        }
+        productIndices.forEach(productIndex -> {
+            productIndex.setProductUnitPriceMin(itemUnitPrice);
+            productIndex.setProductUnitPriceMax(itemUnitPrice);
+        });
+
+        if (!productIndexRepository.saveOrUpdate(productIndices)) {
+            throw new BusinessException(__("产品索引信息失败！"));
+        }
+
+        for (ProductInfo productInfo : productInfos) {
+            Long productId = productInfo.getProductId();
+            List<ProductItem> items = productItems.stream().filter(item -> item.getProductId().equals(productId)).collect(Collectors.toList());
+            List<ProductImage> imageList = productImages.stream().filter(item -> item.getProductId().equals(productId)).collect(Collectors.toList());
+
+            //处理product_uniqid
+            Map<String, List<Object>> productUniqid = new HashMap<>();
+
+            for (ProductItem v : items) {
+                List<Integer> specItemIds = new ArrayList<>();
+
+                List<Map> specs = new ArrayList<>();
+
+                specs = JSONUtil.parseArray(v.getItemSpec(), Map.class);
+
+                for (Map spec : specs) {
+                    //ISpecVo
+                    Map item = (Map) spec.get("item");
+                    specItemIds.add(Convert.toInt(item.get("id")));
+                }
+                Collections.sort(specItemIds);
+
+                String colorImage = "";
+
+                for (ProductImage image : imageList) {
+                    if (image.getColorId().equals(v.getColorId())) {
+                        colorImage = image.getItemImageDefault();
+                        break;
+                    }
+                }
+
+                productUniqid.put(CollUtil.join(specItemIds, "-"), new ArrayList<Object>(Arrays.asList(v.getItemId(), itemUnitPrice, v.getItemQuantity(), v.getItemEnable(), v.getColorId(), colorImage, v.getItemName())));
+            }
+
+            productInfo.setProductUniqid(JSONUtil.toJSONString(productUniqid));
+        }
+
+        if (!productInfoRepository.saveOrUpdate(productInfos)) {
+            throw new BusinessException(__("产品索引信息失败！"));
+        }
+
+        return true;
+    }
 }

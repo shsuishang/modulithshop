@@ -26,11 +26,11 @@ import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
+import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
+import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
-import com.suisung.shopsuite.pt.model.req.ProductEditStockReq;
-import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
-import com.suisung.shopsuite.pt.model.req.ProductItemStateEditReq;
+import com.suisung.shopsuite.pt.model.req.*;
 import com.suisung.shopsuite.pt.model.res.ItemListRes;
 import com.suisung.shopsuite.pt.service.ProductCategoryService;
 import com.suisung.shopsuite.pt.service.ProductIndexService;
@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -95,6 +96,7 @@ public class ProductItemController extends BaseController {
     @RequestMapping(value = "/editStock", method = RequestMethod.POST)
     public CommonRes<?> editStock(ProductEditStockReq req) {
         ProductEditStockInput input = BeanUtil.copyProperties(req, ProductEditStockInput.class);
+        input.setItemIds(Collections.singletonList(req.getItemId()));
         boolean success = productItemService.editStock(input);
 
         if (success) {
@@ -110,6 +112,34 @@ public class ProductItemController extends BaseController {
     public CommonRes<?> editState(ProductItemStateEditReq req) {
         ProductItem productItem = BeanUtil.copyProperties(req, ProductItem.class);
         boolean success = productItemService.editState(productItem);
+
+        if (success) {
+            return success();
+        }
+
+        return fail();
+    }
+
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
+    @ApiOperation(value = "批量更改库存", notes = "批量更改库存")
+    @RequestMapping(value = "/batchEditStock", method = RequestMethod.POST)
+    public CommonRes<?> batchEditStock(ProductBatchEditStockReq batchEditStockReq) {
+        ProductBatchEditStockInput input = BeanUtil.copyProperties(batchEditStockReq, ProductBatchEditStockInput.class);
+        boolean success = productItemService.batchEditStock(input);
+
+        if (success) {
+            return success();
+        }
+
+        return fail();
+    }
+
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
+    @ApiOperation(value = "批量更改商品价格", notes = "批量更改商品价格")
+    @RequestMapping(value = "/batchEditUnitPrice", method = RequestMethod.POST)
+    public CommonRes<?> batchEditUnitPrice(ProductBatchEditUnitPriceReq batchEditUnitPriceReq) {
+        ProductBatchEditUnitPriceInput input = BeanUtil.copyProperties(batchEditUnitPriceReq, ProductBatchEditUnitPriceInput.class);
+        boolean success = productItemService.batchEditUnitPrice(input);
 
         if (success) {
             return success();

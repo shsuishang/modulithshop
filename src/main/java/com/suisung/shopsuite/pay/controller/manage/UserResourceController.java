@@ -28,6 +28,7 @@ import com.suisung.shopsuite.pay.model.entity.UserResource;
 import com.suisung.shopsuite.pay.model.req.UserResourceListReq;
 import com.suisung.shopsuite.pay.model.req.UserResourceMoneyReq;
 import com.suisung.shopsuite.pay.model.req.UserResourcePointsReq;
+import com.suisung.shopsuite.pay.model.res.UserResourceRes;
 import com.suisung.shopsuite.pay.model.vo.MoneyVo;
 import com.suisung.shopsuite.pay.model.vo.UserPointsVo;
 import com.suisung.shopsuite.pay.service.UserResourceService;
@@ -57,8 +58,8 @@ public class UserResourceController extends BaseController {
     @PreAuthorize("hasAuthority('/manage/pay/userResource/list')")
     @ApiOperation(value = "用户资源表-资金账户表-分页列表查询", notes = "用户资源表-资金账户表-分页列表查询")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public CommonRes<BaseListRes<UserResource>> list(UserResourceListReq userResourceListReq) {
-        IPage<UserResource> pageList = userResourceService.lists(userResourceListReq);
+    public CommonRes<BaseListRes<UserResourceRes>> list(UserResourceListReq userResourceListReq) {
+        IPage<UserResourceRes> pageList = userResourceService.getList(userResourceListReq);
 
         return success(pageList);
     }

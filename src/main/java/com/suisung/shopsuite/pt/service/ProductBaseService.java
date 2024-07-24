@@ -73,4 +73,5 @@ public interface ProductBaseService extends IBaseService<ProductBase, ProductBas
      * @param file
      */
     void importTemp(MultipartFile file) throws Exception;
+
 }

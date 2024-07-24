@@ -17,27 +17,27 @@
 // | 附带或衍生的损失等)，本团队不承担任何法律责任，本软件框架只能用于公司和个人内部的
 // | 法律所允许的合法合规的软件产品研发，详细见https://www.modulithshop.cn/policy
 // +----------------------------------------------------------------------
-package com.suisung.shopsuite.sys.model.entity;
+package com.suisung.shopsuite.pay.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
-
 /**
  * <p>
- * 货币设置表
+ * 定额充值表
  * </p>
  *
  * @author Xinze
@@ -46,67 +46,53 @@ import java.util.Date;
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("sys_currency_base")
-@ApiModel(value = "CurrencyBase对象", description = "货币设置表")
+@TableName("pay_recharge_level")
+@ApiModel(value = "RechargeLevel对象", description = "定额充值表")
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class CurrencyBase implements Serializable {
+public class RechargeLevel implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("编号:全球各国的电话区号")
-    @TableId(value = "currency_id", type = IdType.AUTO)
-    private Integer currencyId;
+    @ApiModelProperty("编号")
+    @TableId(value = "recharge_level_id", type = IdType.AUTO)
+    private Integer rechargeLevelId;
 
-    @ApiModelProperty("货币名称")
-    @TableField("currency_title")
-    private String currencyTitle;
+    @ApiModelProperty("额度名称")
+    @TableField("recharge_level_name")
+    private String rechargeLevelName;
 
-    @ApiModelProperty("货币图标")
-    @TableField("currency_lang")
-    private String currencyLang;
+    @ApiModelProperty("图片")
+    @TableField("recharge_level_img")
+    private String rechargeLevelImg;
 
-    @ApiModelProperty("货币图标")
-    @TableField("currency_img")
-    private String currencyImg;
+    @ApiModelProperty("充值额度")
+    @TableField("recharge_level_value")
+    private Integer rechargeLevelValue;
 
-    @ApiModelProperty("左符号")
-    @TableField("currency_symbol_left")
-    private String currencySymbolLeft;
+    @ApiModelProperty("额外赠送")
+    @TableField("recharge_level_gift")
+    private BigDecimal rechargeLevelGift;
 
-    @ApiModelProperty("右符号")
-    @TableField("currency_symbol_right")
-    private String currencySymbolRight;
+    @ApiModelProperty("有效期:按天计算")
+    @TableField("recharge_level_validity")
+    private Integer rechargeLevelValidity;
 
-    @ApiModelProperty("小数位")
-    @TableField("currency_decimal_place")
-    private Boolean currencyDecimalPlace;
-
-    @ApiModelProperty("汇率")
-    @TableField("currency_exchange_rate")
-    private BigDecimal currencyExchangeRate;
-
-    @ApiModelProperty("是否启用(BOOL):0-停用; 1-启用")
-    @TableField("currency_status")
-    private Boolean currencyStatus;
+    @ApiModelProperty("每日本金利息百分比")
+    @TableField("recharge_level_rate")
+    private BigDecimal rechargeLevelRate;
 
     @ApiModelProperty("修改时间")
-    @TableField("currency_time")
-    private Date currencyTime;
+    @TableField("recharge_level_time")
+    private Date rechargeLevelTime;
 
-    @ApiModelProperty("默认汇率(BOOL):0-否; 1-默认")
-    @TableField("currency_is_default")
-    private Boolean currencyIsDefault;
+    @ApiModelProperty("重复购买(BOOL):0-购买一次;1-不限制")
+    @TableField("recharge_level_repeat")
+    private Boolean rechargeLevelRepeat;
 
-    @ApiModelProperty("默认语言(BOOL):0-否; 1-默认")
-    @TableField("currency_default_lang")
-    private Boolean currencyDefaultLang;
+    @ApiModelProperty("描述")
+    @TableField("recharge_level_description")
+    private String rechargeLevelDescription;
 
-    @ApiModelProperty("默认UI(BOOL):0-否; 1-默认")
-    @TableField("currency_is_standard")
-    private Boolean currencyIsStandard;
-
-    @ApiModelProperty("排序")
-    @TableField("currency_sort")
-    private Integer currencySort;
-
-
+    @ApiModelProperty("有效时长单位为年")
+    @TableField("recharge_level_duration")
+    private BigDecimal rechargeLevelDuration;
 }

@@ -51,11 +51,10 @@ public class ConfigController extends BaseController {
     @Autowired
     private PageBaseService pageBaseService;
 
-
     @ApiOperation(value = "站点配置信息", notes = "站点配置信息")
     @RequestMapping(value = "/info", method = RequestMethod.GET)
-    public CommonRes<Map<String, Object>> info(@RequestParam(name = "source_ucc_code", required = false) String sourceUccCode) {
-        Map<String, Object> res = configBaseService.getSiteInfo(sourceUccCode);
+    public CommonRes<Map<String, Object>> info(@RequestParam(name = "source_ucc_code", required = false) String sourceUccCode, @RequestParam(name = "source_lang", required = false) String sourceLang) {
+        Map<String, Object> res = configBaseService.getSiteInfo(sourceLang);
 
         return success(res);
     }

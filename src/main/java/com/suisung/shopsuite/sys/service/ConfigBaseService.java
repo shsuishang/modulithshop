@@ -191,10 +191,12 @@ public interface ConfigBaseService extends IBaseService<ConfigBase, ConfigBaseLi
     /**
      * 读取初始化配置信息
      *
-     * @param sourceUccCode
+     * @param sourceLang
      * @return
      */
-    Map<String, Object> getSiteInfo(String sourceUccCode);
+    Map<String, Object> getSiteInfo(String sourceLang);
+
+    String getLk();
 
     boolean cleanCache();
 

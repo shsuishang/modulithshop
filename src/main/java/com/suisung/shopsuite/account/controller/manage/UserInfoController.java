@@ -179,7 +179,7 @@ public class UserInfoController extends BaseController {
 
     @PreAuthorize("hasAuthority('/manage/account/userInfo/list')")
     @ApiOperation(value = "导出模版", notes = "导出模版")
-    @RequestMapping(value = "/exportTemp", method = RequestMethod.POST)
+    @RequestMapping(value = "/exportTemp", method = {RequestMethod.POST, RequestMethod.GET})
     public void exportTemp(HttpServletResponse response) {
         userInfoService.exportTemp(response);
     }

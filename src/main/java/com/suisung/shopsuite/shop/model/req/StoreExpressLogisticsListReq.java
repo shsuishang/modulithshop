@@ -48,6 +48,9 @@ public class StoreExpressLogisticsListReq extends BaseListReq {
     @QueryField(type = QueryType.LIKE)
     private String logisticsName;
 
+    @ApiModelProperty("是否启用(BOOL):1-启用;0-禁用")
+    private Boolean logisticsIsEnable;
+
     public StoreExpressLogisticsListReq() {
         setSidx("logistics_id");
         setSort(Constants.ORDER_BY_DESC);

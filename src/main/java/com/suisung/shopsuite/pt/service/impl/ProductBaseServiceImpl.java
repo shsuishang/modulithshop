@@ -67,6 +67,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 

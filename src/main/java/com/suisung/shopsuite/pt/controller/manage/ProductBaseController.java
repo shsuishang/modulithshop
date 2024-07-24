@@ -255,7 +255,7 @@ public class ProductBaseController extends BaseController {
 
     @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
     @ApiOperation(value = "导出模版", notes = "导出模版")
-    @RequestMapping(value = "/exportTemp", method = RequestMethod.POST)
+    @RequestMapping(value = "/exportTemp", method = {RequestMethod.POST, RequestMethod.GET})
     public void exportTemp(HttpServletResponse response) {
         productBaseService.exportTemp(response);
     }

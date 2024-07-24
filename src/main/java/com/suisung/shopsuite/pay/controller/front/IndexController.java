@@ -7,9 +7,12 @@ import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.core.web.model.res.BaseListRes;
 import com.suisung.shopsuite.pay.model.entity.ConsumeWithdraw;
+import com.suisung.shopsuite.pay.model.entity.RechargeLevel;
 import com.suisung.shopsuite.pay.model.entity.UserPay;
 import com.suisung.shopsuite.pay.model.req.ConsumeWithdrawListReq;
+import com.suisung.shopsuite.pay.model.req.RechargeLevelListReq;
 import com.suisung.shopsuite.pay.service.ConsumeWithdrawService;
+import com.suisung.shopsuite.pay.service.RechargeLevelService;
 import com.suisung.shopsuite.pay.service.UserPayService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +32,9 @@ public class IndexController extends BaseController {
 
     @Autowired
     private ConsumeWithdrawService consumeWithdrawService;
+
+    @Autowired
+    private RechargeLevelService rechargeLevelService;
 
     @ApiOperation(value = "获取支付密码", notes = "获取支付密码")
     @RequestMapping(value = "/getPayPasswd", method = RequestMethod.GET)
@@ -60,6 +66,14 @@ public class IndexController extends BaseController {
         Integer userId = ContextUtil.checkLoginUserId();
         consumeWithdrawListReq.setUserId(userId);
         IPage<ConsumeWithdraw> pageList = consumeWithdrawService.lists(consumeWithdrawListReq);
+
+        return success(pageList);
+    }
+
+    @ApiOperation(value = "定额充值表-分页列表查询", notes = "定额充值表-分页列表查询")
+    @RequestMapping(value = "/listRechargeLevel", method = RequestMethod.GET)
+    public CommonRes <BaseListRes<RechargeLevel>> list(RechargeLevelListReq rechargeLevelListReq) {
+        IPage<RechargeLevel> pageList = rechargeLevelService.lists(rechargeLevelListReq);
 
         return success(pageList);
     }

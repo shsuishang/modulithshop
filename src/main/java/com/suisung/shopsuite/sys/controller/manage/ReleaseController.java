@@ -83,7 +83,7 @@ public class ReleaseController extends BaseController {
     @ApiOperation(value = "授权信息", notes = "授权信息")
     @RequestMapping(value = "/getLicence", method = RequestMethod.GET)
     public CommonRes<Map> getLicence() throws Exception {
-        String licence = configBaseService.getConfig("licence", "2+WJU0eC2hmoby4Fx3PHTu1dT1IRV5wMIp24otk29WtRThXgdzWPSyHdl0oeNkFNATwI8m+EXBJPAsd0Bo/WpyVkPzFOz7WAh1AMmYmFN1tI7nMCTWC2UmyP+cBuZukq0AalVfbMyzb9ll+t5LGwGD44DKS3CdsEIhqJEr1JUFCsj/D92lK0XB2pyZgyJCnQxDj2dapPbgsNXzsePheIaqQ3v2YHGViQ11ypUJDCwqO57HcNQLLXW0P0v2tCdGzkY9oi3G4Z1mC2ob15cim4baKgnkHBjg5RgvHqkNd1PC+ePeiwHDdDN7nToM3rOFFzt84+G4twZcBI335Gjyu/yg==");
+        String licence = configBaseService.getLk();
         String licencePublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5Fa6zAE5sJ9y1qzjhGAFWggKbMAS82xNG8wKglG0k6XojKBTw/7evSwC0aEgYU/BkIPzxNb7j6Oap5iZ43YgFgLI1dGalZJnvmLTmRK4+MqkKI6LlQQyCTZtSDkPNr62jYzSya+pPt0hgBHgk2x6YAns83SYmZf+7NT3qB+uxIgVIJTcO6m+SX3MyQU6cRKlt46+A9GwYiPx6davGxiX4TeeS5/sWiV1+yBb1xovNPjGK9d6N/3ObvSPtNXLnFn5jtwT1UanZPdZMR+oYIlltR9QGE3jnaTxlYTUhkY63GMek94dWbJTBQqpaA6t221iCwh8uawX4sbm4ZoRTy8SRwIDAQAB";
 
         String s = RSAUtil.decryptByPublicKey(licence, licencePublicKey);

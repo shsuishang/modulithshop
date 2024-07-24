@@ -1541,7 +1541,7 @@ public class OrderServiceImpl implements OrderService {
 
                         //出库未发货，可以注释掉后， 商品数量需要手工入库。
                         ProductEditStockInput input = new ProductEditStockInput();
-                        input.setItemId(orderItem.getItemId());
+                        input.setItemIds(Collections.singletonList(orderItem.getItemId()));
                         input.setItemQuantity(quantity);
                         input.setBillTypeId(StateCode.BILL_TYPE_IN);
                         boolean success = productItemService.editStock(input);

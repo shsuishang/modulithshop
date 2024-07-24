@@ -1,11 +1,13 @@
 package com.suisung.shopsuite.sys.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.suisung.shopsuite.account.model.entity.UserLevel;
 import com.suisung.shopsuite.account.service.UserLevelService;
@@ -18,6 +20,7 @@ import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.pojo.dto.ErrorTypeEnum;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.LogUtil;
+import com.suisung.shopsuite.common.utils.StringHelpers;
 import com.suisung.shopsuite.core.consts.ConstantRedis;
 import com.suisung.shopsuite.core.web.model.SelectVo;
 import com.suisung.shopsuite.core.web.service.RedisService;
@@ -26,17 +29,21 @@ import com.suisung.shopsuite.pay.model.vo.AliPayVo;
 import com.suisung.shopsuite.pay.model.vo.WxPayV3Vo;
 import com.suisung.shopsuite.sys.model.entity.ConfigBase;
 import com.suisung.shopsuite.sys.model.entity.ConfigType;
+import com.suisung.shopsuite.sys.model.entity.CurrencyBase;
 import com.suisung.shopsuite.sys.model.req.ConfigBaseIndexReq;
 import com.suisung.shopsuite.sys.model.req.ConfigBaseListReq;
 import com.suisung.shopsuite.sys.model.res.ConfigBaseIndexRes;
 import com.suisung.shopsuite.sys.model.res.ConfigListRes;
 import com.suisung.shopsuite.sys.repository.ConfigBaseRepository;
 import com.suisung.shopsuite.sys.repository.ConfigTypeRepository;
+import com.suisung.shopsuite.sys.repository.CurrencyBaseRepository;
 import com.suisung.shopsuite.sys.service.ConfigBaseService;
+import com.suisung.shopsuite.sys.service.CurrencyBaseService;
 import com.suisung.shopsuite.sys.service.PageBaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -78,6 +85,8 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
     @Autowired
     private PageBaseService pageBaseService;
 
+    @Autowired
+    private CurrencyBaseRepository currencyBaseRepository;
 
     private static final Map<Serializable, ConfigBase> global = new HashMap<>();
 
@@ -89,6 +98,8 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
     private static List<SelectVo> paymentChannelSelectList;//开启的支付方式
     private static List<SelectVo> returnStateSelectList;//退款退货 卖家处理状态
     private static Map<Integer, String> paymentChannelMap;
+
+    private  String lK;
 
     @Autowired
     private RedisService redisService;
@@ -951,12 +962,12 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
     /**
      * 读取初始化配置信息
      *
-     * @param sourceUccCode
+     * @param sourceLang
      * @return
      */
     @Cacheable(value = {"configInfo"})
     @Override
-    public Map<String, Object> getSiteInfo(String sourceUccCode) {
+    public Map<String, Object> getSiteInfo(String sourceLang) {
         String keys = "site_name,site_meta_keyword,site_meta_description,site_version,copyright,icp_number,site_company_name,site_address,site_tel,account_login_bg,site_admin_logo,site_mobile_logo,site_pc_logo,date_format,time_format,cache_enable,cache_expire,site_status,advertisement_open,wechat_connect_auto,wechat_app_id,product_spec_edit,default_image,product_salenum_flag,b2b_flag,hall_b2b_enable,product_ziti_flag,plantform_fx_enable,plantform_fx_gift_point,plantform_fx_withdraw_min_amount,plantform_poster_bg,plantform_commission_withdraw_mode,product_poster_bg,live_mode_xcx,kefu_type_id,withdraw_received_day,withdraw_monthday,default_shipping_district,points_enable,voucher_enable,b2b_enable,chain_enable,edu_enable,hall_enable,multilang_enable,sns_enable,subsite_enable,supplier_enable,im_enable,chat_global,service_qrcode,wechat_mp_qrcode,chain_enable,baidu_client_ak,prodcut_addcart_flag";
 
 
@@ -1025,6 +1036,16 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
         return res;
     }
 
+    @Value("${licence.key}")
+    public void setLk(String licenceKey) {
+        lK = licenceKey;
+    }
+
+    @Override
+    public String getLk() {
+        return lK;
+    }
+
     @Override
     public boolean cleanCache() {
         Set<String> c_keys = redisService.keys(ConstantRedis.Cache_NameSpace + "*");
@@ -1034,6 +1055,7 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
         Set<String> menu_keys = redisService.keys("menuTree:*");
         Set<String> pc_keys = redisService.keys("productCategoryList:*");
         Set<String> db_keys = redisService.keys("districtBaseTree:*");
+        Set<String> lang_keys = redisService.keys("langInfo:*");
 
         redisService.del(c_keys);
         redisService.del(b_keys);
@@ -1042,6 +1064,7 @@ public class ConfigBaseServiceImpl extends BaseServiceImpl<ConfigBaseRepository,
         redisService.del(menu_keys);
         redisService.del(pc_keys);
         redisService.del(db_keys);
+        redisService.del(lang_keys);
 
         return false;
     }

@@ -23,6 +23,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -45,6 +46,7 @@ import com.suisung.shopsuite.marketing.model.vo.ActivityInfoVo;
 import com.suisung.shopsuite.marketing.model.vo.ItemNumVo;
 import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import com.suisung.shopsuite.marketing.service.ActivityItemService;
+import com.suisung.shopsuite.pt.dao.ProductIndexDao;
 import com.suisung.shopsuite.pt.model.entity.*;
 import com.suisung.shopsuite.pt.model.input.ProductDetailInput;
 import com.suisung.shopsuite.pt.model.input.ProductIndexInput;
@@ -72,11 +74,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 
 /**
  * <p>
@@ -219,7 +220,7 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
              */
 
             //读取SKU
-            List<ProductItem> productItems = productItemRepository.find(new QueryWrapper<ProductItem>().in("product_id", productIds));
+            List<ProductItem> productItems = productItemRepository.find(new QueryWrapper<ProductItem>().in("product_id", productIds).orderByAsc("item_id"));
 
 
             // 处理为map
@@ -264,8 +265,34 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
                 }
 
                 //默认
-                vo.setItemId(defaultItemMap.get(vo.getProductId()));
-                vo.setItems(itemMap.get(vo.getProductId()));
+                //默认商品为下架状态 改为下个上架商品
+                Long defaultItemId = defaultItemMap.get(vo.getProductId());
+                List<ProductItem> productItemList = itemMap.get(vo.getProductId());
+
+                if (CollectionUtil.isNotEmpty(productItemList)) {
+                    Long finalDefaultItemId = defaultItemId;
+                    Optional<ProductItem> firstItemOptional = productItemList.stream()
+                            .filter(item -> item.getItemId().equals(finalDefaultItemId))
+                            .findFirst();
+
+                    if (firstItemOptional.isPresent()) {
+                        ProductItem productItem = firstItemOptional.get();
+
+                        if (!productItem.getItemEnable().equals(StateCode.PRODUCT_STATE_NORMAL)) {
+                            for (ProductItem item : productItemList) {
+
+                                if (item.getItemEnable().equals(StateCode.PRODUCT_STATE_NORMAL)) {
+                                    defaultItemId = item.getItemId();
+
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                vo.setItemId(defaultItemId);
+                vo.setItems(productItemList);
             }
 
             //活动价格
@@ -598,5 +625,53 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
         }
 
         return output;
+    }
+
+    @Override
+    public void autoSaleProduct() {
+        QueryWrapper<ProductIndex> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("product_verify_id", StateCode.PRODUCT_VERIFY_PASSED);
+        queryWrapper.eq("product_state_id", StateCode.PRODUCT_STATE_OFF_THE_SHELF);
+        queryWrapper.le("product_sale_time", new Date().getTime());
+        List<ProductIndex> productIndices = productIndexRepository.find(queryWrapper);
+
+        if (CollectionUtil.isNotEmpty(productIndices)) {
+            List<Long> productIds = CommonUtil.column(productIndices, ProductIndex::getProductId);
+
+            QueryWrapper<ProductItem> itemQueryWrapper = new QueryWrapper<>();
+            itemQueryWrapper.in("product_id", productIds);
+            List<ProductItem> productItems = productItemRepository.find(itemQueryWrapper);
+
+            if (CollectionUtil.isEmpty(productItems)) {
+                throw new BusinessException(__("商品SKU集合为空！"));
+            }
+            List<ProductIndex> indices = new ArrayList<>();
+
+            for (ProductIndex productIndex : productIndices) {
+                Long productId = productIndex.getProductId();
+                List<ProductItem> productItemList = productItems.stream().filter(item -> item.getProductId().equals(productId)).collect(Collectors.toList());
+
+                if (CollectionUtil.isEmpty(productItemList)) {
+                    throw new BusinessException(String.format(__("商品编号: %s ,SKU数据为空！"), productId));
+                }
+                boolean itemEnable = productItemList.stream()
+                        .anyMatch(item -> ObjectUtil.equal(item.getItemEnable(), StateCode.PRODUCT_STATE_NORMAL));
+
+                if (!itemEnable) {
+                    continue;
+                }
+
+                ProductIndex editIndex = new ProductIndex();
+                editIndex.setProductId(productId);
+                editIndex.setProductStateId(StateCode.PRODUCT_STATE_NORMAL);
+                editIndex.setProductSaleTime(new Date().getTime());
+                editIndex.setProductEvaluationNum(productIndex.getProductEvaluationNum());
+                indices.add(editIndex);
+            }
+
+            if (!productIndexRepository.saveOrUpdate(indices)) {
+                throw new BusinessException(__("商品定时上架失败！"));
+            }
+        }
     }
 }

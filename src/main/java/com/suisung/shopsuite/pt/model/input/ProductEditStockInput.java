@@ -24,6 +24,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * <p>
  * 商品SKU表
@@ -37,8 +39,8 @@ import lombok.Data;
 @ApiModel(description = "编辑库存")
 public class ProductEditStockInput {
 
-    @ApiModelProperty("SKU编号")
-    private Long itemId;
+    @ApiModelProperty("SKU编号集合")
+    private List<Long> itemIds;
 
     @ApiModelProperty("商品库存")
     private Integer itemQuantity;
