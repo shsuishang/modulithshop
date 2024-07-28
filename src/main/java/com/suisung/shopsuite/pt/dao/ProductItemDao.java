@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
+import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -44,4 +45,6 @@ public interface ProductItemDao extends BaseMapper<ProductItem> {
     int pickingSkuStock(@Param("item_id") Long itemId, @Param("cart_quantity") int cartQuantity);
 
     IPage<Long> listItemKey(Page<ProductItemInput> page, @Param("params") ProductItemInput params);
+
+    IPage<ItemOutput> getStockWarningItems(Page<ProductItemInput> page, @Param("params") ProductItemInput params);
 }

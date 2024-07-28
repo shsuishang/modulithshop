@@ -38,6 +38,7 @@ import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.common.utils.ContextUtil;
 import com.suisung.shopsuite.common.web.ContextUser;
+import com.suisung.shopsuite.common.web.service.MessageService;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.pt.model.entity.*;
 import com.suisung.shopsuite.pt.model.req.ProductCommentListReq;
@@ -132,6 +133,9 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
 
     @Autowired
     private UserInfoRepository userInfoRepository;
+
+    @Autowired
+    private MessageService messageService;
 
     @Override
     @Transactional
@@ -371,7 +375,14 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
             }
 
             // 触发评论完成时间
-            // todo 消息通知
+            // 差评提醒
+            if (comment.getCommentScores() == 1) {
+                String messageId = "bad-review-reminder-notification";
+                Map<String, Object> args = new HashMap<>();
+                args.put("order_id", orderId);
+                Integer adminUserId = configBaseService.getConfig("message_notice_user_id", 10001);
+                messageService.sendNoticeMsg(adminUserId, messageId, args);
+            }
         } else {
             throw new BusinessException(__("该订单商品已进行评价！"));
         }

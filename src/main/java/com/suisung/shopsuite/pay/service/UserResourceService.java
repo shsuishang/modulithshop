@@ -44,11 +44,11 @@ import java.math.BigDecimal;
 public interface UserResourceService extends IBaseService<UserResource, UserResourceListReq> {
 
     /**
-     * 获取用户资源列表
+     * 用户资源表-资金账户表-分页列表查询
      * @param userResourceListReq
      * @return
      */
-//    IPage<UserResource> getList(UserResourceListReq userResourceListReq);
+    IPage<UserResourceRes> getList(UserResourceListReq userResourceListReq);
 
     /**
      * 用户注册积分
@@ -139,12 +139,4 @@ public interface UserResourceService extends IBaseService<UserResource, UserReso
      * @return
      */
     UserResourceRes resource(Integer userId);
-
-    /**
-     * 用户资源表-资金账户表-分页列表查询
-     *
-     * @param userResourceListReq
-     * @return
-     */
-    IPage<UserResourceRes> getList(UserResourceListReq userResourceListReq);
 }

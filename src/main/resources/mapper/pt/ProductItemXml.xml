@@ -76,4 +76,24 @@
             </otherwise>
         </choose>
     </select>
+
+    <select id="getStockWarningItems" resultType="com.suisung.shopsuite.pt.model.output.ItemOutput">
+        SELECT ppi.*,ppb.product_name,ppg.item_image_default AS product_image FROM pt_product_item ppi
+        INNER JOIN pt_product_base ppb ON ppi.product_id = ppb.product_id
+        INNER JOIN pt_product_image ppg on ppi.product_id = ppg.product_id AND ppi.color_id = ppg.color_id
+        <where>
+        ppi.item_quantity - ppi.item_quantity_frozen &lt;= #{params.stockWarning}
+            <if test="params.productId != null">
+                AND ppi.product_id = #{params.productId}
+            </if>
+            <if test="params.itemId != null">
+                AND ppi.item_id in
+                <foreach collection="params.itemId" item="item_id" index="index" open="(" close=")" separator=",">#{item_id}</foreach>
+            </if>
+            <if test="params.productName != null and params.productName !=''">
+                AND ppb.product_name like concat('%', #{params.productName}, '%')
+            </if>
+        </where>
+        ORDER BY ppi.item_id DESC
+    </select>
 </mapper>

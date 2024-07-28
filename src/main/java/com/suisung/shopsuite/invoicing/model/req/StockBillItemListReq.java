@@ -19,7 +19,9 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.invoicing.model.req;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.suisung.shopsuite.core.consts.Constants;
 import com.suisung.shopsuite.core.web.model.req.BaseListReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -59,44 +61,21 @@ public class StockBillItemListReq extends BaseListReq {
     @ApiModelProperty("产品编号")
     private Long productId;
 
-    @ApiModelProperty("商品名称")
-    private String productName;
-
     @ApiModelProperty("货品编号")
     private Long itemId;
 
     @ApiModelProperty("商品名称")
     private String itemName;
 
-    @ApiModelProperty("商品数量")
-    private Integer billItemQuantity;
-
-    @ApiModelProperty("单价")
-    private BigDecimal billItemUnitPrice;
-
-    @ApiModelProperty("小计")
-    private BigDecimal billItemSubtotal;
-
-    @ApiModelProperty("单位编号")
-    private Integer unitId;
-
-    @ApiModelProperty("库存量")
-    private Integer warehouseItemQuantity;
-
-    @ApiModelProperty("店铺编号")
-    private Integer storeId;
-
-    @ApiModelProperty("所属仓库")
-    private Integer warehouseId;
-
     @ApiModelProperty("库存类型(ENUM)")
     private Integer stockTransportTypeId;
-
-    @ApiModelProperty("备注")
-    private String billItemRemark;
 
     @ApiModelProperty("业务类别(ENUM):2750-入库;2700-出库")
     private Integer billTypeId;
 
+    @TableField(exist = false)
+    private String sidx = "stock_bill_item_id";
 
+    @TableField(exist = false)
+    private String sort = Constants.ORDER_BY_DESC;
 }

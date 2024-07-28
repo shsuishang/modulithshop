@@ -25,6 +25,7 @@ import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
+import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
 
@@ -73,4 +74,11 @@ public interface ProductItemService extends IBaseService<ProductItem, ProductIte
      * @return
      */
     boolean batchEditUnitPrice(ProductBatchEditUnitPriceInput input);
+
+    /**
+     * 库存警告商品item-分页列表查询
+     * @param input
+     * @return
+     */
+    IPage<ItemOutput> getStockWarningItems(ProductItemInput input);
 }

@@ -278,6 +278,9 @@ public class ProductItemInput extends BaseListReq {
     @ApiModelProperty("活动编号")
     private Integer activityId;
 
+    @ApiModelProperty("库存警戒值")
+    private Integer stockWarning;
+
     public ProductItemInput() {
         setSidx("item_id");
     }

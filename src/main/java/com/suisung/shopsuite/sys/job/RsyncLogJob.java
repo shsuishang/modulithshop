@@ -20,9 +20,11 @@ import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.repository.ProductIndexRepository;
 import com.suisung.shopsuite.pt.repository.ProductItemRepository;
 import com.suisung.shopsuite.sys.model.entity.AccessHistory;
+import com.suisung.shopsuite.sys.model.entity.CrontabBase;
 import com.suisung.shopsuite.sys.model.entity.LogAction;
 import com.suisung.shopsuite.sys.repository.AccessHistoryRepository;
 import com.suisung.shopsuite.sys.repository.LogActionRepository;
+import com.suisung.shopsuite.sys.service.CrontabBaseService;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,13 @@ public class RsyncLogJob extends QuartzJobBean {
         AccessHistoryRepository accessHistoryRepository = SpringUtil.getBean(AccessHistoryRepository.class);
         ProductIndexRepository productIndexRepository = SpringUtil.getBean(ProductIndexRepository.class);
         MenuBaseService menuBaseService = SpringUtil.getBean(MenuBaseService.class);
+
+        Date now = new Date();
+        CrontabBase crontabBase = new CrontabBase();
+        crontabBase.setCrontabId(1006);
+        crontabBase.setCrontabLastExeTime(now.getTime());
+        CrontabBaseService crontabBaseService = SpringUtil.getBean(CrontabBaseService.class);
+        crontabBaseService.edit(crontabBase);
 
         try {
             int times = 10000;

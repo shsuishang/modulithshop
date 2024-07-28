@@ -7,6 +7,8 @@ import com.suisung.shopsuite.common.pojo.dto.ErrorTypeEnum;
 import com.suisung.shopsuite.common.utils.LogUtil;
 import com.suisung.shopsuite.common.utils.SpringUtil;
 import com.suisung.shopsuite.common.web.service.MessageService;
+import com.suisung.shopsuite.sys.model.entity.CrontabBase;
+import com.suisung.shopsuite.sys.service.CrontabBaseService;
 import com.suisung.shopsuite.sys.service.MessageTemplateService;
 import org.quartz.JobExecutionContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -18,6 +20,13 @@ public class RsyncNoticeMsgJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) {
         MessageService messageService = SpringUtil.getBean(MessageService.class);
         MessageTemplateService messageTemplateService = SpringUtil.getBean(MessageTemplateService.class);
+
+        Date now = new Date();
+        CrontabBase crontabBase = new CrontabBase();
+        crontabBase.setCrontabId(1008);
+        crontabBase.setCrontabLastExeTime(now.getTime());
+        CrontabBaseService crontabBaseService = SpringUtil.getBean(CrontabBaseService.class);
+        crontabBaseService.edit(crontabBase);
 
         int times = 10000;
 

@@ -51,6 +51,7 @@ import com.suisung.shopsuite.shop.repository.UserVoucherNumRepository;
 import com.suisung.shopsuite.shop.repository.UserVoucherRepository;
 import com.suisung.shopsuite.shop.service.StoreBaseService;
 import com.suisung.shopsuite.shop.service.UserVoucherService;
+import com.suisung.shopsuite.sys.service.ConfigBaseService;
 import com.suisung.shopsuite.sys.service.CurrencyBaseService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.suisung.shopsuite.common.utils.I18nUtil.__;
@@ -90,6 +92,9 @@ public class UserVoucherServiceImpl extends BaseServiceImpl<UserVoucherRepositor
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private ConfigBaseService configBaseService;
 
     @Override
     public VoucherCountRes getEachVoucherNum(Integer voucherStateId, Integer userId) {
@@ -210,6 +215,13 @@ public class UserVoucherServiceImpl extends BaseServiceImpl<UserVoucherRepositor
                         voucher.setUserVoucherId(userVoucher.getUserVoucherId());
                         voucher.setVoucherStateId(StateCode.VOUCHER_STATE_TIMEOUT);
                         edit(voucher);
+
+                        // 优惠券过期提醒
+                        String messageId = "imminent-expiration-reminder";
+                        Map<String, Object> args = new HashMap<>();
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        args.put("endtime", simpleDateFormat.format(voucherEndDate));
+                        messageService.sendNoticeMsg(userVoucher.getUserId(), messageId, args);
                     }
                     //未生效标记
                     Long voucherStartDate = userVoucher.getVoucherStartDate();
@@ -357,6 +369,15 @@ public class UserVoucherServiceImpl extends BaseServiceImpl<UserVoucherRepositor
             //是否领完判断
             if (voucherQuantity <= voucherQuantityUse) {
                 activity.setActivityState(StateCode.ACTIVITY_STATE_FINISHED);
+            }
+
+            // 优惠券低于库存设定额提醒
+            if (NumberUtil.sub(voucherQuantity, voucherQuantityUse).intValue() <= 5) {
+                String messageId = "coupon-is-below-stock-alert";
+                Map<String, Object> args = new HashMap<>();
+                args.put("activity_id", activityId);
+                Integer adminUserId = configBaseService.getConfig("message_notice_user_id", 10001);
+                messageService.sendNoticeMsg(adminUserId, messageId, args);
             }
 
             if (!activityBaseService.edit(activity)) {

@@ -112,26 +112,38 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
     @Autowired
     private MessageService messageService;
 
-    /**
-     * 获取用户资源列表
-     *
-     * @param
-     * @return
-     */
-//    @Override
-//    public IPage<UserResource> getList(UserResourceListReq userResourceListReq) {
-//        if (StrUtil.isNotEmpty(userResourceListReq.getUserNickname())) {
-//            List<UserInfo> userInfos = userInfoRepository.getByNickName(userResourceListReq.getUserNickname());
-//            List<Integer> userIds = userInfos.stream().map(userInfo -> userInfo.getUserId()).collect(Collectors.toList());
-//
-//            if (CollUtil.isEmpty(userIds)) {
-//                return new Page<>();
-//            }
-//            userResourceListReq.setUserIds(userIds);
-//            return lists(new QueryWrapper<UserResource>().in("user_id", userResourceListReq.getUserIds()), userResourceListReq.getPage(), userResourceListReq.getSize());
-//        }
-//        return lists(new QueryWrapper<>(), userResourceListReq.getPage(), userResourceListReq.getSize());
-//    }
+    @Override
+    public IPage<UserResourceRes> getList(UserResourceListReq userResourceListReq) {
+        IPage<UserResourceRes> iPage = new Page<>();
+
+        IPage<UserResource> page = lists(userResourceListReq);
+
+        if (CollectionUtil.isNotEmpty(page.getRecords())) {
+            BeanUtils.copyProperties(page, iPage);
+
+            List<UserResourceRes> userResourceResList = new ArrayList<>();
+            List<UserResource> resourceList = page.getRecords();
+            List<Integer> userIds = CommonUtil.column(resourceList, UserResource::getUserId);
+            Map<Integer, UserInfo> userInfoMap = userInfoRepository.getUserInfoMap(userIds);
+
+            for (UserResource userResource : resourceList) {
+                UserResourceRes userResourceRes = BeanUtil.copyProperties(userResource, UserResourceRes.class);
+
+                if (CollUtil.isNotEmpty(userInfoMap)) {
+                    UserInfo userInfo = userInfoMap.get(userResource.getUserId());
+
+                    if (userInfo != null) {
+                        userResourceRes.setUserNickname(userInfo.getUserNickname());
+                    }
+                }
+                userResourceResList.add(userResourceRes);
+            }
+            iPage.setRecords(userResourceResList);
+        }
+
+        return iPage;
+    }
+
     @Override
     public boolean initUserPoints(Integer userId) {
         UserResource resource = new UserResource();
@@ -386,12 +398,32 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
     @Override
     @Transactional
     public void sign(Integer userId) {
-        Integer pointsLogin = configBaseService.getConfig("points_login", 0);
+        BigDecimal pointsLogin = Convert.toBigDecimal(configBaseService.getConfig("points_login", 0));
         Integer expLogin = configBaseService.getConfig("exp_login", 0);
+        SignInfoRes signInfo = getSignInfo(userId);
 
-        String desc = String.format(__("签到获取积分 %d"), pointsLogin);
+        if (signInfo != null) {
+            Integer continueSignDays = signInfo.getContinueSignDays();
+            //今日签到次数
+            continueSignDays = continueSignDays + 1;
+            //签到规则
+            List<PointStepVo> signList = signInfo.getSignList();
 
-        UserPointsVo userPointsVo = new UserPointsVo(userId, BigDecimal.valueOf(pointsLogin), PointsType.POINTS_TYPE_LOGIN, desc, null, null, null);
+            if (CollectionUtil.isNotEmpty(signList)) {
+                for (PointStepVo pointStepVo : signList) {
+
+                    //连续签到 倍数
+                    if (pointStepVo.getDays().equals(continueSignDays)) {
+                        BigDecimal multiples = Convert.toBigDecimal(pointStepVo.getMultiples());
+                        pointsLogin = NumberUtil.mul(pointsLogin, multiples);
+                    }
+                }
+            }
+        }
+
+        String desc = String.format(__("签到获取积分 %s"), pointsLogin);
+
+        UserPointsVo userPointsVo = new UserPointsVo(userId, pointsLogin, PointsType.POINTS_TYPE_LOGIN, desc, null, null, null);
         userResourceRepository.points(userPointsVo);
 
         ExperienceVo experienceVo = new ExperienceVo(userId, BigDecimal.valueOf(expLogin), LevelCode.EXP_TYPE_LOGIN, "");
@@ -430,11 +462,11 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
                     pointStepVo.setValueStr(pointStepVo.getMultiples() + ".倍");
                 }
             }
-            if (hasOne) {
+            if (!hasOne) {
                 PointStepVo stepVo = new PointStepVo();
                 stepVo.setDays(1);
                 stepVo.setValueStr(pointsLogin + ".积分");
-                daysList.add(stepVo);
+                daysList.add(0, stepVo);
             }
             return daysList;
         }
@@ -598,37 +630,4 @@ public class UserResourceServiceImpl extends BaseServiceImpl<UserResourceReposit
 
         return userResourceRes;
     }
-
-    @Override
-    public IPage<UserResourceRes> getList(UserResourceListReq userResourceListReq) {
-        IPage<UserResourceRes> iPage = new Page<>();
-
-        IPage<UserResource> page = lists(userResourceListReq);
-
-        if (CollectionUtil.isNotEmpty(page.getRecords())) {
-            BeanUtils.copyProperties(page, iPage);
-
-            List<UserResourceRes> userResourceResList = new ArrayList<>();
-            List<UserResource> resourceList = page.getRecords();
-            List<Integer> userIds = CommonUtil.column(resourceList, UserResource::getUserId);
-            Map<Integer, UserInfo> userInfoMap = userInfoRepository.getUserInfoMap(userIds);
-
-            for (UserResource userResource : resourceList) {
-                UserResourceRes userResourceRes = BeanUtil.copyProperties(userResource, UserResourceRes.class);
-
-                if (CollUtil.isNotEmpty(userInfoMap)) {
-                    UserInfo userInfo = userInfoMap.get(userResource.getUserId());
-
-                    if (userInfo != null) {
-                        userResourceRes.setUserNickname(userInfo.getUserNickname());
-                    }
-                }
-                userResourceResList.add(userResourceRes);
-            }
-            iPage.setRecords(userResourceResList);
-        }
-
-        return iPage;
-    }
-
 }

@@ -36,6 +36,7 @@ import com.suisung.shopsuite.common.utils.JSONUtil;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.invoicing.model.entity.StockBillItem;
 import com.suisung.shopsuite.invoicing.repository.StockBillItemRepository;
+import com.suisung.shopsuite.pt.dao.ProductItemDao;
 import com.suisung.shopsuite.pt.model.entity.ProductImage;
 import com.suisung.shopsuite.pt.model.entity.ProductIndex;
 import com.suisung.shopsuite.pt.model.entity.ProductInfo;
@@ -43,6 +44,7 @@ import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
+import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
 import com.suisung.shopsuite.pt.repository.ProductImageRepository;
@@ -50,7 +52,7 @@ import com.suisung.shopsuite.pt.repository.ProductIndexRepository;
 import com.suisung.shopsuite.pt.repository.ProductInfoRepository;
 import com.suisung.shopsuite.pt.repository.ProductItemRepository;
 import com.suisung.shopsuite.pt.service.ProductItemService;
-import org.jetbrains.annotations.NotNull;
+import com.suisung.shopsuite.sys.service.ConfigBaseService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,6 +90,12 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
 
     @Autowired
     private ProductImageRepository productImageRepository;
+
+    @Autowired
+    private ProductItemDao productItemDao;
+
+    @Autowired
+    private ConfigBaseService configBaseService;
 
     /**
      * 获取itemDialog数据
@@ -374,5 +382,13 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
         }
 
         return true;
+    }
+
+    @Override
+    public IPage<ItemOutput> getStockWarningItems(ProductItemInput input) {
+        Integer stockWarning = configBaseService.getConfig("stock_warning", 5);
+        input.setStockWarning(stockWarning);
+
+        return productItemDao.getStockWarningItems(new Page<>(input.getPage(), input.getSize()), input);
     }
 }

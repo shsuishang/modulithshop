@@ -22,14 +22,20 @@ package com.suisung.shopsuite.pt.controller.manage;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.common.utils.CheckUtil;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
+import com.suisung.shopsuite.core.web.model.res.BaseListRes;
+import com.suisung.shopsuite.invoicing.model.entity.StockBillItem;
+import com.suisung.shopsuite.invoicing.model.req.StockBillItemListReq;
+import com.suisung.shopsuite.invoicing.service.StockBillItemService;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
+import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.req.*;
 import com.suisung.shopsuite.pt.model.res.ItemListRes;
 import com.suisung.shopsuite.pt.service.ProductCategoryService;
@@ -67,6 +73,9 @@ public class ProductItemController extends BaseController {
 
     @Autowired
     private ProductCategoryService productCategoryService;
+
+    @Autowired
+    private StockBillItemService stockBillItemService;
 
     @PreAuthorize("hasAuthority('/manage/pt/productBase/list')")
     @ApiOperation(value = "商品SKU表-分页列表查询", notes = "商品SKU表-分页列表查询")
@@ -148,5 +157,28 @@ public class ProductItemController extends BaseController {
         return fail();
     }
 
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/list')")
+    @ApiOperation(value = "出入库单据item表-分页列表查询", notes = "出入库单据item表-分页列表查询")
+    @RequestMapping(value = "/getStockBillItems", method = RequestMethod.GET)
+    public CommonRes<BaseListRes<StockBillItem>> getStockBillItems(StockBillItemListReq stockBillItemListReq) {
+        IPage<StockBillItem> pageList = stockBillItemService.lists(stockBillItemListReq);
+
+        return success(pageList);
+    }
+
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/list')")
+    @ApiOperation(value = "库存警告商品item-分页列表查询", notes = "库存警告商品item-分页列表查询")
+    @RequestMapping(value = "/getStockWarningItems", method = RequestMethod.GET)
+    public CommonRes<BaseListRes<ItemOutput>> getStockWarningItems(ProductItemListReq productItemListReq) {
+        ProductItemInput input = new ProductItemInput();
+        BeanUtils.copyProperties(productItemListReq, input);
+
+        if (CheckUtil.isNotEmpty(productItemListReq.getItemId())) {
+            input.setItemId(Convert.toList(Long.class, productItemListReq.getItemId()));
+        }
+        IPage<ItemOutput> pageList = productItemService.getStockWarningItems(input);
+
+        return success(pageList);
+    }
 }
 

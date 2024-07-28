@@ -54,10 +54,6 @@ import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.res.ItemListRes;
 import com.suisung.shopsuite.pt.repository.*;
 import com.suisung.shopsuite.pt.service.ProductIndexService;
-import com.suisung.shopsuite.sns.model.entity.StoryBase;
-import com.suisung.shopsuite.sns.model.entity.StoryCategory;
-import com.suisung.shopsuite.sns.repository.StoryBaseRepository;
-import com.suisung.shopsuite.sns.repository.StoryCategoryRepository;
 import com.suisung.shopsuite.sys.model.entity.PageBase;
 import com.suisung.shopsuite.sys.model.req.PageBaseListReq;
 import com.suisung.shopsuite.sys.model.req.PageDataReq;
@@ -109,12 +105,6 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
 
     @Autowired
     private PageBaseRepository pageBaseRepository;
-
-    @Autowired
-    private StoryCategoryRepository storyCategoryRepository;
-
-    @Autowired
-    private StoryBaseRepository storyBaseRepository;
 
     @Autowired
     private ActivityBaseRepository activityBaseRepository;
@@ -665,56 +655,8 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
                 break;
             case 10:
                 //社区板块
-                QueryWrapper<StoryCategory> storyCategoryQueryWrapper = new QueryWrapper<>();
-
-                if (StrUtil.isNotEmpty(pageDataReq.getName())) {
-                    storyCategoryQueryWrapper.like("story_category_name", pageDataReq.getName());
-                }
-
-                IPage<StoryCategory> storyCategoryPage = storyCategoryRepository.lists(storyCategoryQueryWrapper, pageDataReq.getPage(), pageDataReq.getSize());
-                BeanUtils.copyProperties(storyCategoryPage, baseListRes);
-
-                if (CollectionUtil.isNotEmpty(storyCategoryPage.getRecords())) {
-                    storyCategoryPage.getRecords().forEach(item -> {
-                        PageDataItemVo pageDataItemVo = new PageDataItemVo();
-                        pageDataItemVo.setId(item.getStoryCategoryId().longValue());
-                        pageDataItemVo.setPath(item.getStoryCategoryLogo());
-                        pageDataItemVo.setName(item.getStoryCategoryName());
-                        pageDataItemVo.setProductTips(item.getStoryCategoryDesc());
-                        pageDataItemVoList.add(pageDataItemVo);
-                    });
-                    baseListRes.setRecords(pageDataItemVoList);
-                }
                 break;
             case 11:
-                //帖子
-                QueryWrapper<StoryBase> storyBaseQueryWrapper = new QueryWrapper<>();
-
-                if (StrUtil.isNotEmpty(pageDataReq.getName())) {
-                    storyBaseQueryWrapper.like("story_title", pageDataReq.getName());
-                }
-
-                IPage<StoryBase> storyBasePage = storyBaseRepository.lists(storyBaseQueryWrapper, pageDataReq.getPage(), pageDataReq.getSize());
-                BeanUtils.copyProperties(storyBasePage, baseListRes);
-
-                if (CollectionUtil.isNotEmpty(storyBasePage.getRecords())) {
-                    storyBasePage.getRecords().forEach(item -> {
-                        PageDataItemVo pageDataItemVo = new PageDataItemVo();
-                        pageDataItemVo.setId(item.getStoryId().longValue());
-
-                        if (StrUtil.isNotEmpty(item.getStoryFile())) {
-                            List<String> storyFileList = Convert.toList(String.class, item.getStoryFile());
-
-                            if (CollectionUtil.isNotEmpty(storyFileList)) {
-                                pageDataItemVo.setPath(storyFileList.get(0));
-                            }
-                        }
-                        pageDataItemVo.setName(item.getStoryTitle());
-                        pageDataItemVo.setProductTips(item.getStoryContent());
-                        pageDataItemVoList.add(pageDataItemVo);
-                    });
-                    baseListRes.setRecords(pageDataItemVoList);
-                }
                 break;
             case 14:
                 //秒杀

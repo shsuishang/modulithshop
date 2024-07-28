@@ -37,10 +37,7 @@ import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.consts.ConstantLog;
 import com.suisung.shopsuite.common.excel.EasyExcelUtil;
 import com.suisung.shopsuite.common.exception.BusinessException;
-import com.suisung.shopsuite.common.utils.CheckUtil;
-import com.suisung.shopsuite.common.utils.CommonUtil;
-import com.suisung.shopsuite.common.utils.JSONUtil;
-import com.suisung.shopsuite.common.utils.LogUtil;
+import com.suisung.shopsuite.common.utils.*;
 import com.suisung.shopsuite.common.web.service.MessageService;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.invoicing.model.entity.StockBillItem;
@@ -568,6 +565,13 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
 
         repository.remove(productId);
 
+        String messageId = "notice-of-deleting-goods";
+        Map<String, Object> args = new HashMap<>();
+        args.put("product_id", productId);
+        args.put("des", String.format("商品: %s 被平台删除,如有疑问请联系平台。", productId));
+        Integer adminUserId = configBaseService.getConfig("message_notice_user_id", 10001);
+        messageService.sendNoticeMsg(adminUserId, messageId, args);
+
         return true;
     }
 
@@ -610,14 +614,14 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
             } else if (productStateId.equals(StateCode.PRODUCT_STATE_OFF_THE_SHELF)) {
                 productSaleTime = DateUtil.offsetMonth(new Date(), 12 * 10);// 待上架时间
             } else if (productStateId.equals((StateCode.PRODUCT_STATE_ILLEGAL))) {
-
                 // 违规下架
-                /*String messageId = "illegal-commodity-shelves";
+                String messageId = "illegal-commodity-shelves";
                 Map<String, Object> args = new HashMap<>();
-                args.put("des", "");
+                args.put("des", "违规下架禁售");
                 args.put("product_id", productId);
                 args.put("product_name", productIndex.getProductName());
-                messageService.sendNoticeMsg(0, messageId, args);*/
+                Integer adminUserId = configBaseService.getConfig("message_notice_user_id", 10001);
+                messageService.sendNoticeMsg(adminUserId, messageId, args);
             }
             productIndex.setProductStateId(productStateId);
 

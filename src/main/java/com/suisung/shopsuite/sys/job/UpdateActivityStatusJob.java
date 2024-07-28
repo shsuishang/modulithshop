@@ -10,6 +10,8 @@ import com.suisung.shopsuite.marketing.model.entity.ActivityBase;
 import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import com.suisung.shopsuite.marketing.service.ActivityBaseService;
 import com.suisung.shopsuite.pt.service.ProductIndexService;
+import com.suisung.shopsuite.sys.model.entity.CrontabBase;
+import com.suisung.shopsuite.sys.service.CrontabBaseService;
 import org.quartz.JobExecutionContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
@@ -23,6 +25,12 @@ public class UpdateActivityStatusJob extends QuartzJobBean {
         ActivityBaseService activityBaseService = SpringUtil.getBean(ActivityBaseService.class);
 
         long time = new Date().getTime();
+
+        CrontabBase crontabBase = new CrontabBase();
+        crontabBase.setCrontabId(1002);
+        crontabBase.setCrontabLastExeTime(time);
+        CrontabBaseService crontabBaseService = SpringUtil.getBean(CrontabBaseService.class);
+        crontabBaseService.edit(crontabBase);
 
         try {
             // 更新活动状态

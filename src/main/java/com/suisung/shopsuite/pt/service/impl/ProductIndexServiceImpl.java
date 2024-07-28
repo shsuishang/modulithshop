@@ -23,7 +23,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -46,7 +45,6 @@ import com.suisung.shopsuite.marketing.model.vo.ActivityInfoVo;
 import com.suisung.shopsuite.marketing.model.vo.ItemNumVo;
 import com.suisung.shopsuite.marketing.repository.ActivityBaseRepository;
 import com.suisung.shopsuite.marketing.service.ActivityItemService;
-import com.suisung.shopsuite.pt.dao.ProductIndexDao;
 import com.suisung.shopsuite.pt.model.entity.*;
 import com.suisung.shopsuite.pt.model.input.ProductDetailInput;
 import com.suisung.shopsuite.pt.model.input.ProductIndexInput;
@@ -362,6 +360,11 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
         out.setItemId(itemId);
 
         ProductItem productItem = productItemRepository.get(itemId);
+
+        if (ObjectUtil.isEmpty(productItem)) {
+            throw new BusinessException(__("商品SKU不存在！"));
+        }
+
         out.setItemRow(productItem);
 
         //设置销售价
@@ -669,8 +672,10 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
                 indices.add(editIndex);
             }
 
-            if (!productIndexRepository.saveOrUpdate(indices)) {
-                throw new BusinessException(__("商品定时上架失败！"));
+            if (CollectionUtil.isNotEmpty(indices)) {
+                if (!productIndexRepository.saveOrUpdate(indices)) {
+                    throw new BusinessException(__("商品定时上架失败！"));
+                }
             }
         }
     }
