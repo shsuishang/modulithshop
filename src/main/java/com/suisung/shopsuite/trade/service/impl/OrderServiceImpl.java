@@ -448,6 +448,7 @@ public class OrderServiceImpl implements OrderService {
                     if (item.getOrderId().equals(vo.getOrderId())) {
                         vo.setOrderReturnStatus(item.getOrderReturnStatus());
                         vo.setOrderRefundStatus(item.getOrderRefundStatus());
+                        vo.setOrderMessage(item.getOrderMessage());
                     }
                 }
             }
@@ -619,10 +620,25 @@ public class OrderServiceImpl implements OrderService {
 
                 // 直接判断库存
                 Integer item_quantity = itemTmpRow.getItemQuantity();
+                Integer itemQuantityFrozen = itemTmpRow.getItemQuantityFrozen();
                 Integer kind_id = itemTmpRow.getKindId();
 
                 if (item_quantity < cart_quantity && ObjectUtil.notEqual(kind_id, StateCode.PRODUCT_KIND_EDU)) {
                     throw new BusinessException(String.format(__("商品: %s 库存不足！当前可购买： %d"), itemTmpRow.getProductName(), itemTmpRow.getItemQuantity()));
+                }
+
+                // 商品库存小于等于库存预警值,通知卖家
+                Integer stockWarning = configBaseService.getConfig("stock_warning", 5);
+
+                if ((item_quantity - itemQuantityFrozen) <= stockWarning) {
+                    String messageId = "commodity-inventory-notice";
+                    Map<String, Object> args = new HashMap<>();
+                    args.put("store_name",itemTmpRow.getStoreId());
+                    args.put("chain_name","");
+                    args.put("product_id",itemTmpRow.getProductId());
+                    args.put("item_id",itemTmpRow.getItemId());
+                    Integer adminUserId = configBaseService.getConfig("message_notice_user_id", 10001);
+                    messageService.sendNoticeMsg(adminUserId, messageId, args);
                 }
 
                 // 判断下单数量必须大于0
@@ -634,7 +650,6 @@ public class OrderServiceImpl implements OrderService {
 
         for (StoreItemVo storeItemVo : cartData.getItems()) {
             List<ProductItemVo> itemsList = storeItemVo.getItems();
-
             /*
             // 判断店铺状态，关闭状态不可以下单
             Boolean store_is_open = Convert.toBool(storeItemVo.get("store_is_open"));
@@ -999,7 +1014,7 @@ public class OrderServiceImpl implements OrderService {
                             }
 
                             return null;
-                        }).distinct().collect(Collectors.toList());
+                        }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
 
                         orderInfo.setActivityId(StrUtil.join(",", activityIds));
                         orderInfo.setActivityTypeId(StrUtil.join(",", activityTypeIds));
@@ -1453,6 +1468,16 @@ public class OrderServiceImpl implements OrderService {
         orderAddOutput.setOrderIds(orderIdRow);
         orderAddOutput.setGbId(gbId);
 
+        //代金券使用提醒
+        CheckoutInput in = orderAddOutput.getIn();
+        List<Integer> userVoucherIds = in.getUserVoucherIds();
+
+        if (CollectionUtil.isNotEmpty(userVoucherIds)) {
+            String message_id = "the-use-of-vouchers-to-remind";
+            Map<String, Object> args = new HashMap<>();
+            messageService.sendNoticeMsg(userId, message_id, args);
+        }
+
         return orderAddOutput;
     }
 
@@ -1541,13 +1566,14 @@ public class OrderServiceImpl implements OrderService {
 
                         //出库未发货，可以注释掉后， 商品数量需要手工入库。
                         ProductEditStockInput input = new ProductEditStockInput();
-                        input.setItemIds(Collections.singletonList(orderItem.getItemId()));
+                        input.setItemId(orderItem.getItemId());
                         input.setItemQuantity(quantity);
                         input.setBillTypeId(StateCode.BILL_TYPE_IN);
-                        boolean success = productItemService.editStock(input);
+                        boolean success = productItemService.batchEditStock(Collections.singletonList(input));
                     }
 
-                    if (releaseQuantity > 0 && productItemRepository.releaseSkuStock(orderItem.getItemId(), releaseQuantity) <= 0) {
+                    //严格应该是影响行数 <= 0  报错
+                    if (releaseQuantity > 0 && productItemRepository.releaseSkuStock(orderItem.getItemId(), releaseQuantity) < 0) {
                         throw new BusinessException(String.format(__("释放: %s 冻结库存失败!"), orderItem.getItemId()));
                     }
                 }
@@ -1635,12 +1661,17 @@ public class OrderServiceImpl implements OrderService {
         boolean flag = false;
         OrderInfo orderInfo = orderInfoRepository.get(orderId);
         OrderBase orderBase = orderBaseRepository.get(orderId);
+        OrderData orderData = orderDataRepository.get(orderId);
 
         if (ObjectUtil.isEmpty(orderBase)) {
             throw new BusinessException(String.format(__("订单基础 %s 不存在!"), orderId));
         }
 
         if (ObjectUtil.isEmpty(orderInfo)) {
+            throw new BusinessException(String.format(__("订单信息 %s 不存在!"), orderId));
+        }
+
+        if (ObjectUtil.isEmpty(orderData)) {
             throw new BusinessException(String.format(__("订单信息 %s 不存在!"), orderId));
         }
 
@@ -1666,7 +1697,14 @@ public class OrderServiceImpl implements OrderService {
             }
 
             //获取订单的下一条状态
-            Integer nextOrderStateId = getNextOrderStateId(orderInfo.getOrderStateId());
+            Integer nextOrderStateId = null;
+            Integer kindId = orderInfo.getKindId();
+
+            if (kindId.equals(StateCode.PRODUCT_KIND_EDU)) {
+                nextOrderStateId = StateCode.ORDER_STATE_FINISH;
+            } else {
+                nextOrderStateId = getNextOrderStateId(orderInfo.getOrderStateId());
+            }
 
             flag = editNextState(orderId, orderInfo.getOrderStateId(), nextOrderStateId, "");
 
@@ -1994,7 +2032,17 @@ public class OrderServiceImpl implements OrderService {
     public Boolean addLogistics(OrderLogistics in) {
         Boolean flag = saveLogistics(in);
 
-        checkShippingComplete(in.getOrderId());
+        Boolean aBoolean = checkShippingComplete(in.getOrderId());
+
+        if (!aBoolean) {
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setOrderIsShipped(StateCode.ORDER_SHIPPED_STATE_PART);
+
+            QueryWrapper<OrderInfo> infoQueryWrapper = new QueryWrapper<>();
+            infoQueryWrapper.eq("order_id", in.getOrderId());
+            infoQueryWrapper.in("order_state_id", StateCode.ORDER_STATE_PICKING, StateCode.ORDER_STATE_WAIT_SHIPPING);
+            orderInfoRepository.edit(orderInfo, infoQueryWrapper);
+        }
 
         return flag;
     }

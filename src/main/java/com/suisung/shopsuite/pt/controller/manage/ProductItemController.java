@@ -31,8 +31,6 @@ import com.suisung.shopsuite.invoicing.model.entity.StockBillItem;
 import com.suisung.shopsuite.invoicing.model.req.StockBillItemListReq;
 import com.suisung.shopsuite.invoicing.service.StockBillItemService;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
-import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
-import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
@@ -48,9 +46,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,8 +106,7 @@ public class ProductItemController extends BaseController {
     @RequestMapping(value = "/editStock", method = RequestMethod.POST)
     public CommonRes<?> editStock(ProductEditStockReq req) {
         ProductEditStockInput input = BeanUtil.copyProperties(req, ProductEditStockInput.class);
-        input.setItemIds(Collections.singletonList(req.getItemId()));
-        boolean success = productItemService.editStock(input);
+        boolean success = productItemService.batchEditStock(Collections.singletonList(input));
 
         if (success) {
             return success();
@@ -121,34 +121,6 @@ public class ProductItemController extends BaseController {
     public CommonRes<?> editState(ProductItemStateEditReq req) {
         ProductItem productItem = BeanUtil.copyProperties(req, ProductItem.class);
         boolean success = productItemService.editState(productItem);
-
-        if (success) {
-            return success();
-        }
-
-        return fail();
-    }
-
-    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
-    @ApiOperation(value = "批量更改库存", notes = "批量更改库存")
-    @RequestMapping(value = "/batchEditStock", method = RequestMethod.POST)
-    public CommonRes<?> batchEditStock(ProductBatchEditStockReq batchEditStockReq) {
-        ProductBatchEditStockInput input = BeanUtil.copyProperties(batchEditStockReq, ProductBatchEditStockInput.class);
-        boolean success = productItemService.batchEditStock(input);
-
-        if (success) {
-            return success();
-        }
-
-        return fail();
-    }
-
-    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
-    @ApiOperation(value = "批量更改商品价格", notes = "批量更改商品价格")
-    @RequestMapping(value = "/batchEditUnitPrice", method = RequestMethod.POST)
-    public CommonRes<?> batchEditUnitPrice(ProductBatchEditUnitPriceReq batchEditUnitPriceReq) {
-        ProductBatchEditUnitPriceInput input = BeanUtil.copyProperties(batchEditUnitPriceReq, ProductBatchEditUnitPriceInput.class);
-        boolean success = productItemService.batchEditUnitPrice(input);
 
         if (success) {
             return success();
@@ -179,6 +151,22 @@ public class ProductItemController extends BaseController {
         IPage<ItemOutput> pageList = productItemService.getStockWarningItems(input);
 
         return success(pageList);
+    }
+
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
+    @ApiOperation(value = "导出模版-批量修改价格、库存", notes = "导出模版-批量修改价格、库存功能")
+    @RequestMapping(value = "/exportTemp", method = RequestMethod.GET)
+    public void exportTemp(HttpServletResponse response) {
+        productItemService.exportTemp(response);
+    }
+
+    @PreAuthorize("hasAuthority('/manage/pt/productBase/edit')")
+    @ApiOperation(value = "导入-批量修改价格、库存", notes = "导入-批量修改价格、库存")
+    @RequestMapping(value = "/importTemp", method = RequestMethod.POST)
+    public CommonRes<?> importTemp(@RequestParam MultipartFile file) throws Exception {
+        productItemService.importTemp(file);
+
+        return success();
     }
 }
 

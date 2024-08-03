@@ -292,7 +292,7 @@ public class ProductCommentServiceImpl extends BaseServiceImpl<ProductCommentRep
 
             List<String> commentImage = commentItemReq.getCommentImage();
             if (CollUtil.isNotEmpty(commentImage)) {
-                comment.setCommentImage(commentImage.toString());
+                comment.setCommentImage(String.join(",", commentImage));
             }
 
             // 商品评论信息

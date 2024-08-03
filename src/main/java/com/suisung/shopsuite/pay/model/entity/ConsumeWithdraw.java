@@ -133,4 +133,8 @@ public class ConsumeWithdraw implements Serializable {
     @ApiModelProperty("所属分站:0-总站")
     @TableField("subsite_id")
     private Integer subsiteId;
+
+    @ApiModelProperty("用户昵称")
+    @TableField(exist = false)
+    private String userNickname;
 }

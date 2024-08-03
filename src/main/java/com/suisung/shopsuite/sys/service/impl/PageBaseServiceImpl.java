@@ -995,7 +995,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu2.setIsShow(plantform_fx_enable);
         menu2.setCat(2);
         menu2.setColor("#44afa4");
-        menu2.setIcon("icon-xiaojinku");
+        menu2.setIcon("zc zc-xiaojinku");
         menu2.setFeatureKey("MemCashAcct");
         menu2.setUrl("/member/fans/profitlist");
 
@@ -1006,7 +1006,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu3.setIsShow(true);
         menu3.setCat(2);
         menu3.setColor("#44afa4");
-        menu3.setIcon("icon-shijian");
+        menu3.setIcon("zc zc-shijian");
         menu3.setFeatureKey("isVirtual");
         menu3.setUrl("/member/order/list?kind_id=1202");
 
@@ -1018,7 +1018,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu31.setIsShow(true);
         menu31.setCat(2);
         menu31.setColor("#44afa4");
-        menu31.setIcon("zc zc-chongzhiqia");
+        menu31.setIcon("zc zc-wodekabao");
         menu31.setFeatureKey("PayCardType");
         menu31.setUrl("/member/card/user_list?kind_id=1203");
 
@@ -1029,7 +1029,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu32.setIsShow(true);
         menu32.setCat(1);
         menu32.setColor("#44afa4");
-        menu32.setIcon("icon-liwu");
+        menu32.setIcon("zc zc-libaoduihuan");
         menu32.setFeatureKey("GiftPackType");
         menu32.setUrl("/activity/gift/exchange");
 */
@@ -1041,7 +1041,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu4.setIsShow(true);
         menu4.setCat(1);
         menu4.setColor("#44afa4");
-        menu4.setIcon("zc zc-tuihuanhuo");
+        menu4.setIcon("zc zc-shouhoufuwu");
         menu4.setFeatureKey("service");
         menu4.setUrl("/member/member/returnlist");
 
@@ -1053,7 +1053,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu6.setIsShow(true);
         menu6.setCat(1);
         menu6.setColor("#DB384C");
-        menu6.setIcon("icon-youhuiquan");
+        menu6.setIcon("zc zc-zhanghuyue");
         menu6.setFeatureKey("UserMoneyKey");
         menu6.setUrl("/member/cash/predeposit");
 
@@ -1064,7 +1064,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu7.setIsShow(true);
         menu7.setCat(1);
         menu7.setColor("#56ABE4");
-        menu7.setIcon("icon-youhuiquan");
+        menu7.setIcon("zc zc-wodeyouhuiquan");
         menu7.setFeatureKey("Coupon");
         menu7.setUrl("/member/member/coupon");
 */
@@ -1075,8 +1075,8 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu44.setName(__("签到"));
         menu44.setIsShow(true);
         menu44.setCat(1);
-        menu44.setColor("#ffc333");
-        menu44.setIcon("icon-edit");
+        menu44.setColor("#5cdbd3");
+        menu44.setIcon("zc zc-wodeqiandao");
         menu44.setFeatureKey("MemSign");
         menu44.setUrl("/member/member/sign");
 
@@ -1087,7 +1087,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu8.setIsShow(true);
         menu8.setCat(1);
         menu8.setColor("#ffc333");
-        menu8.setIcon("icon-zuanshi");
+        menu8.setIcon("zc zc-huiyuanzhongxin");
         menu8.setFeatureKey("MemGrade");
         menu8.setUrl("/member/member/task");
 /*
@@ -1099,7 +1099,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu9.setIsShow(true);
         menu9.setCat(1);
         menu9.setColor("#7672B8");
-        menu9.setIcon("icon-store");
+        menu9.setIcon("zc zc-dianpushoucang");
         menu9.setFeatureKey("FavProd");
         menu9.setUrl("/member/member/favorites-store");
 */
@@ -1111,7 +1111,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu10.setIsShow(true);
         menu10.setCat(1);
         menu10.setColor("#56ABE4");
-        menu10.setIcon("icon-liwu");
+        menu10.setIcon("zc zc-wodeshoucang");
         menu10.setFeatureKey("FavProd");
         menu10.setUrl("/member/member/favorites");
 
@@ -1122,7 +1122,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu11.setIsShow(true);
         menu11.setCat(1);
         menu11.setColor("#56ABE4");
-        menu11.setIcon("zc zc-zuji");
+        menu11.setIcon("zc zc-wodezuji");
         menu11.setFeatureKey("FavProd");
         menu11.setUrl("/member/member/browse");
 
@@ -1133,7 +1133,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu12.setIsShow(true);
         menu12.setCat(1);
         menu12.setColor("#1BC2A6");
-        menu12.setIcon("icon-shouhuodizhi");
+        menu12.setIcon("zc zc-wodedizhi");
         menu12.setFeatureKey("UserAddress");
         menu12.setUrl("/member/address/list");
 
@@ -1143,8 +1143,8 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu120.setName(__("开票信息"));
         menu120.setIsShow(true);
         menu120.setCat(1);
-        menu120.setColor("#1BC2A6");
-        menu120.setIcon("zc-caiwukaipiao");
+        menu120.setColor("#ff85c0");
+        menu120.setIcon("zc zc-kaipiaoxinxi");
         menu120.setFeatureKey("UserInvoice");
         menu120.setUrl("/member/invoice/list");
 
@@ -1154,8 +1154,8 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu121.setName(__("我的发票"));
         menu121.setIsShow(true);
         menu121.setCat(1);
-        menu121.setColor("#1BC2A6");
-        menu121.setIcon("zc-kaipiao");
+        menu121.setColor("#ffc069");
+        menu121.setIcon("zc zc-wodefapiao");
         menu121.setFeatureKey("OrderInvoice");
         menu121.setUrl("/member/invoice/order");
 /*
@@ -1168,21 +1168,11 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu13.setIsShow(plantform_fx_enable && plugin_distributionWeStore);
         menu13.setCat(2);
         menu13.setColor("#327eac");
-        menu13.setIcon("zc zc-dianpu");
+        menu13.setIcon("zc zc-wodexiaodian");
         menu13.setFeatureKey("WeStore");
         menu13.setUrl("/pagesub/westore/index");
 */
 
-        PageMenuVo menu14 = new PageMenuVo();
-        list.add(menu14);
-        menu14.setId(21);
-        menu14.setName(__("推广中心"));
-        menu14.setIsShow(plantform_fx_enable);
-        menu14.setCat(1);
-        menu14.setColor("#327eac");
-        menu14.setIcon("zc zc-fenxiao");
-        menu14.setFeatureKey("fenxiao");
-        menu14.setUrl("/member/fans/index");
 /*
 
         PageMenuVo menu15 = new PageMenuVo();
@@ -1192,7 +1182,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu15.setIsShow(true);
         menu15.setCat(1);
         menu15.setColor("#b5dbaf");
-        menu15.setIcon("zc zc-message");
+        menu15.setIcon("zc zc-wodexiaoxi");
         menu15.setFeatureKey("Message");
         menu15.setUrl("/member/member/message");
 
@@ -1203,7 +1193,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu16.setIsShow(true);
         menu16.setCat(1);
         menu16.setColor("#7673db");
-        menu16.setIcon("zc zc-shezhi");
+        menu16.setIcon("zc zc-yonghushezhi");
         menu16.setFeatureKey("Options");
         menu16.setUrl("/member/member/options");
 */
@@ -1215,7 +1205,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu17.setIsShow(true);
         menu17.setCat(1);
         menu17.setColor("#ac8dd5");
-        menu17.setIcon("zc zc-bangzhu");
+        menu17.setIcon("zc zc-bangzhuzhongxin");
         menu17.setFeatureKey("Help");
         menu17.setUrl("/pagesub/article/list");
 /*
@@ -1237,7 +1227,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu19.setIsShow(true);
         menu19.setCat(1);
         menu19.setColor("#DB384C");
-        menu19.setIcon("icon-yonghufankui1");
+        menu19.setIcon("zc zc-yonghufankui");
         menu19.setFeatureKey("");
         menu19.setUrl("/member/member/feedback");
 */
@@ -1250,7 +1240,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu20.setIsShow(true);
         menu20.setCat(2);
         menu20.setColor("#db384c");
-        menu20.setIcon("zc zc-dianpu");
+        menu20.setIcon("zc zc-shangjiazhongxin");
         menu20.setFeatureKey("Seller");
         menu20.setUrl("/seller/index/index");
 */
@@ -1261,10 +1251,11 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
         menu21.setName(__("清除缓存"));
         menu21.setIsShow(true);
         menu21.setCat(1);
-        menu21.setColor("#DB384C");
+        menu21.setColor("#80b7f2");
         menu21.setIcon("zc zc-qingchuhuancun");
         menu21.setFeatureKey("CleanCacheKey");
         menu21.setUrl("");
+
 
         Integer source_type = Convert.toInt(getParameter("source_type"));
 
@@ -1278,7 +1269,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
             menu22.setIsShow(true);
             menu22.setCat(1);
             menu22.setColor("#ac8dd5");
-            menu22.setIcon("zc zc-zhibo");
+            menu22.setIcon("zc zc-wodezhibo");
             menu22.setFeatureKey("Live");
             menu22.setUrl("/pagesub/livepush/add");
         }
@@ -1292,7 +1283,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
             menu23.setIsShow(false);
             menu23.setCat(2);
             menu23.setColor("#56ABE4");
-            menu23.setIcon("zc zc-zuji");
+            menu23.setIcon("zc zc-qishoudating");
             menu23.setFeatureKey("FavProd");
             menu23.setUrl("/paotui/index/index");
         }
@@ -1306,7 +1297,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
             menu23.setIsShow(true);
             menu23.setCat(2);
             menu23.setColor("#ac8dd5");
-            menu23.setIcon("zc zc-zhibo");
+            menu23.setIcon("zc zc-duoyuyan");
             menu23.setFeatureKey("ReloadLang");
             menu23.setUrl("");
         }
@@ -1321,7 +1312,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
             menu25.setIsShow(true);
             menu25.setCat(2);
             menu25.setColor("#56ABE4");
-            menu25.setIcon("zc zc-15");
+            menu25.setIcon("zc zc-shenqingzhubo");
             menu25.setFeatureKey("FavProd");
             menu25.setUrl("/xcxlive/anchor/apply");
 
@@ -1332,7 +1323,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
             menu26.setIsShow(true);
             menu26.setCat(2);
             menu26.setColor("#56ABE4");
-            menu26.setIcon("zc zc-fangjian");
+            menu26.setIcon("zc zc-chuanjianfangjian");
             menu26.setFeatureKey("FavProd");
             menu26.setUrl("/xcxlive/room/add");
 
@@ -1343,7 +1334,7 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
             menu27.setIsShow(true);
             menu27.setCat(2);
             menu27.setColor("#56ABE4");
-            menu27.setIcon("zc zc-fenlei1");
+            menu27.setIcon("zc zc-zhiboliebiao");
             menu27.setFeatureKey("FavProd");
             menu27.setUrl("/xcxlive/room/list");
         }
@@ -1364,8 +1355,11 @@ public class PageBaseServiceImpl extends BaseServiceImpl<PageBaseRepository, Pag
             String pageCode = jsonObject.getPageCode();
             menus = JSONUtil.parseObject(pageCode, Map.class);
 
-            //过滤不存在的menu
-            List<PageMenuVo> pageMenuVoList = (List<PageMenuVo>) menus.get("list");
+            //翻译标签
+            List<Map> pageMenuVoList = (List<Map>) menus.get("list");
+            for (Map it: pageMenuVoList) {
+                it.put("name", __(it.get("name").toString()));
+            }
         } else {
             menus = getAllCenterMenu();
         }

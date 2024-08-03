@@ -39,8 +39,8 @@ import java.util.List;
 @ApiModel(description = "编辑库存")
 public class ProductEditStockInput {
 
-    @ApiModelProperty("SKU编号集合")
-    private List<Long> itemIds;
+    @ApiModelProperty("SKU编号")
+    private Long itemId;
 
     @ApiModelProperty("商品库存")
     private Integer itemQuantity;

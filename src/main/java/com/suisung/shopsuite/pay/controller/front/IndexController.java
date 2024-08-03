@@ -11,7 +11,6 @@ import com.suisung.shopsuite.pay.model.entity.RechargeLevel;
 import com.suisung.shopsuite.pay.model.entity.UserPay;
 import com.suisung.shopsuite.pay.model.req.ConsumeWithdrawListReq;
 import com.suisung.shopsuite.pay.model.req.RechargeLevelListReq;
-import com.suisung.shopsuite.pay.service.ConsumeWithdrawService;
 import com.suisung.shopsuite.pay.service.RechargeLevelService;
 import com.suisung.shopsuite.pay.service.UserPayService;
 import io.swagger.annotations.Api;
@@ -29,9 +28,6 @@ public class IndexController extends BaseController {
 
     @Autowired
     private UserPayService userPayService;
-
-    @Autowired
-    private ConsumeWithdrawService consumeWithdrawService;
 
     @Autowired
     private RechargeLevelService rechargeLevelService;
@@ -60,15 +56,6 @@ public class IndexController extends BaseController {
         return fail();
     }
 
-    @ApiOperation(value = "提现记录", notes = "提现记录")
-    @RequestMapping(value = "/consumeWithdrawList", method = RequestMethod.GET)
-    public CommonRes<BaseListRes<ConsumeWithdraw>> consumeWithdrawList(ConsumeWithdrawListReq consumeWithdrawListReq) {
-        Integer userId = ContextUtil.checkLoginUserId();
-        consumeWithdrawListReq.setUserId(userId);
-        IPage<ConsumeWithdraw> pageList = consumeWithdrawService.lists(consumeWithdrawListReq);
-
-        return success(pageList);
-    }
 
     @ApiOperation(value = "定额充值表-分页列表查询", notes = "定额充值表-分页列表查询")
     @RequestMapping(value = "/listRechargeLevel", method = RequestMethod.GET)

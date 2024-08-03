@@ -22,12 +22,14 @@ package com.suisung.shopsuite.pt.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.suisung.shopsuite.core.web.service.IBaseService;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
-import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
-import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
 import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * <p>
@@ -48,11 +50,11 @@ public interface ProductItemService extends IBaseService<ProductItem, ProductIte
     IPage<ItemOutput> listItem(ProductItemListReq productItemListReq);
 
     /**
-     * 更改库存
-     * @param input
+     * 批量更改库存
+     * @param inputs
      * @return
      */
-    boolean editStock(ProductEditStockInput input);
+    boolean batchEditStock(List<ProductEditStockInput> inputs);
 
     /**
      * 修改状态-是否启用
@@ -62,18 +64,11 @@ public interface ProductItemService extends IBaseService<ProductItem, ProductIte
     boolean editState(ProductItem productItem);
 
     /**
-     * 批量更改库存
-     * @param input
-     * @return
-     */
-    boolean batchEditStock(ProductBatchEditStockInput input);
-
-    /**
      * 批量更改商品价格
-     * @param input
+     * @param inputItems
      * @return
      */
-    boolean batchEditUnitPrice(ProductBatchEditUnitPriceInput input);
+    boolean batchEditUnitPrice(List<ProductItem> inputItems);
 
     /**
      * 库存警告商品item-分页列表查询
@@ -81,4 +76,17 @@ public interface ProductItemService extends IBaseService<ProductItem, ProductIte
      * @return
      */
     IPage<ItemOutput> getStockWarningItems(ProductItemInput input);
+
+    /**
+     * 导出模版-批量修改价格、库存
+     * @param response
+     */
+    void exportTemp(HttpServletResponse response);
+
+    /**
+     * 导入-批量修改价格、库存
+     * @param file
+     * @throws Exception
+     */
+    void importTemp(MultipartFile file) throws Exception;
 }

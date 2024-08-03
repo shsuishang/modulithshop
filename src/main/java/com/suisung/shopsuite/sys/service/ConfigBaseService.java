@@ -196,6 +196,7 @@ public interface ConfigBaseService extends IBaseService<ConfigBase, ConfigBaseLi
      */
     Map<String, Object> getSiteInfo(String sourceLang);
 
+    Map<String, Object> listTranslateLang();
     String getLk();
 
     boolean cleanCache();

@@ -19,30 +19,34 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.pt.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suisung.shopsuite.common.api.StateCode;
+import com.suisung.shopsuite.common.excel.EasyExcelUtil;
 import com.suisung.shopsuite.common.exception.BusinessException;
-import com.suisung.shopsuite.common.utils.CheckUtil;
+import com.suisung.shopsuite.common.utils.CommonUtil;
 import com.suisung.shopsuite.common.utils.JSONUtil;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import com.suisung.shopsuite.invoicing.model.entity.StockBillItem;
 import com.suisung.shopsuite.invoicing.repository.StockBillItemRepository;
 import com.suisung.shopsuite.pt.dao.ProductItemDao;
+import com.suisung.shopsuite.pt.excel.ProductItemEditTemp;
+import com.suisung.shopsuite.pt.excel.ProductItemEditTempListener;
 import com.suisung.shopsuite.pt.model.entity.ProductImage;
 import com.suisung.shopsuite.pt.model.entity.ProductIndex;
 import com.suisung.shopsuite.pt.model.entity.ProductInfo;
 import com.suisung.shopsuite.pt.model.entity.ProductItem;
-import com.suisung.shopsuite.pt.model.input.ProductBatchEditStockInput;
-import com.suisung.shopsuite.pt.model.input.ProductBatchEditUnitPriceInput;
 import com.suisung.shopsuite.pt.model.input.ProductEditStockInput;
 import com.suisung.shopsuite.pt.model.input.ProductItemInput;
 import com.suisung.shopsuite.pt.model.output.ItemOutput;
@@ -57,9 +61,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.Serializable;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -133,40 +142,47 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
 
     @Override
     @Transactional
-    public boolean editStock(ProductEditStockInput input) {
-        List<ProductItem> productItems = gets(input.getItemIds());
+    public boolean batchEditStock(List<ProductEditStockInput> inputs) {
+        List<Long> itemIds = CommonUtil.column(inputs, ProductEditStockInput::getItemId);
+
+        List<ProductItem> productItems = gets(itemIds);
 
         if (CollectionUtil.isEmpty(productItems)) {
             throw new BusinessException(__("商品SKU信息不存在！"));
         }
+        Map<Long, ProductEditStockInput> editStockInputMap = inputs.stream().collect(Collectors.toMap(ProductEditStockInput::getItemId, ProductEditStockInput -> ProductEditStockInput, (k1, k2) -> k1));
 
         List<StockBillItem> stockBillItems = new ArrayList<>();
 
         for (ProductItem v : productItems) {
-            StockBillItem stockBillItem = new StockBillItem();
-            stockBillItem.setProductId(v.getProductId());
-            //stockBillItem.setProductName(productBase.getProductName());
-            stockBillItem.setItemId(v.getItemId());
-            stockBillItem.setItemName(v.getItemName());
-            stockBillItem.setBillItemQuantity(input.getItemQuantity());
-            stockBillItem.setWarehouseItemQuantity(v.getItemQuantity());
+            ProductEditStockInput input = editStockInputMap.get(v.getItemId());
 
-            if (input.getBillTypeId().equals(StateCode.BILL_TYPE_IN)) {
-                stockBillItem.setBillTypeId(StateCode.BILL_TYPE_IN);
-                stockBillItem.setStockTransportTypeId(StateCode.STOCK_IN_OTHER);
+            if (input != null) {
+                StockBillItem stockBillItem = new StockBillItem();
+                stockBillItem.setProductId(v.getProductId());
+                //stockBillItem.setProductName(productBase.getProductName());
+                stockBillItem.setItemId(v.getItemId());
+                stockBillItem.setItemName(v.getItemName());
+                stockBillItem.setBillItemQuantity(input.getItemQuantity());
+                stockBillItem.setWarehouseItemQuantity(v.getItemQuantity());
 
-                v.setItemQuantity(v.getItemQuantity() + input.getItemQuantity());
-            } else {
-                stockBillItem.setBillTypeId(StateCode.BILL_TYPE_OUT);
-                stockBillItem.setStockTransportTypeId(StateCode.STOCK_OUT_OTHER);
+                if (input.getBillTypeId().equals(StateCode.BILL_TYPE_IN)) {
+                    stockBillItem.setBillTypeId(StateCode.BILL_TYPE_IN);
+                    stockBillItem.setStockTransportTypeId(StateCode.STOCK_IN_OTHER);
 
-                v.setItemQuantity(v.getItemQuantity() - input.getItemQuantity());
+                    v.setItemQuantity(v.getItemQuantity() + input.getItemQuantity());
+                } else {
+                    stockBillItem.setBillTypeId(StateCode.BILL_TYPE_OUT);
+                    stockBillItem.setStockTransportTypeId(StateCode.STOCK_OUT_OTHER);
+
+                    v.setItemQuantity(v.getItemQuantity() - input.getItemQuantity());
+                }
+
+                stockBillItem.setBillItemUnitPrice(v.getItemUnitPrice());
+                stockBillItem.setBillItemSubtotal(v.getItemUnitPrice().multiply(Convert.toBigDecimal(stockBillItem.getBillItemQuantity())));
+
+                stockBillItems.add(stockBillItem);
             }
-
-            stockBillItem.setBillItemUnitPrice(v.getItemUnitPrice());
-            stockBillItem.setBillItemSubtotal(v.getItemUnitPrice().multiply(Convert.toBigDecimal(stockBillItem.getBillItemQuantity())));
-
-            stockBillItems.add(stockBillItem);
         }
 
         if (!stockBillItemRepository.saveOrUpdate(stockBillItems)) {
@@ -266,45 +282,15 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
 
     @Override
     @Transactional
-    public boolean batchEditStock(ProductBatchEditStockInput input) {
-        List<Long> productIds = Convert.toList(Long.class, input.getProductIds());
+    public boolean batchEditUnitPrice(List<ProductItem> inputItems) {
+        List<Long> itemIds = CommonUtil.column(inputItems, ProductItem::getItemId);
 
-        QueryWrapper<ProductItem> itemQueryWrapper = new QueryWrapper<>();
-        itemQueryWrapper.in("product_id", productIds);
-
-        List<Serializable> itemIds = findKey(itemQueryWrapper);
-
-        if (CollectionUtil.isEmpty(itemIds)) {
-            throw new BusinessException(__("商品SKU集合为空！"));
-        }
-
-        List<Long> itemIdList = itemIds.stream().map(Convert::toLong).collect(Collectors.toList());
-        ProductEditStockInput stockInput = BeanUtil.copyProperties(input, ProductEditStockInput.class);
-        stockInput.setItemIds(itemIdList);
-
-        return editStock(stockInput);
-    }
-
-    @Override
-    @Transactional
-    public boolean batchEditUnitPrice(ProductBatchEditUnitPriceInput input) {
-        List<Long> productIds = Convert.toList(Long.class, input.getProductIds());
-
-        if (CollectionUtil.isEmpty(productIds)) {
-            throw new BusinessException(__("商品编号集合为空！"));
-        }
-        BigDecimal itemUnitPrice = input.getItemUnitPrice();
-
-        if (CheckUtil.isEmpty(itemUnitPrice) || itemUnitPrice.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BusinessException(__("商品价格不能为负值或0！"));
-        }
-        QueryWrapper<ProductItem> productItemQueryWrapper = new QueryWrapper<>();
-        productItemQueryWrapper.in("product_id", productIds);
-        List<ProductItem> productItems = find(productItemQueryWrapper);
+        List<ProductItem> productItems = gets(itemIds);
 
         if (CollectionUtil.isEmpty(productItems)) {
-            throw new BusinessException(__("商品SKU集合为空！"));
+            throw new BusinessException(__("商品SKU信息不存在！"));
         }
+        List<Long> productIds = CommonUtil.column(productItems, ProductItem::getProductId);
 
         List<ProductIndex> productIndices = productIndexRepository.gets(productIds);
 
@@ -326,15 +312,42 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
             throw new BusinessException(__("商品信息集合为空！"));
         }
 
-        productItems.forEach(productItem -> productItem.setItemUnitPrice(itemUnitPrice));
-
-        if (!productItemRepository.saveOrUpdate(productItems)) {
+        if (!productItemRepository.saveOrUpdate(inputItems)) {
             throw new BusinessException(__("修改商品SKU商品价格失败！"));
         }
-        productIndices.forEach(productIndex -> {
-            productIndex.setProductUnitPriceMin(itemUnitPrice);
-            productIndex.setProductUnitPriceMax(itemUnitPrice);
-        });
+
+        QueryWrapper<ProductItem> productItemQueryWrapper = new QueryWrapper<>();
+        productItemQueryWrapper.in("product_id", productIds);
+        List<ProductItem> productItemList = find(productItemQueryWrapper);
+
+        if (CollectionUtil.isEmpty(productItemList)) {
+            throw new BusinessException(__("商品SKU集合为空！"));
+        }
+
+
+        for (ProductIndex productIndex : productIndices) {
+            Long productId = productIndex.getProductId();
+            List<ProductItem> items = productItemList.stream().filter(item -> item.getProductId().equals(productId)).collect(Collectors.toList());
+            //商品价格最大值及最小值
+            BigDecimal productUnitPriceMin = new BigDecimal(-1);
+            BigDecimal productUnitPriceMax = BigDecimal.ZERO;
+
+            for (ProductItem v : items) {
+                if (productUnitPriceMin.equals(new BigDecimal(-1))) {
+                    productUnitPriceMin = v.getItemUnitPrice();
+                }
+
+                if (v.getItemUnitPrice().compareTo(productUnitPriceMin) < 0) {
+                    productUnitPriceMin = v.getItemUnitPrice();
+                }
+
+                if (v.getItemUnitPrice().compareTo(productUnitPriceMax) > 0) {
+                    productUnitPriceMax = v.getItemUnitPrice();
+                }
+            }
+            productIndex.setProductUnitPriceMin(productUnitPriceMin);
+            productIndex.setProductUnitPriceMax(productUnitPriceMax);
+        }
 
         if (!productIndexRepository.saveOrUpdate(productIndices)) {
             throw new BusinessException(__("产品索引信息失败！"));
@@ -342,7 +355,7 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
 
         for (ProductInfo productInfo : productInfos) {
             Long productId = productInfo.getProductId();
-            List<ProductItem> items = productItems.stream().filter(item -> item.getProductId().equals(productId)).collect(Collectors.toList());
+            List<ProductItem> items = productItemList.stream().filter(item -> item.getProductId().equals(productId)).collect(Collectors.toList());
             List<ProductImage> imageList = productImages.stream().filter(item -> item.getProductId().equals(productId)).collect(Collectors.toList());
 
             //处理product_uniqid
@@ -371,7 +384,7 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
                     }
                 }
 
-                productUniqid.put(CollUtil.join(specItemIds, "-"), new ArrayList<Object>(Arrays.asList(v.getItemId(), itemUnitPrice, v.getItemQuantity(), v.getItemEnable(), v.getColorId(), colorImage, v.getItemName())));
+                productUniqid.put(CollUtil.join(specItemIds, "-"), new ArrayList<Object>(Arrays.asList(v.getItemId(), v.getItemUnitPrice(), v.getItemQuantity(), v.getItemEnable(), v.getColorId(), colorImage, v.getItemName())));
             }
 
             productInfo.setProductUniqid(JSONUtil.toJSONString(productUniqid));
@@ -390,5 +403,44 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
         input.setStockWarning(stockWarning);
 
         return productItemDao.getStockWarningItems(new Page<>(input.getPage(), input.getSize()), input);
+    }
+
+    @Override
+    public void exportTemp(HttpServletResponse response) {
+        //编码问题
+        try {
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setCharacterEncoding("utf-8");
+            String fileName = URLEncoder.encode(__("" +
+                    "" +
+                    "") + "-" + System.currentTimeMillis(), "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+
+            ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream()).build();
+            WriteSheet writeSheet = EasyExcelUtil.writeSelectedSheet(ProductItemEditTemp.class, 0, "导入批量修改价格、库存模版");
+            excelWriter.write(new ArrayList<ProductItemEditTemp>(), writeSheet);
+            excelWriter.finish();
+        } catch (UnsupportedEncodingException e) {
+            throw new BusinessException(__("导出Excel编码异常"));
+        } catch (IOException e) {
+            throw new BusinessException(__("导出Excel文件异常"));
+        }
+    }
+
+    @Override
+    public void importTemp(MultipartFile file) throws Exception {
+        AnalysisEventListener productItemEditTempListener = new ProductItemEditTempListener();
+        Class<?> tempClass = ProductItemEditTemp.class;
+
+        InputStream inputStream = file.getInputStream();
+        EasyExcel.read(inputStream)
+                // 注册监听器，可以在这里校验字段
+                .registerReadListener(productItemEditTempListener)
+                .head(tempClass)
+                // 设置sheet,默认读取第一个
+                .sheet()
+                // 设置标题所在行数
+                .headRowNumber(1)
+                .doReadSync();
     }
 }
