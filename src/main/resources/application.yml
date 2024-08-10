@@ -39,7 +39,7 @@ spring:
       test-while-idle: true
       test-on-borrow: true
       test-on-return: false
-      remove-abandoned: true
+      remove-abandoned: false
       remove-abandoned-timeout: 1800
       #pool-prepared-statements: false
       #max-pool-prepared-statement-per-connection-size: 20

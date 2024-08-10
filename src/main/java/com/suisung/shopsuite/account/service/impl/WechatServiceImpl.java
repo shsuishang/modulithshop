@@ -287,11 +287,6 @@ public class WechatServiceImpl implements WechatService {
         if (data == null) {
             throw new BusinessException(__("数据异常"));
         }
-        UserBindConnect accountUserBindConnect = new UserBindConnect();
-        accountUserBindConnect.setBindId(data.get("openid"));
-        accountUserBindConnect.setBindOpenid(data.get("openid"));
-        accountUserBindConnect.setBindUnionid(data.get("unionid"));
-        accountUserBindConnect.setBindType(BindConnectCode.WEIXIN_XCX);
 
         UserBindConnect userBindConnect = userBindConnectService.get(data.get("openid"));
 

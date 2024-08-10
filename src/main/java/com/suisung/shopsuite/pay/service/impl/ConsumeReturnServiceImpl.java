@@ -329,10 +329,10 @@ public class ConsumeReturnServiceImpl implements ConsumeReturnService {
 
         OrderReturn orderReturn = new OrderReturn();
         orderReturn.setReturnIsPaid(true);
-        orderReturn.setReturnIsPaid(false);
 
         QueryWrapper<OrderReturn> returnQueryWrapper = new QueryWrapper<>();
         returnQueryWrapper.in("return_id", returnIds);
+        returnQueryWrapper.in("return_is_paid", false);
         if (!orderReturnRepository.edit(orderReturn, returnQueryWrapper)) {
             throw new BusinessException(ResultCode.FAILED);
         }
@@ -361,7 +361,8 @@ public class ConsumeReturnServiceImpl implements ConsumeReturnService {
         if (orderRefundFlag) {
             // 读取在线支付信息，如果无在线支付信息，则余额支付，否则在线支付【联合支付】判断
             QueryWrapper<ConsumeDeposit> depositQueryWrapper = new QueryWrapper<>();
-            depositQueryWrapper.apply(StrUtil.isNotEmpty(orderId), "FIND_IN_SET ('" + orderId + "', order_id )");
+            CheckUtil.handleFindInSet(Arrays.asList(orderId), "order_id", depositQueryWrapper);
+
             ConsumeDeposit consumeDeposit = consumeDepositRepository.findOne(depositQueryWrapper);
             if (consumeDeposit != null) {
                 Integer paymentChannelId = consumeDeposit.getPaymentChannelId();

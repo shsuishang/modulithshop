@@ -29,9 +29,9 @@ public class VideoUtil {
         add("wmv");
         add("mp4");
         add("webm");
-        add("mp3");
-        add("wav");
-        add("mid");
+//        add("mp3");
+//        add("wav");
+//        add("mid");
     }};
 
     /**
