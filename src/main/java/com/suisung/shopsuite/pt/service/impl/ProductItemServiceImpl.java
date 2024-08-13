@@ -175,7 +175,11 @@ public class ProductItemServiceImpl extends BaseServiceImpl<ProductItemRepositor
                     stockBillItem.setBillTypeId(StateCode.BILL_TYPE_OUT);
                     stockBillItem.setStockTransportTypeId(StateCode.STOCK_OUT_OTHER);
 
-                    v.setItemQuantity(v.getItemQuantity() - input.getItemQuantity());
+                    if (v.getAvailableQuantity().intValue() >= input.getItemQuantity()) {
+                        v.setItemQuantity(v.getItemQuantity() - input.getItemQuantity());
+                    } else {
+                        throw new BusinessException(__("出库数量不能大于总库存！"));
+                    }
                 }
 
                 stockBillItem.setBillItemUnitPrice(v.getItemUnitPrice());

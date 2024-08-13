@@ -1069,16 +1069,14 @@ public class OrderServiceImpl implements OrderService {
                     // 发送虚拟码，并记录客户递交的数据。
                     ChainCode chain_code_row = new ChainCode();
 
-                    /*Integer chain_code_status = Convert.toInt(getParameter("chain_code_status"));
-                    Date virtual_service_time = Convert.toDate(getParameter("virtual_service_time"));
-                    Date virtual_service_date = Convert.toDate(getParameter("virtual_service_date"));*/
+                    /*Integer chain_code_status = Convert.toInt(getParameter("chain_code_status"));*/
 
                     chain_code_row.setChainCode("");
                     chain_code_row.setOrderId(orderId);
                     //chain_code_row.setItemId(item_id);
                     chain_code_row.setChainCodeStatus(0);
-                    //chain_code_row.setVirtual_service_date(virtual_service_date);
-                    //chain_code_row.setVirtual_service_time(virtual_service_time);
+                    chain_code_row.setVirtualServiceDate(checkoutRow.getVirtualServiceDate());
+                    chain_code_row.setVirtualServiceTime(checkoutRow.getVirtualServiceTime());
                     chain_code_row.setChainId(chain_id);
                     chain_code_row.setUserId(userId);
                     chain_code_row.setStoreId(storeId);
@@ -1327,17 +1325,6 @@ public class OrderServiceImpl implements OrderService {
                  */
 
 
-                //如果有满返优惠券，先保存活动ID,付款后发放优惠券。
-                /*
-                List<Map> manhuis = (List<Map>) ObjectUtil.defaultIfNull(activitys.get("manhui"), new ArrayList());
-                if (CollUtil.isNotEmpty(manhuis)) {
-                    List<Integer> activity_manhui_id = manhuis.stream().filter(s -> Convert.toBool(s.get("give_enable"))).map(s -> Convert.toInt(s.get("give_id"))).distinct().collect(Collectors.toList());
-                    orderData.setActivity_manhuiId(CollUtil.join(activity_manhui_id, ","));
-                    orderData.setOrder_activity_manhui_state(StateCode.CHECK_STATE_NO);
-                } else {
-                    orderData.setOrder_activity_manhui_state(StateCode.CHECK_STATE_NO);
-                }
-                 */
 
                 if (!orderDataRepository.save(orderData)) {
                     throw new BusinessException(__("保存订单数据失败!"));
@@ -1638,10 +1625,6 @@ public class OrderServiceImpl implements OrderService {
         userVoucher.setOrderId("");
         userVoucher.setVoucherStateId(StateCode.VOUCHER_STATE_UNUSED);
         userVoucherRepository.edit(userVoucher, new QueryWrapper<UserVoucher>().eq("order_id", orderId));
-
-        if (orderInfo.getOrderIsPaid().equals(StateCode.ORDER_PAID_STATE_NO)) {
-
-        }
 
         //取消发票
         orderInvoiceRepository.remove(new QueryWrapper<OrderInvoice>().eq("order_id", orderId).eq("invoice_status", 0));

@@ -459,6 +459,10 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
                         stockBillItem.setStockTransportTypeId(StateCode.STOCK_IN_OTHER);
                         stockBillItems.add(stockBillItem);
                     } else {
+                        if (findItem.getAvailableQuantity().intValue() < Math.abs(i)) {
+                            throw new BusinessException(__("出库数量不能大于总库存！"));
+                        }
+
                         stockBillItem.setBillTypeId(StateCode.BILL_TYPE_OUT);
                         stockBillItem.setStockTransportTypeId(StateCode.STOCK_OUT_OTHER);
                         stockBillItems.add(stockBillItem);
