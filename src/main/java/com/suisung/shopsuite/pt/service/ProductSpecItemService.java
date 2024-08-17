@@ -41,4 +41,11 @@ public interface ProductSpecItemService extends IBaseService<ProductSpecItem, Pr
      * @return
      */
     boolean editState(Integer specItemId, Boolean specItemEnable);
+
+    /**
+     * 商品规格值表-通过spec_item_id删除
+     * @param specItemId
+     * @return
+     */
+    boolean removeItem(Integer specItemId);
 }

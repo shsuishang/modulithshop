@@ -271,7 +271,7 @@ public class ConsumeDepositServiceImpl extends BaseServiceImpl<ConsumeDepositRep
     public Long offlinePay(ConsumeDeposit in) {
         if (CheckUtil.isEmpty(in.getDepositSubject())) {
             OrderInfo orderInfo = orderInfoRepository.get(in.getOrderId());
-            in.setDepositSubject(in.getDepositNo());
+            //in.setDepositSubject(in.getDepositNo());
             in.setDepositSubject(orderInfo.getOrderTitle());
         }
 

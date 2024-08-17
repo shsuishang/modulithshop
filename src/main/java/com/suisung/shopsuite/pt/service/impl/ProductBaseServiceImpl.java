@@ -318,6 +318,7 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
         //处理ItemName
         for (ProductItem v : productItems) {
             List<String> itemNames = new ArrayList<>();
+            List<String> itemIdList = new ArrayList<>();
 
             List<Map> specs = new ArrayList<>();
 
@@ -327,8 +328,10 @@ public class ProductBaseServiceImpl extends BaseServiceImpl<ProductBaseRepositor
                 //ISpecVo
                 Map item = (Map) spec.get("item");
                 itemNames.add(Convert.toStr(item.get("name")));
+                itemIdList.add(Convert.toStr(item.get("id")));
             }
             v.setItemName(CollUtil.join(itemNames, " "));
+            v.setSpecItemIds(CollUtil.join(itemIdList, ","));
         }
 
         flag = productItemRepository.saves(productItems);

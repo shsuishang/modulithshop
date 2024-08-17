@@ -37,6 +37,7 @@ import com.suisung.shopsuite.pay.repository.*;
 import com.suisung.shopsuite.pay.service.ConsumeTradeService;
 import com.suisung.shopsuite.pay.service.UserResourceService;
 import com.suisung.shopsuite.sys.service.ConfigBaseService;
+import com.suisung.shopsuite.trade.model.entity.OrderInfo;
 import com.suisung.shopsuite.trade.repository.*;
 import com.suisung.shopsuite.trade.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,7 +139,6 @@ public class ConsumeTradeServiceImpl extends BaseServiceImpl<ConsumeTradeReposit
         //处理订单支付结果
         //设置支付完成 封装为独立方法
         for (ConsumeTrade trade : trades) {
-
             // 写入充值流水
             ConsumeRecord record = new ConsumeRecord();
             record.setOrderId(trade.getOrderId());
@@ -261,9 +261,37 @@ public class ConsumeTradeServiceImpl extends BaseServiceImpl<ConsumeTradeReposit
             }
 
             if (StateCode.ORDER_PAID_STATE_YES == trade.getTradeIsPaid().intValue()) {
-                orderService.setPaidYes(trade.getOrderId());
-                out.setPaid(true);
+                OrderInfo orderInfoOld = orderInfoRepository.get(trade.getOrderId());
+
+                if (orderInfoOld.getOrderStateId().intValue() == StateCode.ORDER_STATE_WAIT_PAY) {
+                    if (orderService.setPaidYes(trade.getOrderId())) {
+                        out.setPaid(true);
+                    }
+                } else {
+                    if (orderInfoOld.getPaymentTypeId().intValue() == StateCode.PAYMENT_TYPE_OFFLINE) {
+
+                    }
+
+                    //判断是否线下支付
+                    if (StateCode.PAYMENT_TYPE_OFFLINE == deposit.getPaymentTypeId().intValue()) {
+                        //直接处理订单支付状态， 不处理订单状态
+                        OrderInfo orderInfo = new OrderInfo();
+                        orderInfo.setOrderId(trade.getOrderId());
+                        orderInfo.setOrderIsPaid(StateCode.ORDER_PAID_STATE_YES);
+                        if (orderInfoRepository.edit(orderInfo)) {
+                            out.setPaid(true);
+                        }
+                    } else {
+                        if (orderService.setPaidYes(trade.getOrderId())) {
+                            out.setPaid(true);
+                        }
+                    }
+                }
             } else {
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setOrderId(trade.getOrderId());
+                orderInfo.setOrderIsPaid(StateCode.ORDER_PAID_STATE_PART);
+
                 out.setPaid(false);
             }
         }

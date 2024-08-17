@@ -324,12 +324,6 @@ public class OrderServiceImpl implements OrderService {
             detail.setConsumeTrade(consumeTrades.get(0));
         }
 
-        // 虚拟兑换码
-        ChainCode chainCode = chainCodeRepository.get(orderId);
-        if (chainCode != null) {
-            BeanUtils.copyProperties(chainCode, detail);
-        }
-
         //是否取消
         detail.setIfBuyerCancel(ifCancel(orderInfo.getOrderStateId(), orderInfo.getOrderIsPaid()));
 
@@ -869,33 +863,6 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //end 优惠券均分
-
-            //todo 处理店铺活动优惠
-
-            //todo 满减活动
-            /*
-            BigDecimal item_share_giftbag = BigDecimal.ZERO;
-
-            //满减均摊
-            if (CollUtil.isNotEmpty(reduction)) {
-                for (int ri = 0; ri < ddr_len; ri++) {
-                    Map value = discount_detail_rows.get(ri);
-
-                    if (Convert.toList(value.get("item_ids")).contains(item.get("item_id"))) {
-                        //数组最后一个用减法
-                        if ((ri + 1) == itemsList.size()) {
-                            item_share_giftbag = NumberUtil.sub(Convert.toBigDecimal(value.get("discount")), reduction_discount);
-                            reduction_discount = BigDecimal.ZERO;
-                        } else {
-                            item_share_giftbag = NumberUtil.mul(NumberUtil.div(Convert.toBigDecimal(value.get("discount")), Convert.toBigDecimal(value.get("old_amount"))), Convert.toBigDecimal(item.get("subtotal")));
-                            reduction_discount = NumberUtil.add(reduction_discount, item_share_giftbag);
-                        }
-                    }
-                }
-            }
-
-             */
-
 
             //1、订单基础表
             OrderBase orderBase = new OrderBase();

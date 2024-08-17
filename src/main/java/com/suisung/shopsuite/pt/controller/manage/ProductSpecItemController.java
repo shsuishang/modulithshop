@@ -116,7 +116,7 @@ public class ProductSpecItemController extends BaseController {
     @ApiOperation(value = "商品规格值表-通过spec_item_id删除", notes = "商品规格值表-通过spec_item_id删除")
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public CommonRes<?> remove(@RequestParam("spec_item_id") Integer specItemId) {
-        boolean success = productSpecItemService.remove(specItemId);
+        boolean success = productSpecItemService.removeItem(specItemId);
 
         if (success) {
             return success();

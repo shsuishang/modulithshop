@@ -20,6 +20,8 @@
 package com.suisung.shopsuite.pt.model.req;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.suisung.shopsuite.core.annotation.QueryField;
+import com.suisung.shopsuite.core.annotation.QueryType;
 import com.suisung.shopsuite.core.web.model.req.BaseListReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -225,6 +227,10 @@ public class ProductItemListReq extends BaseListReq {
 
     @ApiModelProperty("活动编号")
     private Integer activityId;
+
+    @ApiModelProperty("商品规格值编号")
+    @QueryField(type = QueryType.FIND_IN_SET_STR)
+    private String specItemIds;
 
     public ProductItemListReq() {
         setSidx("item_id");

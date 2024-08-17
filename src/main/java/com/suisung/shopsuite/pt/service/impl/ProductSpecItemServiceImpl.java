@@ -19,12 +19,26 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.pt.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.convert.Convert;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.suisung.shopsuite.common.exception.BusinessException;
+import com.suisung.shopsuite.core.web.BaseQueryWrapper;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
+import com.suisung.shopsuite.pt.model.entity.ProductItem;
 import com.suisung.shopsuite.pt.model.entity.ProductSpecItem;
+import com.suisung.shopsuite.pt.model.req.ProductItemListReq;
 import com.suisung.shopsuite.pt.model.req.ProductSpecItemListReq;
+import com.suisung.shopsuite.pt.repository.ProductItemRepository;
 import com.suisung.shopsuite.pt.repository.ProductSpecItemRepository;
 import com.suisung.shopsuite.pt.service.ProductSpecItemService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.Serializable;
+import java.util.List;
+
+import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 
 /**
  * <p>
@@ -36,6 +50,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProductSpecItemServiceImpl extends BaseServiceImpl<ProductSpecItemRepository, ProductSpecItem, ProductSpecItemListReq> implements ProductSpecItemService {
+
+    @Autowired
+    private ProductItemRepository productItemRepository;
 
     /**
      * 修改商品规格值启用状态
@@ -50,5 +67,19 @@ public class ProductSpecItemServiceImpl extends BaseServiceImpl<ProductSpecItemR
         productSpecItem.setSpecItemId(specItemId);
         productSpecItem.setSpecItemEnable(specItemEnable);
         return edit(productSpecItem);
+    }
+
+    @Override
+    public boolean removeItem(Integer specItemId) {
+        ProductItemListReq productItemListReq = new ProductItemListReq();
+        productItemListReq.setSpecItemIds(Convert.toStr(specItemId));
+        QueryWrapper<ProductItem> productItemQueryWrapper = new BaseQueryWrapper<ProductItem, ProductItemListReq>(productItemListReq).getWrapper();
+        List<Serializable> productItemIds = productItemRepository.findKey(productItemQueryWrapper);
+
+        if (CollectionUtil.isNotEmpty(productItemIds)) {
+            throw new BusinessException(__("商品规格值已有商品使用，无法删除！"));
+        }
+
+        return remove(specItemId);
     }
 }
