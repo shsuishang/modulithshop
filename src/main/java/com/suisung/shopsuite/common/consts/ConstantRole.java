@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 @Component
 @ToString
 public class ConstantRole {
-    public static Integer ROLE_USER = 0; //用户
-    public static Integer ROLE_SELLER = 2; //商家
-    public static Integer ROLE_CHAIN = 3; //门店
-    public static Integer ROLE_ADMIN = 9; //平台
+    public static int ROLE_USER = 0; //用户
+    public static int ROLE_SELLER = 2; //商家
+    public static int ROLE_CHAIN = 3; //门店
+    public static int ROLE_ADMIN = 9; //平台
 }

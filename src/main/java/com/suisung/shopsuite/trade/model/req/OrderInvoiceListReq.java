@@ -57,6 +57,12 @@ public class OrderInvoiceListReq extends BaseListReq {
     @ApiModelProperty("所属用户")
     private Integer userId;
 
+    @ApiModelProperty("卖家店铺编号")
+    private Integer storeId;
+
+    @ApiModelProperty("门店编号")
+    private Integer chainId;
+
     @ApiModelProperty("电子发票(ENUM):0-纸质发票;1-电子发票")
     private Integer invoiceIsElectronic;
 

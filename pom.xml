@@ -258,7 +258,7 @@
 		<dependency>
 			<groupId>com.suisung.shopsuite</groupId>
 			<artifactId>core</artifactId>
-			<version>1.0.27902</version>
+			<version>1.0.27904</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -314,6 +314,11 @@
 			<groupId>com.getui.push</groupId>
 			<artifactId>restful-sdk</artifactId>
 			<version>1.0.0.6</version>
+		</dependency>
+		<!-- rabbitMQ消息队列 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
 		</dependency>
 		<!-- jsoup	-->
 		<dependency>

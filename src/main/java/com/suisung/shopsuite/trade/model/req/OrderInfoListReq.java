@@ -53,6 +53,9 @@ public class OrderInfoListReq extends BaseListReq {
     @ApiModelProperty("卖家店铺编号")
     private Integer storeId;
 
+    @ApiModelProperty("门店编号")
+    private Integer chainId;
+
     @ApiModelProperty("所属分站:0-总站")
     private Integer subsiteId;
 

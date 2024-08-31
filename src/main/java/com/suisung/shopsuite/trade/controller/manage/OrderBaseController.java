@@ -26,11 +26,15 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.suisung.shopsuite.common.api.ResultCode;
 import com.suisung.shopsuite.common.consts.ConstantLog;
+import com.suisung.shopsuite.common.consts.ConstantRole;
 import com.suisung.shopsuite.common.excel.ExcelUtil;
 import com.suisung.shopsuite.common.exception.BusinessException;
+import com.suisung.shopsuite.common.utils.ContextUtil;
 import com.suisung.shopsuite.common.utils.JSONUtil;
 import com.suisung.shopsuite.common.utils.LogUtil;
+import com.suisung.shopsuite.common.web.ContextUser;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.core.web.model.res.BaseListRes;
@@ -88,6 +92,16 @@ public class OrderBaseController extends BaseController {
     @ApiOperation(value = "订单详细信息", notes = "订单详细信息")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public CommonRes<BaseListRes<OrderVo>> list(OrderInfoListReq orderInfoListReq) {
+        ContextUser user = ContextUtil.getLoginUser();
+
+        if (user == null) {
+            throw new BusinessException(ResultCode.NEED_LOGIN);
+        }
+
+        if (user.getRoleId().intValue() == ConstantRole.ROLE_CHAIN) {
+            orderInfoListReq.setChainId(user.getChainId());
+        }
+
         Page<OrderVo> pageList = orderService.lists(orderInfoListReq);
 
         return success(pageList);

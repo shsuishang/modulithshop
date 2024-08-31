@@ -50,7 +50,7 @@ public class CheckUtil {
     }
 
     public static boolean isNotEmpty(String param) {
-        return param != null && param != "";
+        return StringUtils.isNotEmpty(param);
     }
 
     public static boolean isEmpty(Integer param) {
@@ -74,7 +74,7 @@ public class CheckUtil {
     }
 
     public static boolean isEmpty(String param) {
-        return !isNotEmpty(param);
+        return StringUtils.isEmpty(param);
     }
 
     /**

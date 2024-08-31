@@ -30,6 +30,7 @@ import com.suisung.shopsuite.common.api.StateCode;
 import com.suisung.shopsuite.common.consts.BindConnectCode;
 import com.suisung.shopsuite.common.consts.ConstantJwt;
 import com.suisung.shopsuite.common.consts.ConstantMsg;
+import com.suisung.shopsuite.common.consts.ConstantRole;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.security.JwtSubject;
 import com.suisung.shopsuite.common.security.JwtUtil;
@@ -391,17 +392,17 @@ public class LoginServiceImpl implements LoginService {
         }
 
         //是否为管理员
-        if (input.getRoleId().intValue() != 0) {
+        if (input.getRoleId().intValue() != ConstantRole.ROLE_USER) {
             UserAdmin userAdmin = new UserAdmin();
             userAdmin.setUserId(userId);
             userAdmin.setRoleId(input.getRoleId());
 
-            if (input.getRoleId().intValue() == 9) {
+            if (input.getRoleId().intValue() == ConstantRole.ROLE_ADMIN) {
                 userAdmin.setUserRoleId(1001);
-            } else if (input.getRoleId().intValue() == 3) {
+            } else if (input.getRoleId().intValue() == ConstantRole.ROLE_CHAIN) {
                 userAdmin.setUserRoleId(1003);
                 userAdmin.setChainId(input.getChainId());
-            } else if (input.getRoleId().intValue() == 2) {
+            } else if (input.getRoleId().intValue() == ConstantRole.ROLE_SELLER) {
                 userAdmin.setUserRoleId(1003);
                 userAdmin.setStoreId(input.getStoreId());
             }
@@ -1174,3 +1175,4 @@ public class LoginServiceImpl implements LoginService {
         return val;
     }
 }
+

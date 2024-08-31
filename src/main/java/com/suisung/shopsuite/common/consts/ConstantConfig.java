@@ -31,6 +31,8 @@ public class ConstantConfig {
 
     public static String WEBSOCKET_URL;
 
+    public static String BASE_LANG;
+
     @Value("${url.base}")
     public void setUrlBase(String urlBase) {
         URL_BASE = urlBase;
@@ -70,5 +72,11 @@ public class ConstantConfig {
     @Value("${url.websocket-url}")
     public void setWebsocketUrl(String url) {
         WEBSOCKET_URL = url;
+    }
+
+
+    @Value("${config.base-lang}")
+    public void setBaseLang(String lang) {
+        BASE_LANG = lang;
     }
 }

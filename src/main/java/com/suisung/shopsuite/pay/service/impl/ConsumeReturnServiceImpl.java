@@ -396,7 +396,7 @@ public class ConsumeReturnServiceImpl implements ConsumeReturnService {
                     }
                     // 执行第三方接口退款流程
                     doOnLineRefund(returnId);
-                    return false;
+                    return true;
                 }
             }
 

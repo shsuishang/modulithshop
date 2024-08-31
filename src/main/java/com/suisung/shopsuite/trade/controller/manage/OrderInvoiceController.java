@@ -22,6 +22,11 @@ package com.suisung.shopsuite.trade.controller.manage;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.convert.Convert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.suisung.shopsuite.common.api.ResultCode;
+import com.suisung.shopsuite.common.consts.ConstantRole;
+import com.suisung.shopsuite.common.exception.BusinessException;
+import com.suisung.shopsuite.common.utils.ContextUtil;
+import com.suisung.shopsuite.common.web.ContextUser;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.core.web.model.res.BaseListRes;
@@ -58,6 +63,16 @@ public class OrderInvoiceController extends BaseController {
     @ApiOperation(value = "订单发票管理表-分页列表查询", notes = "订单发票管理表-分页列表查询")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public CommonRes<BaseListRes<OrderInvoice>> list(OrderInvoiceListReq orderInvoiceListReq) {
+        ContextUser user = ContextUtil.getLoginUser();
+
+        if (user == null) {
+            throw new BusinessException(ResultCode.NEED_LOGIN);
+        }
+
+        if (user.getRoleId().intValue() == ConstantRole.ROLE_CHAIN) {
+            orderInvoiceListReq.setChainId(user.getChainId());
+        }
+
         IPage<OrderInvoice> pageList = orderInvoiceService.lists(orderInvoiceListReq);
 
         return success(pageList);

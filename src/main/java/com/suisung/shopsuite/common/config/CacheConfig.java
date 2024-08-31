@@ -1,5 +1,6 @@
 package com.suisung.shopsuite.common.config;
 
+import com.suisung.shopsuite.core.config.BaseRedisConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,7 +21,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableConfigurationProperties(CacheProperties.class)
 @Configuration
 @EnableCaching
-public class CacheConfig {
+public class CacheConfig extends BaseRedisConfig {
 
     @Autowired
     CacheProperties cacheProperties;
