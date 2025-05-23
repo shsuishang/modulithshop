@@ -73,7 +73,7 @@ public class UserAdminController extends BaseController {
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public CommonRes<?> add(UserAdminEditReq userAdminEditReq) {
         UserAdmin userAdmin = BeanUtil.copyProperties(userAdminEditReq, UserAdmin.class);
-        boolean success = userAdminService.add(userAdmin);
+        boolean success = userAdminService.updateAdmin(userAdmin);
 
         if (success) {
             return success();
@@ -87,7 +87,7 @@ public class UserAdminController extends BaseController {
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     public CommonRes<?> edit(UserAdminEditReq userAdminEditReq) {
         UserAdmin userAdmin = BeanUtil.copyProperties(userAdminEditReq, UserAdmin.class);
-        boolean success = userAdminService.edit(userAdmin);
+        boolean success = userAdminService.updateAdmin(userAdmin);
 
         if (success) {
             return success();

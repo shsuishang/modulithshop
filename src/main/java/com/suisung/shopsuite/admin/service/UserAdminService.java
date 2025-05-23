@@ -32,4 +32,11 @@ import com.suisung.shopsuite.core.web.service.IBaseService;
  * @since 2022-12-22
  */
 public interface UserAdminService extends IBaseService<UserAdmin, UserAdminListReq> {
+
+    /**
+     * 管理员表-添加/编辑
+     * @param userAdmin
+     * @return
+     */
+    boolean updateAdmin(UserAdmin userAdmin);
 }

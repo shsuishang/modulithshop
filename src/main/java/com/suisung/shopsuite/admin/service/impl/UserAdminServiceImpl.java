@@ -19,6 +19,8 @@
 // +----------------------------------------------------------------------
 package com.suisung.shopsuite.admin.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.suisung.shopsuite.admin.model.entity.UserAdmin;
 import com.suisung.shopsuite.admin.model.req.UserAdminListReq;
 import com.suisung.shopsuite.admin.repository.UserAdminRepository;
@@ -28,6 +30,7 @@ import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.util.List;
 
 import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 
@@ -52,4 +55,12 @@ public class UserAdminServiceImpl extends BaseServiceImpl<UserAdminRepository, U
         return super.remove(userId);
     }
 
+    @Override
+    public boolean updateAdmin(UserAdmin userAdmin) {
+        if (!repository.saveOrUpdate(userAdmin)) {
+            throw new BusinessException(__("修改管理员信息失败！"));
+        }
+
+        return true;
+    }
 }

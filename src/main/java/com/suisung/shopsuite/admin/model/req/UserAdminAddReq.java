@@ -45,7 +45,7 @@ public class UserAdminAddReq implements Serializable {
     @ApiModelProperty("权限角色")
     private Integer userRoleId;
 
-    @ApiModelProperty("角色编号(ENUM):0-用户;2-商家;3-门店;9-平台;")
+    @ApiModelProperty("角色编号(ENUM):0-用户;2-商家;3-门店;8-租户;9-平台;")
     private Integer roleId;
 
     @ApiModelProperty("门店编号")
