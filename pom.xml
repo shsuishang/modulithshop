@@ -19,7 +19,7 @@
 		<docker.host>https://101.133.142.46:2375</docker.host>
 		<docker.maven.plugin.version>1.2.2</docker.maven.plugin.version>
 		<!-- Docker 远程管理地址全局end-->
-		<ijapy.version>2.9.6</ijapy.version>
+		<ijapy.version>2.9.12.1</ijapy.version>
 	</properties>
 	<dependencies>
 		<!-- spring-boot-devtools -->
@@ -69,6 +69,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.32</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- mysql -->
@@ -258,7 +259,7 @@
 		<dependency>
 			<groupId>com.suisung.shopsuite</groupId>
 			<artifactId>core</artifactId>
-			<version>1.0.27904</version>
+			<version>1.0.27905</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
