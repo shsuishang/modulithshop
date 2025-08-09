@@ -99,7 +99,11 @@ public class DeliveryAddressController extends BaseController {
         Integer userId = ContextUtil.checkLoginUserId();
 
         UserDeliveryAddress userDeliveryAddress = BeanUtil.copyProperties(userDeliveryAddressEditReq, UserDeliveryAddress.class);
-        userDeliveryAddress.setUserId(userId);
+
+        if (CheckUtil.isEmpty(userDeliveryAddress.getUserId())) {
+            userDeliveryAddress.setUserId(userId);
+        }
+
         boolean success = userDeliveryAddressService.saveDeliveryAddress(userDeliveryAddress);
 
         if (success) {
@@ -153,6 +157,15 @@ public class DeliveryAddressController extends BaseController {
         }
 
         return fail();
+    }
+
+    @ApiOperation(value = "代客下单用户地址", notes = "代客下单用户地址")
+    @RequestMapping(value = "/getByUserId", method = RequestMethod.GET)
+    public CommonRes<List<UserDeliveryAddress>> getByUserId(@RequestParam("user_id") Integer user_id) {
+        Integer sale_id = ContextUtil.checkLoginUserId();
+        List<UserDeliveryAddress> lists = userDeliveryAddressService.getByUserId(sale_id, user_id);
+
+        return success(lists);
     }
 }
 

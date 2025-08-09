@@ -21,16 +21,27 @@ package com.suisung.shopsuite.account.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suisung.shopsuite.account.model.entity.UserDeliveryAddress;
+import com.suisung.shopsuite.account.model.entity.UserInfo;
 import com.suisung.shopsuite.account.model.req.UserDeliveryAddressListReq;
 import com.suisung.shopsuite.account.repository.UserDeliveryAddressRepository;
+import com.suisung.shopsuite.account.repository.UserInfoRepository;
 import com.suisung.shopsuite.account.service.UserDeliveryAddressService;
+import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.utils.CheckUtil;
+import com.suisung.shopsuite.core.consts.Constants;
+import com.suisung.shopsuite.core.web.model.BaseOrder;
 import com.suisung.shopsuite.core.web.service.impl.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 
 /**
  * <p>
@@ -45,6 +56,9 @@ public class UserDeliveryAddressServiceImpl extends BaseServiceImpl<UserDelivery
 
     @Autowired
     private UserDeliveryAddressRepository deliveryAddressRepository;
+
+    @Autowired
+    private UserInfoRepository userInfoRepository;
 
     @Override
     public boolean saveDeliveryAddress(UserDeliveryAddress userDeliveryAddress) {
@@ -67,5 +81,24 @@ public class UserDeliveryAddressServiceImpl extends BaseServiceImpl<UserDelivery
         }
 
         return save(userDeliveryAddress);
+    }
+
+    @Override
+    public List<UserDeliveryAddress> getByUserId(Integer saleId, Integer userId) {
+        QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
+        userInfoQueryWrapper.eq("user_sale_id", saleId);
+        userInfoQueryWrapper.eq("user_id", userId);
+
+        List<Serializable> key = userInfoRepository.findKey(userInfoQueryWrapper);
+
+        if (CollectionUtil.isEmpty(key)) {
+            throw new BusinessException(__("销售员与用户不匹配！"));
+        }
+        QueryWrapper<UserDeliveryAddress> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.orderByDesc("ud_is_default");
+        queryWrapper.orderByDesc("ud_time");
+
+        return find(queryWrapper);
     }
 }

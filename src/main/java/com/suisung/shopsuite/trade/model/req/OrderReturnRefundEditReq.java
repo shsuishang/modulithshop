@@ -17,37 +17,36 @@
 // | 附带或衍生的损失等)，本团队不承担任何法律责任，本软件框架只能用于公司和个人内部的
 // | 法律所允许的合法合规的软件产品研发，详细见https://www.modulithshop.cn/policy
 // +----------------------------------------------------------------------
-package com.suisung.shopsuite.account.service;
+package com.suisung.shopsuite.trade.model.req;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.suisung.shopsuite.account.model.entity.UserDeliveryAddress;
-import com.suisung.shopsuite.account.model.req.UserDeliveryAddressListReq;
-import com.suisung.shopsuite.core.web.service.IBaseService;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * <p>
- * 用户地址表 服务类
+ * 退货退款-修改退款总额
  * </p>
- *
- * @author Xinze
- * @since 2018-07-04
  */
-public interface UserDeliveryAddressService extends IBaseService<UserDeliveryAddress, UserDeliveryAddressListReq> {
+@Data
+@EqualsAndHashCode(callSuper = false)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@ApiModel(description = "退货退款-修改退款总额")
+public class OrderReturnRefundEditReq implements Serializable {
 
-    /**
-     * 用户地址表-保存/编辑
-     * @param userDeliveryAddress
-     * @return
-     */
-    boolean saveDeliveryAddress(UserDeliveryAddress userDeliveryAddress);
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * 代客下单用户地址
-     * @param saleId
-     * @param userId
-     * @return
-     */
-    List<UserDeliveryAddress> getByUserId(Integer saleId, Integer userId);
+    @ApiModelProperty("退单号")
+    @NotNull(message = "退单号不能为空")
+    private String returnId;
+
+    @ApiModelProperty("退款金额")
+    @NotNull(message = "退款金额不能为空")
+    private BigDecimal returnRefundAmount;
 }

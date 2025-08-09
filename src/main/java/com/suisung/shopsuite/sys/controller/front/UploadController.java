@@ -1,12 +1,16 @@
 package com.suisung.shopsuite.sys.controller.front;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.getui.push.v2.sdk.common.ApiException;
+import com.suisung.shopsuite.common.api.ResultCode;
 import com.suisung.shopsuite.common.consts.ConstantLog;
 import com.suisung.shopsuite.common.consts.ConstantUpload;
 import com.suisung.shopsuite.common.exception.BusinessException;
 import com.suisung.shopsuite.common.pojo.dto.UploadDto;
 import com.suisung.shopsuite.common.utils.*;
+import com.suisung.shopsuite.common.web.ContextUser;
 import com.suisung.shopsuite.core.web.CommonRes;
 import com.suisung.shopsuite.core.web.controller.BaseController;
 import com.suisung.shopsuite.sys.model.entity.MaterialBase;
@@ -29,8 +33,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
+import static com.suisung.shopsuite.common.utils.ContextUtil.getLoginUser;
 import static com.suisung.shopsuite.common.utils.I18nUtil.__;
 import static com.suisung.shopsuite.common.utils.UploadUtil.*;
 
@@ -64,6 +70,11 @@ public class UploadController extends BaseController {
         try {
             File upload;
             String dir;
+
+            if (ObjectUtil.isEmpty(upfile)) {
+                throw new BusinessException(ResultCode.FAILED);
+            }
+
             InputStream inputStream = upfile.getInputStream();
 
             String originalFilename = upfile.getOriginalFilename();
@@ -112,8 +123,24 @@ public class UploadController extends BaseController {
 
             String originalName = upfile.getOriginalFilename();
 
+            String materialDuration = "";
+            try {
+                materialDuration = VideoUtil.getFormatDuration(absolutePath);
+            } catch (IOException e) {
+                throw new ApiException(String.format("解析音视频时长异常！url【%s】", absolutePath));
+            }
+
             MaterialBase result = new MaterialBase();
             result.setUserId(ContextUtil.getLoginUserId());
+
+            ContextUser loginUser = getLoginUser();
+
+            if (loginUser != null) {
+                result.setStoreId(loginUser.getStoreId());
+            } else {
+                result.setStoreId(0);
+            }
+
             result.setMaterialName(StrUtil.isBlank(originalName) ? upload.getName() : originalName);
             result.setMaterialAlt(result.getMaterialName());
             result.setMaterialSize(upload.length());
@@ -123,6 +150,7 @@ public class UploadController extends BaseController {
             result.setMaterialUrl(requestURL + "/" + path);
             String contentType = UploadUtil.getContentType(upload);
             result.setMaterialMimeType(contentType);
+            result.setMaterialDuration(materialDuration);
 
             if (UploadUtil.isImage(contentType)) {
                 //result.setThumbnail(requestURL + "/thumbnail/" + path);
@@ -138,6 +166,7 @@ public class UploadController extends BaseController {
             uploadRes.setFileType(result.getMaterialType());
             uploadRes.setMimeType(result.getMaterialMimeType());
             uploadRes.setFileUrl(result.getMaterialUrl());
+            uploadRes.setMaterialDuration(materialDuration);
 
             //oss文件上传网址
             Integer uploadType = configBaseService.getConfig("upload_type", 0);
@@ -146,6 +175,7 @@ public class UploadController extends BaseController {
                 if (CheckUtil.isNotEmpty(materialBaseUploadReq.getMaterialKey())) {
                     if (materialBaseUploadReq.getMaterialKey().equals("wechat_pay_apiclient_cert")
                             || materialBaseUploadReq.getMaterialKey().equals("wechat_pay_apiclient_key")
+                            || materialBaseUploadReq.getMaterialKey().equals("wechat_pay_public_key")
                             || materialBaseUploadReq.getMaterialKey().equals("alipay_app_cert_path")
                             || materialBaseUploadReq.getMaterialKey().equals("alipay_cert_path")
                             || materialBaseUploadReq.getMaterialKey().equals("alipay_root_cert_path")) {
