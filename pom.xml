@@ -277,6 +277,11 @@
 			<artifactId>IJPay-AliPay</artifactId>
 			<version>${ijapy.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.javen205</groupId>
+			<artifactId>IJPay-PayPal</artifactId>
+			<version>${ijapy.version}</version>
+		</dependency>
 		<!-- 二维码生成 -->
 		<dependency>
 			<groupId>com.google.zxing</groupId>
@@ -327,6 +332,11 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.8.3</version>
 		</dependency>
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>5.3</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<!--开发环境 -->
@@ -336,7 +346,7 @@
 				<profiles.active>local</profiles.active>
 			</properties>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 		</profile>
 		<profile>
