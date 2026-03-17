@@ -548,6 +548,25 @@ public class ProductIndexServiceImpl extends BaseServiceImpl<ProductIndexReposit
             productItemListReq.setItemId(null);
         }
 
+        // 防止sql注入
+        if (StrUtil.isNotBlank(productItemListReq.getSidx())) {
+            String sidx = productItemListReq.getSidx();
+            sidx = sidx.replace("`", "");
+
+            if (CheckUtil.hasField(ProductItem.class, sidx)) {
+                productItemListReq.setSidx(sidx);
+
+                if ("DESC".equals(productItemListReq.getSort())) {
+                    productItemListReq.setSort("DESC");
+                } else {
+                    productItemListReq.setSort("ASC");
+                }
+            } else {
+                productItemListReq.setSidx("");
+                productItemListReq.setSort("DESC");
+            }
+        }
+
         IPage<Long> lists = productItemRepository.listItemKey(new Page<>(productItemListReq.getPage(), productItemListReq.getSize()), productItemListReq);
         List<Long> itemIds = lists.getRecords();
 
