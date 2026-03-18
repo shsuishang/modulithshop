@@ -63,7 +63,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 List<MenuBase> authorities = new ArrayList<>();
 
                 //处理 clientId
-                if (request.getRequestURI().startsWith("/manage")) {
+                String servletPath = request.getServletPath();
+                if (servletPath != null && servletPath.startsWith("/manage")) {
+
                     user.setClientId(1);
 
                     authorities = user.getAuthorities().stream()
@@ -73,8 +75,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     if (ConstantConfig.URL_BASE.equals("https://demo.modulithshop.cn")) {
                         if (!user.getUserId().equals(10001)) {
                             if (request.getMethod().equals("POST")) {
-                                CommonUtil.responseError(response, 250, __("演示系统，不可更改！"), 0, "");
-                                return;
+                                    CommonUtil.responseError(response, 250, __("演示系统，不可更改！"), 0, "");
+                                    return;
                             }
                         }
                     }

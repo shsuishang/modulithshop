@@ -72,6 +72,7 @@ public class MenuBaseController extends BaseController {
         return success(pageList);
     }
 
+    @PreAuthorize("hasAuthority('/manage/admin/menu/add')")
     @ApiOperation(value = "系统菜单表-添加", notes = "系统菜单表-添加")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public CommonRes<?> add(MenuBaseAddReq menuBaseAddReq) {
@@ -86,6 +87,7 @@ public class MenuBaseController extends BaseController {
     }
 
 
+    @PreAuthorize("hasAuthority('/manage/admin/menu/edit')")
     @ApiOperation(value = "系统菜单表-编辑", notes = "系统菜单表-编辑")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     public CommonRes<?> edit(MenuBaseEditReq menuBaseEditReq) {
@@ -99,6 +101,7 @@ public class MenuBaseController extends BaseController {
         return fail();
     }
 
+    @PreAuthorize("hasAuthority('/manage/admin/menu/remove')")
     @ApiOperation(value = "系统菜单表-通过menu_id删除", notes = "系统菜单表-通过menu_id删除")
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public CommonRes<?> remove(@RequestParam("menu_id") Integer menuId) {
